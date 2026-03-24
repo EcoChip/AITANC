@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aitanc Hub | Mis Herramientas</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+        }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .header { text-align: center; margin-bottom: 50px; }
+        .header h1 { font-size: 2.5rem; margin-bottom: 10px; background: linear-gradient(90deg, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            width: 100%;
+            max-width: 1100px;
+        }
+        .card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s ease;
+            border: 1px solid #334155;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .card:hover {
+            transform: translateY(-8px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px -10px rgba(99, 102, 241, 0.4);
+        }
+        .icon { font-size: 3rem; margin-bottom: 15px; }
+        .card h3 { margin: 10px 0; font-size: 1.4rem; }
+        .card p { font-size: 0.95rem; color: #94a3b8; text-align: center; line-height: 1.5; }
+        
+        .badge {
+            background: rgba(99, 102, 241, 0.2);
+            color: #818cf8;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Aitanc Tool Hub</h1>
+        <p>Acceso rápido a mis proyectos y utilidades personalizadas</p>
+    </div>
+    
+    <div class="grid">
+        <!-- El Contador -->
+        <a href="/hub/elcontador/" class="card">
+            <span class="icon">🔢</span>
+            <h3>El Contador</h3>
+            <p>Herramienta de conteo y métricas rápidas para uso diario.</p>
+            <span class="badge">Activo</span>
+        </a>
+
+        <!-- OpenGemini -->
+        <a href="/hub/opengemini/" class="card">
+            <span class="icon">💎</span>
+            <h3>OpenGemini</h3>
+            <p>Cliente ligero para interactuar con la API de Google Gemini.</p>
+            <span class="badge">Activo</span>
+        </a>
+
+        <!-- Raspberry -->
+        <a href="/hub/raspberry/" class="card">
+            <span class="icon">🍓</span>
+            <h3>Raspberry Control</h3>
+            <p>Panel de monitorización para servidores locales y domótica.</p>
+            <span class="badge">Activo</span>
+        </a>
+
+        <!-- Espacio para añadir más -->
+        <a href="#" class="card" style="border-style: dashed; opacity: 0.6;">
+            <span class="icon">➕</span>
+            <h3>Nueva Web</h3>
+            <p>Añade una nueva carpeta en /hub/ para que aparezca aquí.</p>
+        </a>
+    </div>
+
+</body>
+</html>
