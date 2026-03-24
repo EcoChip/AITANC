@@ -3,47 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AITANC Prime | Acceso Cliente</title>
+    <title>AITANC Prime | Panel de Control</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #050505; --primary: #007bff; --text: #fff; }
-        body { font-family: sans-serif; background: var(--bg); color: var(--text); display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .auth-card { background: #0f0f0f; padding: 40px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); width: 100%; max-width: 400px; text-align: center; }
+        :root { --bg: #050505; --card: #0f0f0f; --primary: #007bff; --text: #fff; --border: rgba(255,255,255,0.05); }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); margin: 0; overflow-x: hidden; }
+        
+        /* Pantalla de Login */
+        #auth-section { display: flex; align-items: center; justify-content: center; height: 100vh; flex-direction: column; }
+        .auth-card { background: var(--card); padding: 40px; border-radius: 20px; border: 1px solid var(--border); width: 320px; text-align: center; }
         input { width: 100%; padding: 12px; margin: 10px 0; background: #1a1a1a; border: 1px solid #333; color: white; border-radius: 8px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: var(--primary); border: none; color: white; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        #dashboard { display: none; padding: 20px; } /* Se ocultará hasta loguear */
+        .btn-auth { width: 100%; padding: 12px; background: var(--primary); border: none; color: white; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        
+        /* Dashboard (Oculto al inicio) */
+        #dashboard { display: none; height: 100vh; }
+        .sidebar { width: 260px; border-right: 1px solid var(--border); padding: 40px 20px; position: fixed; height: 100%; }
+        .main-content { margin-left: 300px; padding: 60px; }
+        .upload-area { border: 2px dashed var(--border); border-radius: 20px; padding: 60px; text-align: center; background: var(--card); margin-bottom: 40px; }
+        .results-table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 15px; overflow: hidden; }
+        .results-table th, .results-table td { padding: 20px; text-align: left; border-bottom: 1px solid var(--border); }
+        .status-badge { color: #2ecc71; background: rgba(46,204,113,0.1); padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
-    <div id="auth-section" class="auth-card">
-        <h2>AITANC Prime</h2>
-        <p style="color: #888;">Acceso exclusivo para navieras y aduanas</p>
-        <input type="email" id="email" placeholder="Email corporativo">
-        <input type="password" id="password" placeholder="Contraseña">
-        <button onclick="signIn()">Entrar al Panel</button>
-        <p id="msg" style="font-size: 0.8rem; color: #ff4444;"></p>
+    <div id="auth-section">
+        <div class="auth-card">
+            <h2 style="margin-top:0">AITANC Prime</h2>
+            <p style="color:#888; font-size:0.9rem">Ingrese sus credenciales de acceso</p>
+            <input type="email" id="email" placeholder="Email corporativo">
+            <input type="password" id="password" placeholder="Contraseña">
+            <button class="btn-auth" onclick="signIn()">Acceder al Sistema</button>
+            <p id="msg" style="font-size: 0.8rem; color: #ff4444; margin-top:15px;"></p>
+        </div>
     </div>
 
     <div id="dashboard">
-        <h1>Bienvenido al Motor AITANC</h1>
-        <p>Tu sesión está activa.</p>
-        <button onclick="signOut()" style="width: auto; background: #333;">Cerrar Sesión</button>
+        <div class="sidebar">
+            <div style="font-size: 1.5rem; font-weight: 700; margin-bottom: 40px;">AITANC</div>
+            <p style="color:var(--primary)">📥 Procesar Facturas</p>
+            <p style="color:#888">📊 Historial</p>
+            <p style="color:#888; margin-top:200px; cursor:pointer" onclick="signOut()">Cerrar Sesión</p>
         </div>
 
+        <div class="main-content">
+            <h1>Panel de Control Prime</h1>
+            <div class="upload-area">
+                <h2>Subir Factura Aduanera</h2>
+                <p style="color:#888">Arrastre aquí el PDF o imagen (Máx 10MB)</p>
+                <button class="btn-auth" style="width:auto; padding: 10px 30px;" onclick="procesarIA()">Analizar con IA</button>
+            </div>
+
+            <h3>Últimos Procesamientos</h3>
+            <table class="results-table">
+                <thead>
+                    <tr><th>Archivo</th><th>Fecha</th><th>Estado</th><th>Precisión</th></tr>
+                </thead>
+                <tbody id="historial">
+                    <tr><td>Demo_Invoice.pdf</td><td>Hoy</td><td><span class="status-badge">Listo</span></td><td>99.9%</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
     <script>
-        // CONFIGURACIÓN (Pega aquí tus datos de Supabase)
-        const SUPABASE_URL = 'TU_URL_AQUI';
-        const SUPABASE_KEY = 'TU_ANON_KEY_AQUI';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // CONEXIÓN INYECTADA
+        const SUPABASE_URL = 'https://edavyngnkgruskvfdjyx.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkYXZ5bmdua2dydXNrdmZkanl4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzNzMzMzYsImV4cCI6MjA4OTk0OTMzNn0.Nt45xdKnrg9sc9fxRqGRgaDNOhidShfVxsUmxsBIX4s';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         async function signIn() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
             if (error) {
-                document.getElementById('msg').innerText = "Error: " + error.message;
+                document.getElementById('msg').innerText = "Acceso denegado: " + error.message;
             } else {
                 showDashboard();
             }
@@ -55,9 +91,22 @@
         }
 
         async function signOut() {
-            await supabase.auth.signOut();
+            await supabaseClient.auth.signOut();
             location.reload();
         }
+
+        function procesarIA() {
+            alert('Conectando con Gemini 1.5 Flash... El motor estará listo en el próximo paso.');
+        }
+
+        // Verificar si ya hay sesión activa al cargar
+        window.onload = async () => {
+            const { data } = await supabaseClient.auth.getSession();
+            if (data.session) showDashboard();
+        };
+    </script>
+</body>
+</html>
     </script>
 </body>
 </html>
