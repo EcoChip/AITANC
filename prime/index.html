@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AITANC Prime | Acceso Cliente</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --bg: #050505; --primary: #007bff; --text: #fff; }
+        body { font-family: sans-serif; background: var(--bg); color: var(--text); display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .auth-card { background: #0f0f0f; padding: 40px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); width: 100%; max-width: 400px; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 10px 0; background: #1a1a1a; border: 1px solid #333; color: white; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: var(--primary); border: none; color: white; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        #dashboard { display: none; padding: 20px; } /* Se ocultará hasta loguear */
+    </style>
+</head>
+<body>
+
+    <div id="auth-section" class="auth-card">
+        <h2>AITANC Prime</h2>
+        <p style="color: #888;">Acceso exclusivo para navieras y aduanas</p>
+        <input type="email" id="email" placeholder="Email corporativo">
+        <input type="password" id="password" placeholder="Contraseña">
+        <button onclick="signIn()">Entrar al Panel</button>
+        <p id="msg" style="font-size: 0.8rem; color: #ff4444;"></p>
+    </div>
+
+    <div id="dashboard">
+        <h1>Bienvenido al Motor AITANC</h1>
+        <p>Tu sesión está activa.</p>
+        <button onclick="signOut()" style="width: auto; background: #333;">Cerrar Sesión</button>
+        </div>
+
+    <script>
+        // CONFIGURACIÓN (Pega aquí tus datos de Supabase)
+        const SUPABASE_URL = 'TU_URL_AQUI';
+        const SUPABASE_KEY = 'TU_ANON_KEY_AQUI';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function signIn() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+            if (error) {
+                document.getElementById('msg').innerText = "Error: " + error.message;
+            } else {
+                showDashboard();
+            }
+        }
+
+        function showDashboard() {
+            document.getElementById('auth-section').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+        }
+
+        async function signOut() {
+            await supabase.auth.signOut();
+            location.reload();
+        }
+    </script>
+</body>
+</html>
