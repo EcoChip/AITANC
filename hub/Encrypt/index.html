@@ -2,68 +2,82 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Mini Enigma Machine</title>
+    <title>Enigma Master 3000</title>
     <style>
-        body { font-family: 'Courier New', Courier, monospace; background: #222; color: #0f0; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .machine { background: #333; border: 5px solid #555; padding: 20px; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.5); width: 400px; }
-        h1 { text-align: center; color: #aaa; text-transform: uppercase; letter-spacing: 5px; }
-        .setting { margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; color: #fff; }
-        input[type="number"] { width: 50px; background: #444; border: 1px solid #0f0; color: #0f0; padding: 5px; }
-        textarea { width: 100%; height: 100px; background: #111; color: #0f0; border: 1px solid #0f0; padding: 10px; box-sizing: border-box; resize: none; font-size: 1.2rem; }
-        .info { margin-top: 15px; font-size: 0.8rem; color: #888; }
-        .light { color: yellow; font-weight: bold; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1a1a1a; color: #e0e0e0; display: flex; justify-content: center; padding: 20px; }
+        .machine { background: #2d2d2d; border: 2px solid #444; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 450px; }
+        h2 { text-align: center; color: #00ff88; text-transform: uppercase; margin-top: 0; }
+        .field { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; font-size: 0.9rem; color: #aaa; }
+        input, textarea { width: 100%; padding: 12px; background: #1a1a1a; border: 1px solid #444; color: #00ff88; border-radius: 8px; box-sizing: border-box; font-family: monospace; }
+        textarea { height: 80px; resize: none; font-size: 1.1rem; }
+        .btn-copy { background: #00ff88; color: #1a1a1a; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; transition: 0.3s; }
+        .btn-copy:hover { background: #00cc6e; }
+        .key-info { font-size: 0.8rem; color: #777; margin-top: 10px; text-align: center; }
     </style>
 </head>
 <body>
 
-<h1>ENIGMA M4</h1>
-
 <div class="machine">
-    <div class="setting">
-        <span>POSICIÓN ROTOR (CLAVE):</span>
-        <input type="number" id="rotor" value="1" min="1" max="26">
+    <h2>Enigma Ultra</h2>
+    
+    <div class="field">
+        <label>🔑 PALABRA CLAVE (La clave secreta):</label>
+        <input type="text" id="masterKey" oninput="cifrar()" placeholder="Ej: MANZANA77">
     </div>
 
-    <p>ENTRADA (Escribe tu mensaje):</p>
-    <textarea id="input" oninput="cifrar()" placeholder="ESCRIBE AQUÍ..."></textarea>
-
-    <p>SALIDA (Resultado):</p>
-    <textarea id="output" readonly></textarea>
-
-    <div class="info">
-        * Al igual que la Enigma real, la misma configuración sirve para <b>cifrar</b> y <b>descifrar</b>. <br><br>
-        * <span class="light">REGLA DE ORO:</span> Si tu amigo no tiene el mismo número de rotor, solo verá basura.
+    <div class="field">
+        <label>📥 MENSAJE ORIGINAL / CIFRADO:</label>
+        <textarea id="input" oninput="cifrar()" placeholder="Escribe aquí..."></textarea>
     </div>
+
+    <div class="field">
+        <label>📤 RESULTADO:</label>
+        <textarea id="output" readonly></textarea>
+        <button class="btn-copy" onclick="copiar()">📋 COPIAR RESULTADO</button>
+    </div>
+
+    <p class="key-info">Comparte la <b>Palabra Clave</b> por separado para que el receptor pueda leer el mensaje.</p>
 </div>
 
 <script>
-    const alfabeto = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ ";
+    const alfabeto = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ0123456789 .,!?;:()@#+-*/=";
     
     function cifrar() {
-        const rotorPos = parseInt(document.getElementById('rotor').value);
+        const key = document.getElementById('masterKey').value.toUpperCase() || "A";
         const input = document.getElementById('input').value.toUpperCase();
         let resultado = "";
+
+        // Generamos un "valor de semilla" basado en la palabra clave
+        let keySum = 0;
+        for(let i=0; i<key.length; i++) keySum += alfabeto.indexOf(key[i]);
 
         for (let i = 0; i < input.length; i++) {
             let char = input[i];
             let index = alfabeto.indexOf(char);
 
             if (index === -1) {
-                resultado += char; // Mantener caracteres raros
+                resultado += char;
                 continue;
             }
 
-            // Simulación de paso por rotor y reflector simple
-            // La clave "mueve" el alfabeto de forma dinámica
-            let shift = (index + rotorPos + i) % alfabeto.length;
-            let charCifrado = alfabeto[shift];
+            // Algoritmo de desplazamiento dinámico basado en la clave y la posición
+            let shift = (index + keySum + (key.length * i)) % alfabeto.length;
             
-            // Simulación de Reflector (vuelve el mensaje sobre sí mismo)
+            // Efecto Reflector (hace que cifrar y descifrar sea el mismo proceso)
             let reflectorIndex = (alfabeto.length - 1) - shift;
+            if (reflectorIndex < 0) reflectorIndex += alfabeto.length;
+            
             resultado += alfabeto[reflectorIndex];
         }
-
         document.getElementById('output').value = resultado;
+    }
+
+    function copiar() {
+        const copyText = document.getElementById("output");
+        copyText.select();
+        document.execCommand("copy");
+        alert("¡Copiado al portapapeles!");
     }
 </script>
 
