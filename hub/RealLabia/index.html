@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RealLabia 🔱 | Camino al Unreal</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,700;0,900;1,900&display=swap');
+
+        :root {
+            --bg-color: #0d0f12;
+            --text-color: #e0e6ed;
+            --accent-gold: #ffd700;
+            --accent-blue: #00f0ff;
+            --rank-unranked: #808080;
+            --rank-bronce: #cd7f32;
+            --rank-plata: #c0c0c0;
+            --rank-oro: #ffd700;
+            --rank-platino: #e5e4e2;
+            --rank-diamante: #b9f2ff;
+            --rank-elite: #ff0055;
+            --rank-unreal: #cc00ff;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3 {
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px var(--accent-blue);
+        }
+
+        .pl-counter {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--accent-gold);
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            margin: 10px 0;
+        }
+
+        /* Camino de Titanes */
+        .titans-path {
+            width: 100%;
+            max-width: 800px;
+            background: #1a1d24;
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid #333;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .rank-list {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .rank-list::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #333;
+            z-index: -1;
+            transform: translateY(-50%);
+        }
+
+        .rank-item {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #1a1d24;
+            border: 3px solid #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .rank-item.active {
+            transform: scale(1.3);
+            box-shadow: 0 0 15px currentColor;
+        }
+
+        .rank-item.completed {
+            background: currentColor;
+            color: #000;
+        }
+
+        .current-rank-display {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-top: 15px;
+            font-weight: 900;
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        .global-league {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: #666;
+            font-style: italic;
+        }
+
+        /* Secciones */
+        .section-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .panel {
+            background: #1a1d24;
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        textarea, input {
+            width: 95%;
+            background: #0d0f12;
+            color: #fff;
+            border: 1px solid #444;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: inherit;
+            margin-bottom: 15px;
+            resize: none;
+        }
+
+        textarea:focus, input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+        }
+
+        button {
+            background: linear-gradient(45deg, #00f0ff, #0055ff);
+            color: #fff;
+            border: none;
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 240, 255, 0.4);
+        }
+
+        button.gold-btn {
+            background: linear-gradient(45deg, #ffd700, #ff8c00);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        button.danger-btn {
+            background: linear-gradient(45deg, #ff0055, #aa0000);
+            margin-top: 20px;
+        }
+
+        .missions-box {
+            background: #0d0f12;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 1px solid #444;
+            min-height: 100px;
+        }
+
+        .mission-item {
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+            font-size: 0.9rem;
+        }
+
+        .mission-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        /* Animaciones Épicas */
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .epic-text {
+            font-size: 4rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            opacity: 0;
+            transform: scale(0.5);
+        }
+
+        .aura-explode {
+            animation: auraExplosion 3s forwards;
+        }
+
+        @keyframes auraExplosion {
+            0% { opacity: 0; transform: scale(0.5); text-shadow: 0 0 0px #fff; }
+            50% { opacity: 1; transform: scale(1.2); text-shadow: 0 0 50px currentColor; }
+            100% { opacity: 1; transform: scale(1); text-shadow: 0 0 20px currentColor; }
+        }
+
+        .unreal-animation {
+            animation: unrealEpic 5s forwards;
+        }
+
+        @keyframes unrealEpic {
+            0% { opacity: 0; filter: blur(10px); }
+            20% { opacity: 1; filter: blur(0px); text-shadow: 0 0 20px #cc00ff; transform: scale(1.1); }
+            40% { transform: scale(1); color: #fff; text-shadow: 0 0 50px #00f0ff; }
+            60% { transform: scale(1.2); color: #ffd700; text-shadow: 0 0 100px #ffd700; }
+            80% { transform: scale(1); color: #ff0055; text-shadow: 0 0 50px #ff0055; }
+            100% { opacity: 1; color: #cc00ff; text-shadow: 0 0 30px #cc00ff, 0 0 60px #00f0ff; }
+        }
+
+        .particles {
+            position: absolute;
+            width: 100%; height: 100%;
+            background: radial-gradient(circle, transparent 20%, #000 100%);
+            z-index: -1;
+        }
+
+        @media (max-width: 768px) {
+            .section-grid { grid-template-columns: 1fr; }
+            .rank-list { flex-wrap: wrap; justify-content: center; gap: 10px; }
+            .rank-list::before { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>RealLabia 🔱</h1>
+        <p>Dashboard de Operaciones | Estatus de Socio</p>
+        <div class="pl-counter" id="pl-display">0 PL</div>
+    </div>
+
+    <div class="titans-path">
+        <h3>Camino de Titanes</h3>
+        <div class="rank-list" id="rank-visuals">
+            </div>
+        <div class="current-rank-display" id="current-rank-text">UNRANKED</div>
+        <div class="global-league" id="global-league-text">Acceso a Liga Global: Bloqueado (Requiere Unreal)</div>
+    </div>
+
+    <div class="section-grid">
+        <div class="panel">
+            <h3>📝 Diario de Guerra (Hitos de Hoy)</h3>
+            <p style="font-size: 0.8rem; color: #aaa;">Apunta aquí tus interacciones. Cópialas y pásamelas para que evalúe tu ELO.</p>
+            <textarea id="hitos-input" rows="5" placeholder="Ej: Fui por el Casco Viejo, paré a 2 personas, mantuve contacto visual y apliqué el skincare post-gym..."></textarea>
+            <button onclick="guardarHitos()">Guardar en Local</button>
+        </div>
+
+        <div class="panel">
+            <h3>🎯 Misiones de Élite</h3>
+            <button class="gold-btn" onclick="generarMisiones()">Solicitar Nuevas Misiones</button>
+            <div class="missions-box" id="missions-display">
+                Pulsa el botón para recibir tus directrices de hoy.
+            </div>
+        </div>
+
+        <div class="panel" style="grid-column: 1 / -1;">
+            <h3>🔑 Ascensión de Rango</h3>
+            <p style="font-size: 0.9rem; color: #aaa;">Introduce el Código de Gran Maestro que te he dado tras evaluar tus hitos.</p>
+            <input type="text" id="codigo-input" placeholder="Introduce el Código Secreto..." style="text-align: center; font-size: 1.2rem; text-transform: uppercase;">
+            <button onclick="intentarSubirRango()" style="width: 100%;">Validar Código</button>
+        </div>
+    </div>
+
+    <button class="danger-btn" onclick="resetearLiga()">Reiniciar Liga (Wipe Total)</button>
+
+    <div class="overlay" id="epic-overlay">
+        <div class="particles"></div>
+        <h2 class="epic-text" id="epic-title">RANGO ALCANZADO</h2>
+        <h3 id="epic-subtitle" style="margin-top: 20px; font-style: italic;">Brilliant Move (!!)</h3>
+        <button style="margin-top: 40px; border: 1px solid #fff;" onclick="cerrarAnimacion()">Volver al Tablero</button>
+    </div>
+
+    <script>
+        // --- BASE DE DATOS DEL JUEGO ---
+        const rangos = [
+            { id: 0, nombre: "UNRANKED", color: "var(--rank-unranked)", code: "" },
+            { id: 1, nombre: "BRONCE", color: "var(--rank-bronce)", code: "AURA100" },
+            { id: 2, nombre: "PLATA", color: "var(--rank-plata)", code: "NITIDEZ24" },
+            { id: 3, nombre: "ORO", color: "var(--rank-oro)", code: "CEROAZUCAR" },
+            { id: 4, nombre: "PLATINO", color: "var(--rank-platino)", code: "CODIGO183" },
+            { id: 5, nombre: "DIAMANTE", color: "var(--rank-diamante)", code: "CASCOVIEJO" },
+            { id: 6, nombre: "ELITE", color: "var(--rank-elite)", code: "MAESTRO1304" },
+            { id: 7, nombre: "UNREAL", color: "var(--rank-unreal)", code: "NEVERSEEN" }
+        ];
+
+        const misionesLore = [
+            "Mantén contacto visual 3 segundos en el pasillo del insti y sé el último en sonreír.",
+            "Pica código de tu SAAS durante 1 hora seguida en estado de flow con 0 distracciones.",
+            "Ve al gym, destroza el entreno y lávate la cara con agua fría en los vestuarios.",
+            "Pregunta una dirección cerca del Casco Viejo a 2 desconocidas manteniendo la postura recta.",
+            "Pasa 24 horas completas sin consumir ni un solo gramo de azúcar añadido.",
+            "Camina 15 minutos proyectando tus 1,83m al máximo, con la barbilla alta.",
+            "Haz una broma situacional corta en la cola de una tienda y vete con elegancia.",
+            "Completa la rutina de Skincare nocturna visualizando el éxito de la misión 1304."
+        ];
+
+        // --- ESTADO DEL JUGADOR ---
+        let jugador = {
+            rangoActual: 0,
+            plAcumulados: 0,
+            hitos: ""
+        };
+
+        // --- INICIALIZACIÓN ---
+        function init() {
+            const guardado = localStorage.getItem('realLabiaSave');
+            if (guardado) {
+                jugador = JSON.parse(guardado);
+            }
+            actualizarUI();
+            document.getElementById('hitos-input').value = jugador.hitos;
+        }
+
+        function guardarEstado() {
+            localStorage.setItem('realLabiaSave', JSON.stringify(jugador));
+            actualizarUI();
+        }
+
+        // --- FUNCIONES DE UI ---
+        function actualizarUI() {
+            document.getElementById('pl-display').innerText = `${jugador.plAcumulados} PL`;
+            
+            const rangoInfo = rangos[jugador.rangoActual];
+            const rangoText = document.getElementById('current-rank-text');
+            rangoText.innerText = rangoInfo.nombre;
+            rangoText.style.color = rangoInfo.color;
+
+            // Renderizar visual de rangos
+            const visuales = document.getElementById('rank-visuals');
+            visuales.innerHTML = '';
+            rangos.forEach(r => {
+                const div = document.createElement('div');
+                div.className = 'rank-item';
+                div.innerText = r.nombre.substring(0, 2);
+                div.style.color = r.color;
+                div.style.borderColor = r.color;
+                
+                if (r.id < jugador.rangoActual) {
+                    div.classList.add('completed');
+                } else if (r.id === jugador.rangoActual) {
+                    div.classList.add('active');
+                    div.style.boxShadow = `0 0 15px ${r.color}`;
+                }
+                visuales.appendChild(div);
+            });
+
+            if (jugador.rangoActual === 7) {
+                document.getElementById('global-league-text').innerText = ">>> ACCESO A LIGA GLOBAL DESBLOQUEADO PRÓXIMAMENTE <<<";
+                document.getElementById('global-league-text').style.color = var(--accent-blue);
+                document.getElementById('global-league-text').style.fontWeight = "bold";
+            }
+        }
+
+        function guardarHitos() {
+            jugador.hitos = document.getElementById('hitos-input').value;
+            guardarEstado();
+            alert("Diario de guerra guardado. Pásamelo en el chat para sumar PL.");
+        }
+
+        function generarMisiones() {
+            const display = document.getElementById('missions-display');
+            display.innerHTML = '';
+            // Seleccionar 3 misiones aleatorias
+            const mezcladas = misionesLore.sort(() => 0.5 - Math.random());
+            const seleccionadas = mezcladas.slice(0, 3);
+            
+            seleccionadas.forEach(m => {
+                const div = document.createElement('div');
+                div.className = 'mission-item';
+                div.innerText = `🔱 ${m}`;
+                display.appendChild(div);
+            });
+        }
+
+        function intentarSubirRango() {
+            const input = document.getElementById('codigo-input').value.trim().toUpperCase();
+            if (jugador.rangoActual >= 7) {
+                alert("Socio, ya eres UNREAL. El juego ya es tuyo.");
+                return;
+            }
+
+            const siguienteRango = rangos[jugador.rangoActual + 1];
+
+            if (input === siguienteRango.code) {
+                jugador.rangoActual++;
+                // Sumar PL automáticos por subir
+                jugador.plAcumulados += 500 * jugador.rangoActual; 
+                document.getElementById('codigo-input').value = "";
+                guardarEstado();
+                lanzarAnimacionEpica(siguienteRango);
+            } else {
+                alert("Blunder (??). Código incorrecto. Gánatelo en el tablero y pídemelo en el chat.");
+            }
+        }
+
+        function lanzarAnimacionEpica(rango) {
+            const overlay = document.getElementById('epic-overlay');
+            const title = document.getElementById('epic-title');
+            const subtitle = document.getElementById('epic-subtitle');
+
+            overlay.style.display = 'flex';
+            title.innerText = rango.nombre;
+            title.style.color = rango.color;
+
+            // Resetear clases de animación
+            title.className = 'epic-text';
+
+            // Forzar reflow para reiniciar animacion
+            void title.offsetWidth;
+
+            if (rango.id === 7) { // UNREAL
+                title.innerText = "COÑO, LO LOGRÉ.\nUNREAL";
+                subtitle.innerText = "Misión 1304: Jaque Mate Inmortal (🏆)";
+                subtitle.style.color = "var(--accent-gold)";
+                title.classList.add('unreal-animation');
+            } else {
+                subtitle.innerText = "Aura Incrementada. Brilliant Move (!!)";
+                subtitle.style.color = "#fff";
+                title.classList.add('aura-explode');
+            }
+        }
+
+        function cerrarAnimacion() {
+            document.getElementById('epic-overlay').style.display = 'none';
+        }
+
+        function resetearLiga() {
+            if(confirm("¿Estás seguro de reiniciar tu Aura a cero? Esto es irreversible, Socio.")) {
+                jugador = { rangoActual: 0, plAcumulados: 0, hitos: "" };
+                guardarEstado();
+                document.getElementById('hitos-input').value = "";
+                document.getElementById('missions-display').innerText = "Pulsa el botón para recibir tus directrices de hoy.";
+            }
+        }
+
+        // Arrancar el motor
+        init();
+    </script>
+</body>
+</html>
