@@ -351,12 +351,17 @@
 
         // --- INICIALIZACIÓN ---
         function init() {
-            const guardado = localStorage.getItem('realLabiaSave');
-            if (guardado) {
-                jugador = JSON.parse(guardado);
+            try {
+                const guardado = localStorage.getItem('realLabiaSave');
+                if (guardado) {
+                    jugador = JSON.parse(guardado);
+                }
+                actualizarUI();
+                document.getElementById('hitos-input').value = jugador.hitos || "";
+            } catch(e) {
+                console.error("Error al cargar la partida guardada:", e);
+                actualizarUI();
             }
-            actualizarUI();
-            document.getElementById('hitos-input').value = jugador.hitos;
         }
 
         function guardarEstado() {
@@ -394,8 +399,12 @@
 
             if (jugador.rangoActual === 7) {
                 document.getElementById('global-league-text').innerText = ">>> ACCESO A LIGA GLOBAL DESBLOQUEADO PRÓXIMAMENTE <<<";
-                document.getElementById('global-league-text').style.color = var(--accent-blue);
+                document.getElementById('global-league-text').style.color = "var(--accent-blue)";
                 document.getElementById('global-league-text').style.fontWeight = "bold";
+            } else {
+                document.getElementById('global-league-text').innerText = "Acceso a Liga Global: Bloqueado (Requiere Unreal)";
+                document.getElementById('global-league-text').style.color = "#666";
+                document.getElementById('global-league-text').style.fontWeight = "normal";
             }
         }
 
@@ -474,7 +483,9 @@
 
         function resetearLiga() {
             if(confirm("¿Estás seguro de reiniciar tu Aura a cero? Esto es irreversible, Socio.")) {
-                jugador = { rangoActual: 0, plAcumulados: 0, hitos: "" };
+                jugador.rangoActual = 0;
+                jugador.plAcumulados = 0;
+                jugador.hitos = "";
                 guardarEstado();
                 document.getElementById('hitos-input').value = "";
                 document.getElementById('missions-display').innerText = "Pulsa el botón para recibir tus directrices de hoy.";
@@ -482,7 +493,7 @@
         }
 
         // Arrancar el motor
-        init();
+        window.onload = init;
     </script>
 </body>
 </html>
