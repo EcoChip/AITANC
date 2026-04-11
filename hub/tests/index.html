@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Buscador de Brechas - Enigma</title>
+    <style>
+        body { background: #1a1111; color: #ff4444; font-family: monospace; padding: 20px; }
+        textarea { width: 100%; background: #000; color: #ff4444; border: 1px solid #ff4444; padding: 10px; }
+        .result-box { border-bottom: 1px solid #333; padding: 10px; margin: 5px 0; font-size: 0.8rem; }
+        button { background: #ff4444; color: #000; border: none; padding: 15px; width: 100%; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h2>🕵️‍♂️ CRACKER DE ALGORITMO (FRECUENCIA)</h2>
+    <p>Pega aquí el mensaje encriptado con tu método antiguo:</p>
+    <textarea id="cipherText" rows="5"></textarea>
+    <button onclick="crack()">INTENTAR ROMPER SEGURIDAD</button>
+    <div id="results"></div>
+
+    <script>
+        const alfabeto = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ0123456789 .,!?;:()@#+-*/=";
+
+        function crack() {
+            const input = document.getElementById('cipherText').value.toUpperCase();
+            let html = "";
+
+            // Probamos los 53 desplazamientos posibles del alfabeto
+            for (let s = 0; s < alfabeto.length; s++) {
+                let intento = "";
+                for (let i = 0; i < input.length; i++) {
+                    let index = alfabeto.indexOf(input[i]);
+                    if (index === -1) { intento += input[i]; continue; }
+                    
+                    // Revertimos el desplazamiento simple
+                    let pos = (index + s) % alfabeto.length;
+                    intento += alfabeto[pos];
+                }
+                html += `<div class="result-box"><b>Intento #${s}:</b> ${intento}</div>`;
+            }
+            document.getElementById('results').innerHTML = html;
+        }
+    </script>
+</body>
+</html>
