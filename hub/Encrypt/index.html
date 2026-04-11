@@ -2,83 +2,150 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Enigma Master 3000</title>
+    <title>Enigma Ultra 2.0 - TimeSync</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1a1a1a; color: #e0e0e0; display: flex; justify-content: center; padding: 20px; }
-        .machine { background: #2d2d2d; border: 2px solid #444; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 450px; }
-        h2 { text-align: center; color: #00ff88; text-transform: uppercase; margin-top: 0; }
+        .machine { background: #2d2d2d; border: 2px solid #00ff88; padding: 30px; border-radius: 15px; box-shadow: 0 0 30px rgba(0, 255, 136, 0.15); width: 450px; }
+        h2 { text-align: center; color: #00ff88; text-transform: uppercase; margin-top: 0; letter-spacing: 2px; text-shadow: 0 0 10px rgba(0,255,136,0.5); }
         .field { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 5px; font-size: 0.9rem; color: #aaa; }
-        input, textarea { width: 100%; padding: 12px; background: #1a1a1a; border: 1px solid #444; color: #00ff88; border-radius: 8px; box-sizing: border-box; font-family: monospace; }
-        textarea { height: 80px; resize: none; font-size: 1.1rem; }
-        .btn-copy { background: #00ff88; color: #1a1a1a; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; transition: 0.3s; }
-        .btn-copy:hover { background: #00cc6e; }
-        .key-info { font-size: 0.8rem; color: #777; margin-top: 10px; text-align: center; }
+        label { display: block; margin-bottom: 5px; font-size: 0.9rem; color: #aaa; font-weight: bold; }
+        input, textarea { width: 100%; padding: 12px; background: #1a1a1a; border: 1px solid #444; color: #00ff88; border-radius: 8px; box-sizing: border-box; font-family: monospace; font-size: 1rem; }
+        textarea { height: 80px; resize: none; }
+        input:focus, textarea:focus { border-color: #00ff88; outline: none; }
+        .btn-copy { background: #00ff88; color: #1a1a1a; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; transition: 0.3s; font-size: 1rem; }
+        .btn-copy:hover { background: #00cc6e; box-shadow: 0 0 15px rgba(0,255,136,0.4); }
+        
+        /* Panel de control de tiempo */
+        .status-panel { display: flex; justify-content: space-between; background: #111; padding: 12px; border-radius: 8px; border: 1px solid #333; margin-bottom: 20px; font-family: monospace; align-items: center; }
+        .status-item { text-align: center; width: 50%; }
+        .status-label { font-size: 0.7rem; color: #777; display: block; margin-bottom: 3px; }
+        .timer { color: #ff4444; font-weight: bold; font-size: 1.2rem; }
+        .key-display { color: #00ff88; font-weight: bold; font-size: 1.1rem; letter-spacing: 1px; }
+        .divider { width: 1px; background: #333; height: 30px; }
     </style>
 </head>
 <body>
 
 <div class="machine">
-    <h2>Enigma Ultra</h2>
+    <h2>Enigma Ultra 2.0</h2>
+    
+    <div class="status-panel">
+        <div class="status-item">
+            <span class="status-label">LLAVE ACTIVA</span>
+            <span class="key-display" id="currentKey">---</span>
+        </div>
+        <div class="divider"></div>
+        <div class="status-item">
+            <span class="status-label">PRÓXIMO CAMBIO</span>
+            <span class="timer" id="timer">30s</span>
+        </div>
+    </div>
     
     <div class="field">
-        <label>🔑 PALABRA CLAVE (La clave secreta):</label>
-        <input type="text" id="masterKey" oninput="cifrar()" placeholder="Ej: MANZANA77">
+        <label>🌱 SEMILLA MAESTRA (Ej: MANDARINA):</label>
+        <input type="text" id="seed" oninput="procesar()" placeholder="Palabra secreta compartida...">
     </div>
 
     <div class="field">
-        <label>📥 MENSAJE ORIGINAL / CIFRADO:</label>
-        <textarea id="input" oninput="cifrar()" placeholder="Escribe aquí..."></textarea>
+        <label>📥 MENSAJE (Cifrar / Descifrar):</label>
+        <textarea id="input" oninput="procesar()" placeholder="Escribe el mensaje o pega el código..."></textarea>
     </div>
 
     <div class="field">
         <label>📤 RESULTADO:</label>
         <textarea id="output" readonly></textarea>
-        <button class="btn-copy" onclick="copiar()">📋 COPIAR RESULTADO</button>
+        <button class="btn-copy" onclick="copiar()">📋 COPIAR AL PORTAPAPELES</button>
     </div>
-
-    <p class="key-info">Comparte la <b>Palabra Clave</b> por separado para que el receptor pueda leer el mensaje.</p>
 </div>
 
 <script>
     const alfabeto = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ0123456789 .,!?;:()@#+-*/=";
+    let ultimaLlaveGenerada = "";
     
-    function cifrar() {
-        const key = document.getElementById('masterKey').value.toUpperCase() || "A";
-        const input = document.getElementById('input').value.toUpperCase();
-        let resultado = "";
+    // Generador de Llave Dinámica (Cambia cada 30s)
+    function generarLlaveDinamica(semilla) {
+        if (!semilla) return "A";
+        // Dividimos el tiempo en bloques de 30 segundos
+        const bloqueTiempo = Math.floor(Date.now() / 1000 / 30);
+        const textoBase = semilla.toUpperCase() + bloqueTiempo.toString();
+        
+        let llave = "";
+        for(let i = 0; i < textoBase.length; i++) {
+            let charCode = textoBase.charCodeAt(i);
+            // Mapeamos los caracteres al alfabeto permitido
+            llave += alfabeto[charCode % alfabeto.length];
+        }
+        return llave;
+    }
 
-        // Generamos un "valor de semilla" basado en la palabra clave
-        let keySum = 0;
-        for(let i=0; i<key.length; i++) keySum += alfabeto.indexOf(key[i]);
+    // Motor de Cifrado Reforzado
+    function procesar() {
+        const semilla = document.getElementById('seed').value.toUpperCase();
+        const input = document.getElementById('input').value.toUpperCase();
+        const llave = generarLlaveDinamica(semilla);
+        let resultado = "";
 
         for (let i = 0; i < input.length; i++) {
             let char = input[i];
             let index = alfabeto.indexOf(char);
 
+            // Si el carácter no está en el alfabeto, lo dejamos igual
             if (index === -1) {
                 resultado += char;
                 continue;
             }
 
-            // Algoritmo de desplazamiento dinámico basado en la clave y la posición
-            let shift = (index + keySum + (key.length * i)) % alfabeto.length;
+            // USO REFORZADO DE LA CLAVE (i % llave.length)
+            let charClave = llave[i % llave.length];
+            let valorClave = alfabeto.indexOf(charClave);
+
+            // Desplazamiento dinámico basado en letra específica + posición
+            let shift = (index + valorClave + (llave.length * i)) % alfabeto.length;
             
-            // Efecto Reflector (hace que cifrar y descifrar sea el mismo proceso)
+            // Efecto Reflector
             let reflectorIndex = (alfabeto.length - 1) - shift;
-            if (reflectorIndex < 0) reflectorIndex += alfabeto.length;
+            while (reflectorIndex < 0) reflectorIndex += alfabeto.length;
             
             resultado += alfabeto[reflectorIndex];
         }
         document.getElementById('output').value = resultado;
     }
 
+    // Reloj del Sistema
+    function actualizarReloj() {
+        const semilla = document.getElementById('seed').value;
+        const now = Math.floor(Date.now() / 1000);
+        const segundosRestantes = 30 - (now % 30);
+        
+        document.getElementById('timer').innerText = segundosRestantes + "s";
+        
+        const nuevaLlave = generarLlaveDinamica(semilla);
+        document.getElementById('currentKey').innerText = semilla ? nuevaLlave.substring(0,6) + "..." : "---";
+
+        // Si la llave cambia, reprocesamos automáticamente el mensaje que esté escrito
+        if (nuevaLlave !== ultimaLlaveGenerada) {
+            ultimaLlaveGenerada = nuevaLlave;
+            procesar();
+        }
+    }
+
     function copiar() {
         const copyText = document.getElementById("output");
         copyText.select();
         document.execCommand("copy");
-        alert("¡Copiado al portapapeles!");
+        
+        // Efecto visual al copiar
+        const btn = document.querySelector('.btn-copy');
+        btn.innerText = "✔️ ¡COPIADO!";
+        btn.style.background = "#fff";
+        setTimeout(() => {
+            btn.innerText = "📋 COPIAR AL PORTAPAPELES";
+            btn.style.background = "#00ff88";
+        }, 1500);
     }
+
+    // Iniciar el reloj de sincronización a 10 FPS para evitar lag en el S8
+    setInterval(actualizarReloj, 100);
 </script>
 
 </body>
