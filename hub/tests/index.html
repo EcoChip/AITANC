@@ -1,56 +1,59 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Enigma Cracker Pro</title>
+    <title>Enigma Breaker - Brute Force</title>
     <style>
-        body { background: #1a1a1a; color: #ff4444; font-family: monospace; padding: 20px; }
-        textarea, input { background: #000; border: 1px solid #ff4444; color: #ff4444; width: 100%; padding: 10px; margin: 10px 0; }
-        button { background: #ff4444; color: #000; border: none; padding: 10px; width: 100%; cursor: pointer; font-weight: bold; }
-        .result { border-bottom: 1px solid #333; padding: 5px; }
+        body { background: #1a1a1a; color: #00ff88; font-family: monospace; padding: 20px; }
+        textarea { width: 100%; background: #000; color: #00ff88; border: 1px solid #00ff88; padding: 10px; margin: 10px 0; }
+        button { background: #00ff88; color: #000; border: none; padding: 10px; width: 100%; cursor: pointer; font-weight: bold; }
+        .log { font-size: 0.8rem; color: #888; max-height: 200px; overflow-y: scroll; border: 1px solid #333; padding: 10px; }
     </style>
 </head>
 <body>
-    <h2>🕵️‍♂️ CRACKER ESPECÍFICO</h2>
-    <p>Mensaje encriptado (ej: 9# ) :</p>
-    <textarea id="cipherInput"></textarea>
-    <p>Probar claves de una sola letra (A-Z):</p>
-    <button onclick="crackEspecifico()">ATAQUE DE FUERZA BRUTA</button>
+    <h2>🔨 ATAQUE DE FUERZA BRUTA POR LONGITUD</h2>
+    <p>Mensaje encriptado:</p>
+    <textarea id="cipherText" rows="3"></textarea>
+    <p>¿Qué longitud de clave crees que se usó? (Ej: 2):</p>
+    <input type="number" id="testLength" value="2" style="width: 50px; background:#000; color:#0ff88; border:1px solid #0ff88;">
+    <button onclick="ataque()">INICIAR ATAQUE</button>
+    
+    <h3>Posibles resultados:</h3>
     <div id="results"></div>
+    <p>Log de procesos:</p>
+    <div id="log" class="log"></div>
 
     <script>
         const alfabeto = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ0123456789 .,!?;:()@#+-*/=";
 
-        function crackEspecifico() {
-            const input = document.getElementById('cipherInput').value.toUpperCase();
-            let html = "";
+        function ataque() {
+            const input = document.getElementById('cipherText').value.toUpperCase();
+            const len = parseInt(document.getElementById('testLength').value);
+            const log = document.getElementById('log');
+            const results = document.getElementById('results');
+            results.innerHTML = "";
+            log.innerHTML = "Iniciando ataque de colisión para longitud " + len + "...<br>";
 
-            // Probamos cada letra del alfabeto como si fuera la MASTER KEY
-            for (let k = 0; k < alfabeto.length; k++) {
-                let masterKey = alfabeto[k];
+            // Probamos sumas posibles de la clave (keySum)
+            // Una clave de longitud L puede sumar desde 0 hasta (L * alfabeto.length)
+            for (let ks = 0; ks < (len * alfabeto.length); ks++) {
                 let resultado = "";
-                
-                // Replicamos tu lógica de keySum
-                let keySum = k; 
-
                 for (let i = 0; i < input.length; i++) {
-                    let char = input[i];
-                    let index = alfabeto.indexOf(char);
+                    let index = alfabeto.indexOf(input[i]);
+                    if (index === -1) { resultado += input[i]; continue; }
 
-                    if (index === -1) { resultado += char; continue; }
-
-                    // Revertimos el Reflector
+                    // Reversión del algoritmo original
                     let shift = (alfabeto.length - 1) - index;
-                    
-                    // Revertimos el desplazamiento dinámico
-                    // (Añadimos alfabeto.length varias veces para que el % no de negativo)
-                    let originalIndex = (shift - keySum - (1 * i)) % alfabeto.length;
+                    let originalIndex = (shift - ks - (len * i)) % alfabeto.length;
                     while (originalIndex < 0) originalIndex += alfabeto.length;
-
                     resultado += alfabeto[originalIndex];
                 }
-                html += `<div class="result"><b>Con clave "${masterKey}":</b> ${resultado}</div>`;
+                
+                // Si el resultado tiene espacios o letras comunes, es una pista
+                if (resultado.includes(" ") || ks % 50 === 0) {
+                    results.innerHTML += `<div><b>KeySum ${ks}:</b> ${resultado}</div>`;
+                }
             }
-            document.getElementById('results').innerHTML = html;
+            log.innerHTML += "Ataque finalizado. Revisa si algún mensaje tiene sentido.";
         }
     </script>
 </body>
