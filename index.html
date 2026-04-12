@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AITANC | Automatización Aduanera Exponencial</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Stripe JS para pagos -->
+    <script src="https://js.stripe.com/v3/"></script>
+    
+    <style>
+        /* --- VARIABLES Y DISEÑO CORE (igual que original) --- */
+        :root {
+            --background: #000000;
+            --bg-card: #0a0a0a;
+            --primary: #007bff;
+            --gradient: linear-gradient(135deg, #007bff 0%, #00c6ff 100%);
+            --text-main: #ffffff;
+            --text-muted: #a0a0a0;
+            --white: #ffffff;
+            --glow-blue: 0 10px 40px rgba(0, 123, 255, 0.25);
+            --transition-fluid: all 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+            --easing-expo: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        html {
+            scroll-behavior: smooth;
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background);
+            color: var(--text-main);
+            overflow-x: hidden;
+            font-size: 16px;
+        }
+
+        h1, h2, h3 { font-weight: 700; color: var(--white); }
+        p { font-weight: 300; color: var(--text-muted); line-height: 1.8; }
+        a { text-decoration: none; color: inherit; transition: var(--transition-fluid); }
+        ul { list-style: none; }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 25px;
+        }
+
+        section { padding: 150px 0; position: relative; }
+
+        .btn {
+            display: inline-block;
+            padding: 16px 40px;
+            background: var(--gradient);
+            color: var(--white);
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0, 123, 255, 0.15);
+            border: none;
+            transition: var(--transition-fluid);
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-4px) scale(1.03);
+            box-shadow: var(--glow-blue);
+        }
+
+        .btn-muted {
+            background: rgba(255,255,255,0.03) !important;
+            border: none !important;
+            color: var(--text-main) !important;
+        }
+
+        .gradient-text {
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 1s var(--easing-expo), transform 1s var(--easing-expo);
+        }
+        
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Header */
+        header {
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+
+        nav {
+            display: flex; justify-content: space-between; align-items: center;
+            height: 80px;
+        }
+
+        .nav-logo { font-size: 1.8rem; font-weight: 700; color: var(--white); }
+        .nav-links { display: flex; gap: 30px; align-items: center; }
+        .nav-links a:hover { color: var(--primary); }
+
+        /* Hero y demás secciones (igual que original) */
+        .hero {
+            height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            text-align: center;
+            background: radial-gradient(circle at center, rgba(0,123,255,0.05) 0%, rgba(0,0,0,1) 80%);
+        }
+        
+        .hero::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.015"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
+            z-index: -1;
+        }
+
+        .hero-title-container { max-width: 900px; }
+        .aitanc-logo-huge { font-size: 5rem; font-weight: 700; display: block; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 5px; opacity: 0.9; }
+        .hero-headline { font-size: 3.2rem; line-height: 1.2; margin-bottom: 30px; font-weight: 400; }
+        .hero-subheadline { font-size: 1.3rem; margin-bottom: 60px; max-width: 700px; margin: 0 auto 60px auto; }
+
+        /* Impact section */
+        .impact { background-color: var(--bg-card); }
+        .section-title { text-align: center; font-size: 2.8rem; margin-bottom: 20px; }
+        .section-subtitle { text-align: center; margin-bottom: 100px; max-width: 600px; margin-left: auto; margin-right: auto; }
+        .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+        .chart-container { background: #111; padding: 50px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.02); position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .chart-container::after { content: ''; position: absolute; top: 50%; left: 50%; width: 200px; height: 200px; background: rgba(0,123,255,0.05); filter: blur(100px); border-radius: 50%; transform: translate(-50%, -50%); }
+        .bar-wrapper { display: flex; flex-direction: column; gap: 50px; }
+        .bar-row { display: flex; flex-direction: column; gap: 10px; }
+        .bar-label { color: var(--text-main); font-weight: 600; font-size: 1.1rem;}
+        .bar-track { height: 14px; width: 100%; background-color: rgba(255,255,255,0.05); border-radius: 10px; position: relative; overflow: hidden; }
+        .bar-fill { height: 100%; border-radius: 10px; width: 0%; transition: width 1.5s var(--transition-fluid); position: absolute; top: 0; left: 0; }
+        .impact.visible .bar-fill-humano { width: 95%; background-color: rgba(255, 99, 132, 0.7); }
+        .impact.visible .bar-fill-aitanc { width: 4%; background: var(--gradient); box-shadow: 0 0 15px rgba(0, 123, 255, 0.4); }
+        .bar-value { position: absolute; right: 10px; top: -25px; font-weight: 700; color: var(--white); font-size: 0.9rem;}
+        .chart-text h3 { margin-bottom: 20px; font-size: 2rem;}
+        .chart-text p { margin-bottom: 40px; }
+
+        /* Pricing */
+        .pricing { background-color: var(--background); }
+        .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 50px; }
+        .pricing-card { background-color: var(--bg-card); padding: 70px 45px; border-radius: 30px; text-align: center; border: 1px solid rgba(255,255,255,0.02); transition: var(--transition-fluid); position: relative; overflow: hidden; }
+        .pricing-card:hover { transform: translateY(-12px); border-color: var(--primary); box-shadow: 0 20px 60px rgba(0, 123, 255, 0.2); }
+        .card-name { font-size: 1.1rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2.5px; margin-bottom: 20px;}
+        .card-price { font-size: 3.8rem; font-weight: 700; color: var(--white); margin-bottom: 15px; }
+        .card-price span { font-size: 1rem; color: var(--text-muted); font-weight: 400;}
+        .card-features { margin-bottom: 50px; text-align: left; display: inline-block;}
+        .card-features li { margin-bottom: 20px; color: var(--text-main); display: flex; align-items: center; font-weight: 300; font-size: 0.95rem;}
+        .card-features li::before { content: '✦'; color: var(--primary); font-weight: 700; margin-right: 15px; font-size: 1.2rem;}
+        .pro-plan { background: linear-gradient(135deg, rgba(10,10,10,1) 0%, rgba(10,10,10,1) 70%, rgba(0,123,255,0.08) 100%); border: 2px solid var(--primary); }
+        .pro-tag { position: absolute; top: 25px; right: -40px; background: var(--gradient); color: var(--white); padding: 7px 45px; transform: rotate(45deg); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; }
+
+        /* Trial form */
+        .trial { background-color: var(--bg-card); text-align: center; }
+        .trial-container { max-width: 700px; margin: 0 auto; }
+        .form-mockup { background: #0d0d0d; padding: 40px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.02); display: flex; gap: 15px; margin-top: 60px; transition: var(--transition-fluid); }
+        .form-mockup:hover { border-color: rgba(255,255,255,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.3);}
+        .input-email { flex-grow: 1; padding: 16px 25px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.05); background: #111; color: var(--white); font-family: 'Poppins', sans-serif; font-size: 1rem; transition: var(--transition-fluid); }
+        .input-email:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 10px rgba(0,123,255,0.1); }
+        .input-email::placeholder { color: #555; }
+        #success-message { margin-top: 30px; color: #2ecc71; font-weight: 600; font-size: 1rem; display: none; opacity: 0; transform: translateY(10px); transition: opacity 0.5s ease, transform 0.5s ease; }
+        #success-message.visible { display: block; opacity: 1; transform: translateY(0); }
+
+        /* Modal de Login/Registro */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: 30px;
+            max-width: 500px;
+            width: 90%;
+            padding: 40px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            position: relative;
+        }
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: var(--transition-fluid);
+        }
+        .close-modal:hover { color: var(--white); }
+        .tabs {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            font-weight: 600;
+            padding: 10px 0;
+            cursor: pointer;
+            transition: var(--transition-fluid);
+        }
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+        }
+        .tab-pane {
+            display: none;
+        }
+        .tab-pane.active {
+            display: block;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 14px 18px;
+            background: #111;
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 50px;
+            color: var(--white);
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        .modal-btn {
+            width: 100%;
+            margin-top: 10px;
+        }
+        .error-msg {
+            color: #ff6b6b;
+            font-size: 0.85rem;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        /* Footer */
+        footer { padding: 60px 0; text-align: center; border-top: 1px solid rgba(255,255,255,0.02);}
+        .footer-logo { font-size: 1.5rem; font-weight: 700; margin-bottom: 20px; display: block;}
+        .payments-badge { font-size: 0.8rem; color: #333; margin-top: 20px;}
+
+        .sticky-btn {
+            position: fixed; bottom: 30px; right: 30px;
+            z-index: 1000;
+            padding: 18px 40px;
+            background: var(--gradient);
+            color: var(--white);
+            border-radius: 50px;
+            font-weight: 700; font-size: 1.1rem;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0, 123, 255, 0.4);
+            border: none;
+            transition: var(--transition-fluid);
+        }
+        .sticky-btn:hover { transform: scale(1.06) translateY(-5px); box-shadow: 0 15px 40px rgba(0, 123, 255, 0.6); }
+
+        @media (max-width: 992px) {
+            html { font-size: 14px; }
+            .hero-title-container { padding: 0 20px; }
+            .aitanc-logo-huge { font-size: 3.5rem; }
+            .hero-headline { font-size: 2.2rem; }
+            .chart-grid { grid-template-columns: 1fr; gap: 50px; }
+            .pricing-grid { grid-template-columns: 1fr; max-width: 450px; margin: 0 auto; }
+            .form-mockup { flex-direction: column; padding: 25px; gap: 10px;}
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="container">
+        <nav>
+            <a href="#hero" class="nav-logo">AITANC</a>
+            <div class="nav-links">
+                <a href="#comparison">Impacto</a>
+                <a href="#pricing">Precios</a>
+                <a href="#" id="loginBtnNav" class="btn btn-muted" style="padding: 10px 25px; font-size: 0.9rem;">Acceso →</a>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<button class="sticky-btn" onclick="openModal('register')">Pago Seguro ⚡️</button>
+
+<!-- Modal de Login/Registro -->
+<div id="authModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="login">Iniciar sesión</button>
+            <button class="tab-btn" data-tab="register">Crear cuenta</button>
+        </div>
+        <div id="loginPane" class="tab-pane active">
+            <form id="loginForm">
+                <div class="form-group">
+                    <input type="email" id="loginEmail" placeholder="Email" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="loginPassword" placeholder="Contraseña" required>
+                </div>
+                <button type="submit" class="btn modal-btn">Entrar</button>
+                <div id="loginError" class="error-msg"></div>
+            </form>
+        </div>
+        <div id="registerPane" class="tab-pane">
+            <form id="registerForm">
+                <div class="form-group">
+                    <input type="email" id="regEmail" placeholder="Email profesional" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="regPassword" placeholder="Contraseña" required>
+                </div>
+                <button type="submit" class="btn modal-btn">Registrarse y pagar</button>
+                <div id="regError" class="error-msg"></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<section id="hero" class="hero">
+    <div class="container hero-title-container reveal">
+        <span class="aitanc-logo-huge gradient-text">AITANC</span>
+        <h1 class="hero-headline">Automatice el trabajo exponencialmente <br> y multiplique sus márgenes logísticos.</h1>
+        <p class="hero-subheadline">El primer Inspector Aduanero Digital de alta gama impulsado por IA. Extracción de datos del 99%. Cero errores humanos. Rentabilidad industrial desde el día uno.</p>
+        <a href="#" class="btn" onclick="openModal('register'); return false;">Probar el Motor Gratis</a>
+    </div>
+</section>
+
+<section id="comparison" class="impact reveal">
+    <div class="container">
+        <h2 class="section-title">Humano vs. AITANC: El Gráfico del Ahorro Exponencial</h2>
+        <p class="section-subtitle">Comparamos el coste mensual operativo de procesar **500 Facturas Comerciales** de aduanas.</p>
+        <div class="chart-grid">
+            <div class="chart-container">
+                <div class="bar-wrapper">
+                    <div class="bar-row">
+                        <div class="bar-track">
+                            <div class="bar-fill bar-fill-humano"><span class="bar-value">~83h / mes</span></div>
+                        </div>
+                        <div class="bar-label">Proceso Humano Manual (Administrativo)</div>
+                    </div>
+                    <div class="bar-row">
+                        <div class="bar-track">
+                            <div class="bar-fill bar-fill-aitanc"><span class="bar-value">~0.4h / mes</span></div>
+                        </div>
+                        <div class="bar-label gradiente-texto">AITANC v1 (El Inspector Digital)</div>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-text">
+                <h3>Rentabilidad inmediata y cero cuellos de botella</h3>
+                <p>La gestión documental manual es el mayor cuello de botella en logística. AITANC libera a su equipo de las tareas repetitivas, permitiendo un crecimiento exponencial.</p>
+                <a href="#" class="btn" onclick="openModal('register'); return false;">Calculadora de Ahorro</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="pricing" class="pricing reveal">
+    <div class="container">
+        <h2 class="section-title">Invierta en Eficiencia Industrial</h2>
+        <p class="section-subtitle">AITANC es una inversión con un retorno neto de >1.000€ mensuales para el 90% de nuestros clientes Business.</p>
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <div class="card-name">Autonomo o empresa pequeña</div>
+                <div class="card-price">199 € <span>/ mes</span></div>
+                <ul class="card-features">
+                    <li>Hasta 329 Facturas/mes</li>
+                    <li>Extracción Básica (Totales y Divisas)</li>
+                    <li>Procesamiento 1 a 1</li>
+                    <li>Soporte Técnico Stándar</li>
+                </ul>
+                <a href="#" class="btn btn-muted" onclick="openModal('register'); return false;">Adquirir Ahorro Básico →</a>
+            </div>
+            <div class="pricing-card pro-plan">
+                <div class="pro-tag">RECOMENDADO</div>
+                <div class="card-name gradiente-texto">empresa logistica en crecimiento</div>
+                <div class="card-price">499 € <span>/ mes</span></div>
+                <ul class="card-features">
+                    <li>Hasta 1.000 Facturas/mes</li>
+                    <li>Lógica Arancelaria IA (Códigos HS)</li>
+                    <li>Procesamiento por Lotes (Carpetas)</li>
+                    <li>Descarga en Excel Formateado Pro</li>
+                    <li>Soporte Prioritario VIP</li>
+                </ul>
+                <a href="#" class="btn" onclick="openModal('register'); return false;">Impulsar Mis Márgenes Now ⚡</a>
+            </div>
+            <div class="pricing-card">
+                <div class="card-name">gran logistica</div>
+                <div class="card-price">1.999 €+ <span>/ mes</span></div>
+                <ul class="card-features">
+                    <li>Volumen de Facturas Negociable (Escala Empresarial)</li>
+                    <li>Pipeline de Automatización 24/7</li>
+                    <li>API de Integración Directa</li>
+                    <li>Personalización de Modelos de IA</li>
+                    <li>Acuerdo de Nivel de Servicio (SLA)</li>
+                </ul>
+                <a href="#" class="btn btn-muted" onclick="openModal('register'); return false;">Contactar Ventas</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="trial" class="trial reveal">
+    <div class="container trial-container">
+        <h2 class="section-title">Audite AITANC con 5 Facturas Gratis</h2>
+        <p class="section-subtitle">Sin tarjeta. Compruebe la precisión de nuestra IA con sus propios documentos antes de contratar.</p>
+        <div class="form-mockup">
+            <input type="email" id="trial-email" class="input-email" placeholder="Email de su Empresa (aduana@empresa.com)...">
+            <button class="btn" onclick="handleTrialSubmit()">Solicitar Auditoría</button>
+        </div>
+        <div id="success-message">✅ Petición blindada y enviada de forma segura. En breve recibirá instrucciones.</div>
+    </div>
+</section>
+
+<footer>
+    <div class="container">
+        <span class="footer-logo nav-logo">AITANC</span>
+        <p>&copy; 2026 AITANC Technologies. El fin de la burocracia aduanera.</p>
+        <div class="payments-badge">Procesamiento de pagos seguro vía Stripe (Cifrado de grado militar).</div>
+    </div>
+</footer>
+
+<script>
+    // Configuración de Stripe (clave pública - reemplazar con la real)
+    const stripe = Stripe('pk_test_TU_CLAVE_PUBLICABLE_STRIPE');
+    
+    // Elementos del modal
+    const modal = document.getElementById('authModal');
+    const loginBtn = document.getElementById('loginBtnNav');
+    const closeModalBtn = document.querySelector('.close-modal');
+    
+    function openModal(tab = 'login') {
+        modal.style.display = 'flex';
+        if (tab === 'register') {
+            document.querySelector('.tab-btn[data-tab="register"]').click();
+        } else {
+            document.querySelector('.tab-btn[data-tab="login"]').click();
+        }
+    }
+    
+    function closeModal() {
+        modal.style.display = 'none';
+        document.getElementById('loginError').innerText = '';
+        document.getElementById('regError').innerText = '';
+    }
+    
+    // Tabs
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const panes = {
+        login: document.getElementById('loginPane'),
+        register: document.getElementById('registerPane')
+    };
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tab = btn.getAttribute('data-tab');
+            tabBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            Object.values(panes).forEach(pane => pane.classList.remove('active'));
+            panes[tab].classList.add('active');
+        });
+    });
+    
+    // Cerrar modal al hacer clic fuera del contenido
+    window.onclick = function(event) {
+        if (event.target === modal) closeModal();
+    }
+    
+    // Login
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        const errorDiv = document.getElementById('loginError');
+        errorDiv.innerText = '';
+        
+        try {
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                localStorage.setItem('token', data.token);
+                window.location.href = '/prime/';
+            } else {
+                errorDiv.innerText = data.error || 'Error al iniciar sesión';
+            }
+        } catch (err) {
+            errorDiv.innerText = 'Error de conexión con el servidor';
+        }
+    });
+    
+    // Registro y pago
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('regEmail').value;
+        const password = document.getElementById('regPassword').value;
+        const errorDiv = document.getElementById('regError');
+        errorDiv.innerText = '';
+        
+        try {
+            // 1. Registrar usuario
+            const regRes = await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            const regData = await regRes.json();
+            if (!regRes.ok) {
+                errorDiv.innerText = regData.error || 'Error en el registro';
+                return;
+            }
+            // 2. Crear sesión de pago en Stripe
+            const sessionRes = await fetch('/api/create-checkout-session', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            const session = await sessionRes.json();
+            if (!sessionRes.ok) throw new Error(session.error);
+            // 3. Redirigir a Stripe Checkout
+            const result = await stripe.redirectToCheckout({ sessionId: session.sessionId });
+            if (result.error) errorDiv.innerText = result.error.message;
+        } catch (err) {
+            errorDiv.innerText = err.message || 'Error al procesar el pago';
+        }
+    });
+    
+    // Prueba gratuita (simula envío)
+    function handleTrialSubmit() {
+        const email = document.getElementById('trial-email').value;
+        const msgDiv = document.getElementById('success-message');
+        if (email && email.includes('@')) {
+            // Aquí se podría enviar al backend, pero por ahora simulamos
+            msgDiv.classList.add('visible');
+            setTimeout(() => msgDiv.classList.remove('visible'), 5000);
+            // Limpiar campo
+            document.getElementById('trial-email').value = '';
+        } else {
+            alert('Introduzca un email válido.');
+        }
+    }
+    
+    // Scroll reveal (igual que original)
+    document.addEventListener('DOMContentLoaded', () => {
+        const reveals = document.querySelectorAll('.reveal');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('visible');
+            });
+        }, { threshold: 0.15 });
+        reveals.forEach(reveal => observer.observe(reveal));
+        
+        // Añadir evento al botón sticky
+        const stickyBtn = document.querySelector('.sticky-btn');
+        if (stickyBtn) stickyBtn.onclick = () => openModal('register');
+    });
+    
+    function scrollToPricing() {
+        document.getElementById('pricing').scrollIntoView({ behavior: 'smooth' });
+    }
+</script>
+</body>
+</html>
