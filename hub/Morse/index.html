@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academia de Códigos: Morse y Binario</title>
+    <style>
+        :root {
+            --bg-color: #1e1e2e;
+            --text-color: #cdd6f4;
+            --primary: #89b4fa;
+            --success: #a6e3a1;
+            --error: #f38ba8;
+            --surface: #313244;
+            --btn-bg: #45475a;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            touch-action: manipulation; /* Evita zoom al hacer doble tap en móviles */
+        }
+        h1 { color: var(--primary); }
+        .container {
+            background-color: var(--surface);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            max-width: 600px;
+            width: 100%;
+            margin-top: 10px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: var(--primary);
+            color: var(--bg-color);
+            border: none;
+            padding: 12px 24px;
+            margin: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        button:active { transform: scale(0.95); } /* Efecto al presionar en vez de hover para móviles */
+        .hidden { display: none !important; }
+        
+        /* Game Area */
+        .word-display { font-size: 32px; letter-spacing: 5px; margin: 15px 0; font-weight: bold; word-wrap: break-word;}
+        .letter-done { color: var(--success); }
+        .letter-current { color: var(--primary); text-decoration: underline; }
+        .letter-pending { color: #6c7086; }
+        
+        .input-display {
+            font-size: 36px;
+            letter-spacing: 8px;
+            min-height: 50px;
+            margin: 15px 0;
+            font-family: monospace;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            padding: 10px;
+            word-wrap: break-word;
+        }
+        .input-error { color: var(--error); }
+        .hint-box { font-size: 20px; color: var(--success); font-family: monospace; margin-bottom: 15px; min-height: 25px;}
+        
+        /* Dictionary Table */
+        .dict-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .dict-item {
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .controls-info { color: #a6adc8; font-size: 14px; margin-top: 15px; }
+
+        /* Teclado Virtual para Móviles */
+        #virtual-keyboard {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .vk-btn {
+            font-size: 28px;
+            padding: 15px 30px;
+            border-radius: 12px;
+            background-color: var(--primary);
+            color: var(--bg-color);
+            min-width: 80px;
+        }
+        .vk-btn-back {
+            background-color: var(--error);
+            color: var(--bg-color);
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Academia de Códigos</h1>
+    
+    <div id="menu" class="container">
+        <h2>Elige tu desafío</h2>
+        <h3>Código Morse</h3>
+        <button onclick="startMode('morse', 'learn')">Aprender Morse</button>
+        <button onclick="startMode('morse', 'game')">Jugar Morse</button>
+        
+        <h3>Código Binario</h3>
+        <button onclick="startMode('binary', 'learn')">Aprender Binario</button>
+        <button onclick="startMode('binary', 'game')">Jugar Binario</button>
+    </div>
+
+    <div id="game-screen" class="container hidden">
+        <h2 id="mode-title">Modo</h2>
+        
+        <div id="dictionary-view" class="hidden">
+            <p>Estudia la tabla. Cuando estés listo, presiona "Empezar Práctica".</p>
+            <div id="dict-grid" class="dict-grid"></div>
+            <button onclick="startPractice()">Empezar Práctica</button>
+        </div>
+
+        <div id="play-area" class="hidden">
+            <div class="word-display" id="word-display"></div>
+            <div class="hint-box" id="hint-box"></div>
+            <div class="input-display" id="input-display"></div>
+            
+            <div id="virtual-keyboard">
+                <button id="btn-0" onclick="processInput('0')" class="vk-btn binary-btn">0</button>
+                <button id="btn-1" onclick="processInput('1')" class="vk-btn binary-btn">1</button>
+                <button id="btn-dot" onclick="processInput('.')" class="vk-btn morse-btn">.</button>
+                <button id="btn-dash" onclick="processInput('-')" class="vk-btn morse-btn">-</button>
+                <button id="btn-back" onclick="processInput('Backspace')" class="vk-btn vk-btn-back">Borrar</button>
+            </div>
+
+            <p class="controls-info" id="controls-info"></p>
+        </div>
+
+        <button onclick="backToMenu()" style="margin-top: 30px; background-color: var(--btn-bg); color: white;">Volver al Menú</button>
+    </div>
+
+    <script>
+        // DICCIONARIOS
+        const morseDict = {
+            'A':'.-', 'B':'-...', 'C':'-.-.', 'D':'-..', 'E':'.', 'F':'..-.', 'G':'--.', 'H':'....', 'I':'..',
+            'J':'.---', 'K':'-.-', 'L':'.-..', 'M':'--', 'N':'-.', 'O':'---', 'P':'.--.', 'Q':'--.-', 'R':'.-.',
+            'S':'...', 'T':'-', 'U':'..-', 'V':'...-', 'W':'.--', 'X':'-..-', 'Y':'-.--', 'Z':'--..'
+        };
+
+        const binaryDict = {};
+        for (let i = 65; i <= 90; i++) {
+            binaryDict[String.fromCharCode(i)] = '0' + i.toString(2);
+        }
+
+        const palabrasJuego = ["HOLA", "WEB", "JUEGO", "CODIGO", "GATO", "LUNA", "SOL", "PC", "BYTE", "RETO"];
+        const letrasPractica = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+        // ESTADO DEL JUEGO
+        let currentSystem = '';
+        let currentMode = '';
+        let currentWord = '';
+        let currentLetterIndex = 0;
+        let currentInput = '';
+        let dictionary = {};
+
+        // NAVEGACIÓN
+        function startMode(system, mode) {
+            currentSystem = system;
+            currentMode = mode;
+            dictionary = system === 'morse' ? morseDict : binaryDict;
+            
+            document.getElementById('menu').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            
+            let systemName = system === 'morse' ? 'Morse' : 'Binario';
+            let modeName = mode === 'learn' ? 'Aprendizaje' : 'Juego';
+            document.getElementById('mode-title').innerText = `${modeName} - ${systemName}`;
+
+            if (mode === 'learn') {
+                showDictionary();
+            } else {
+                startGameplay();
+            }
+        }
+
+        function backToMenu() {
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('menu').classList.remove('hidden');
+            currentSystem = '';
+        }
+
+        function showDictionary() {
+            document.getElementById('play-area').classList.add('hidden');
+            document.getElementById('dictionary-view').classList.remove('hidden');
+            
+            const grid = document.getElementById('dict-grid');
+            grid.innerHTML = '';
+            for (let [letter, code] of Object.entries(dictionary)) {
+                grid.innerHTML += `<div class="dict-item"><strong>${letter}</strong><br>${code}</div>`;
+            }
+        }
+
+        function startPractice() {
+            document.getElementById('dictionary-view').classList.add('hidden');
+            currentMode = 'practice';
+            startGameplay();
+        }
+
+        function startGameplay() {
+            document.getElementById('play-area').classList.remove('hidden');
+            
+            // Configurar botones y textos según el sistema
+            const morseBtns = document.querySelectorAll('.morse-btn');
+            const binaryBtns = document.querySelectorAll('.binary-btn');
+            
+            if (currentSystem === 'morse') {
+                document.getElementById('controls-info').innerText = "Toca los botones o usa tu teclado: Punto (.) y Guion (-)";
+                morseBtns.forEach(btn => btn.style.display = 'inline-block');
+                binaryBtns.forEach(btn => btn.style.display = 'none');
+            } else {
+                document.getElementById('controls-info').innerText = "Toca los botones o usa tu teclado: Cero (0) y Uno (1)";
+                morseBtns.forEach(btn => btn.style.display = 'none');
+                binaryBtns.forEach(btn => btn.style.display = 'inline-block');
+            }
+
+            nextWord();
+        }
+
+        function nextWord() {
+            if (currentMode === 'practice') {
+                currentWord = letrasPractica[Math.floor(Math.random() * letrasPractica.length)];
+            } else {
+                currentWord = palabrasJuego[Math.floor(Math.random() * palabrasJuego.length)];
+            }
+            
+            currentLetterIndex = 0;
+            currentInput = '';
+            updateUI();
+        }
+
+        function updateUI() {
+            let wordHTML = '';
+            for (let i = 0; i < currentWord.length; i++) {
+                if (i < currentLetterIndex) {
+                    wordHTML += `<span class="letter-done">${currentWord[i]}</span>`;
+                } else if (i === currentLetterIndex) {
+                    wordHTML += `<span class="letter-current">${currentWord[i]}</span>`;
+                } else {
+                    wordHTML += `<span class="letter-pending">${currentWord[i]}</span>`;
+                }
+            }
+            document.getElementById('word-display').innerHTML = wordHTML;
+
+            const inputDisplay = document.getElementById('input-display');
+            inputDisplay.innerText = currentInput || '_';
+            
+            let targetCode = dictionary[currentWord[currentLetterIndex]];
+            
+            if (currentInput.length > 0 && !targetCode.startsWith(currentInput)) {
+                inputDisplay.classList.add('input-error');
+            } else {
+                inputDisplay.classList.remove('input-error');
+            }
+
+            const hintBox = document.getElementById('hint-box');
+            if (currentMode === 'practice') {
+                hintBox.innerText = `Pista: ${targetCode}`;
+            } else {
+                hintBox.innerText = '';
+            }
+        }
+
+        // LÓGICA DE ENTRADA (Teclado físico o botones virtuales)
+        function processInput(key) {
+            if (!currentSystem || document.getElementById('play-area').classList.contains('hidden')) return;
+
+            let targetCode = dictionary[currentWord[currentLetterIndex]];
+            let validKey = false;
+            
+            if (currentSystem === 'morse' && (key === '.' || key === '-')) validKey = true;
+            if (currentSystem === 'binary' && (key === '0' || key === '1')) validKey = true;
+
+            if (validKey) {
+                currentInput += key;
+            } else if (key === 'Backspace') {
+                currentInput = currentInput.slice(0, -1);
+            } else {
+                return;
+            }
+
+            // Comprobar si completó la letra
+            if (currentInput === targetCode) {
+                currentInput = '';
+                currentLetterIndex++;
+                
+                document.getElementById('input-display').style.color = 'var(--success)';
+                setTimeout(() => {
+                    document.getElementById('input-display').style.color = '';
+                }, 200);
+
+                if (currentLetterIndex >= currentWord.length) {
+                    setTimeout(() => {
+                        nextWord();
+                    }, 400);
+                }
+            }
+            updateUI();
+        }
+
+        // Detectar pulsaciones del teclado físico
+        document.addEventListener('keydown', (e) => {
+            processInput(e.key);
+        });
+    </script>
+</body>
+</html>
