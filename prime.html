@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AITANC Prime | Panel de control</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #000000;
+            color: #ffffff;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #007bff, #00c6ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .user-info {
+            background: #0a0a0a;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #007bff, #00c6ff);
+            padding: 10px 24px;
+            border-radius: 50px;
+            color: white;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #007bff;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,123,255,0.3);
+        }
+
+        /* Tarjeta principal */
+        .card {
+            background: #0a0a0a;
+            border-radius: 30px;
+            padding: 40px;
+            border: 1px solid rgba(255,255,255,0.05);
+            margin-bottom: 30px;
+        }
+
+        .card-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #fff, #007bff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Área de subida */
+        .upload-area {
+            border: 2px dashed rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            transition: 0.3s;
+            cursor: pointer;
+            margin-bottom: 30px;
+        }
+
+        .upload-area:hover {
+            border-color: #007bff;
+            background: rgba(0,123,255,0.05);
+        }
+
+        .upload-area input {
+            display: none;
+        }
+
+        .file-list {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .file-item {
+            background: #1a1a1a;
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Barra de progreso */
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #1a1a1a;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #007bff, #00c6ff);
+            transition: width 0.3s;
+        }
+
+        /* Contador */
+        .counter {
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .counter-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #007bff;
+        }
+
+        /* Resultados */
+        .result-area {
+            background: #111;
+            border-radius: 20px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .card {
+                padding: 20px;
+            }
+        }
+    </style>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+        import { getFirestore, doc, getDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+        
+        // 🔥 MISMA CONFIGURACIÓN DE FIREBASE QUE EN index.html
+        const firebaseConfig = {
+            apiKey: "AIzaSyDxsR6Y265FgDtZNllbCje8JG7njcmymK4",
+            authDomain: "users-aitanc.firebaseapp.com",
+            projectId: "users-aitanc",
+            storageBucket: "users-aitanc.firebasestorage.app",
+            messagingSenderId: "123745859673",
+            appId: "1:123745859673:web:7a57f30f089356567c9948",
+            measurementId: "G-S8JDQHVVBH"
+        };
+        
+        // URL de tu Cloudflare Worker
+        const WORKER_URL = 'https://aitanc-gemini-proxy.nda941237.workers.dev';
+        
+        // Inicializar
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        let currentUser = null;
+        let userData = null;
+        
+        // Elementos del DOM
+        const userEmailSpan = document.getElementById('userEmail');
+        const planSpan = document.getElementById('plan');
+        const usedSpan = document.getElementById('used');
+        const maxSpan = document.getElementById('max');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileListDiv = document.getElementById('fileList');
+        const processBtn = document.getElementById('processBtn');
+        const progressBar = document.getElementById('progressFill');
+        const resultDiv = document.getElementById('result');
+        
+        let selectedFiles = [];
+        
+        // Verificar autenticación y acceso
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                // No logueado, redirigir al inicio
+                window.location.href = '/';
+                return;
+            }
+            
+            currentUser = user;
+            const userDocRef = doc(db, 'users', user.uid);
+            const userDoc = await getDoc(userDocRef);
+            
+            if (!userDoc.exists() || !userDoc.data().paid) {
+                alert('No tienes un plan activo. Contrata un plan para acceder.');
+                window.location.href = '/';
+                return;
+            }
+            
+            userData = userDoc.data();
+            // Mostrar datos en la interfaz
+            userEmailSpan.textContent = user.email;
+            planSpan.textContent = userData.plan === 'pro' ? 'Plan Pro' : (userData.plan === 'basic' ? 'Plan Básico' : 'Gratuito (demo)');
+            usedSpan.textContent = userData.facturas_usadas;
+            maxSpan.textContent = userData.facturas_max;
+        });
+        
+        // Cerrar sesión
+        window.logout = async () => {
+            await signOut(auth);
+            window.location.href = '/';
+        };
+        
+        // Manejo de subida de archivos
+        uploadArea.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            selectedFiles = files;
+            renderFileList();
+        });
+        
+        function renderFileList() {
+            if (selectedFiles.length === 0) {
+                fileListDiv.innerHTML = '<p style="color: #aaa;">No hay archivos seleccionados</p>';
+                return;
+            }
+            fileListDiv.innerHTML = selectedFiles.map((file, idx) => `
+                <div class="file-item">
+                    <span>📄 ${file.name} (${(file.size / 1024).toFixed(1)} KB)</span>
+                    <button class="btn-outline btn" style="padding: 5px 12px;" onclick="removeFile(${idx})">Eliminar</button>
+                </div>
+            `).join('');
+        }
+        
+        window.removeFile = (idx) => {
+            selectedFiles.splice(idx, 1);
+            renderFileList();
+            // Resetear input para permitir seleccionar los mismos archivos otra vez
+            fileInput.value = '';
+        };
+        
+        // Procesar facturas
+        window.processInvoices = async () => {
+            if (selectedFiles.length === 0) {
+                alert('Selecciona al menos una factura.');
+                return;
+            }
+            
+            // Verificar límite de facturas
+            const nuevasUsadas = userData.facturas_usadas + selectedFiles.length;
+            if (nuevasUsadas > userData.facturas_max) {
+                alert(`Has superado el límite de tu plan (${userData.facturas_max} facturas). Contrata más capacidad.`);
+                return;
+            }
+            
+            processBtn.disabled = true;
+            processBtn.textContent = 'Procesando...';
+            progressBar.style.width = '0%';
+            resultDiv.innerHTML = '';
+            
+            const resultados = [];
+            let processed = 0;
+            
+            for (const file of selectedFiles) {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('prompt', 'Extrae de esta factura: Empresa | ID_Factura | Fecha (YYYY-MM-DD) | Moneda | Base_Imponible | Impuesto_Importe | Total_Final | %_Impuesto_Pais. Devuelve solo la línea con valores separados por |. Si falta algún dato, escribe N/A.');
+                
+                try {
+                    const response = await fetch(WORKER_URL, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await response.json();
+                    // Gemini devuelve una estructura; extraemos el texto
+                    let extractedText = '';
+                    if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
+                        extractedText = data.candidates[0].content.parts[0].text;
+                    } else {
+                        extractedText = 'ERROR: No se pudo extraer datos';
+                    }
+                    resultados.push({
+                        archivo: file.name,
+                        extraccion: extractedText
+                    });
+                } catch (error) {
+                    resultados.push({
+                        archivo: file.name,
+                        extraccion: `ERROR: ${error.message}`
+                    });
+                }
+                
+                processed++;
+                progressBar.style.width = `${(processed / selectedFiles.length) * 100}%`;
+            }
+            
+            // Mostrar resultados en pantalla
+            displayResults(resultados);
+            
+            // Actualizar contador en Firestore
+            const userDocRef = doc(db, 'users', currentUser.uid);
+            await updateDoc(userDocRef, {
+                facturas_usadas: nuevasUsadas
+            });
+            userData.facturas_usadas = nuevasUsadas;
+            usedSpan.textContent = nuevasUsadas;
+            
+            processBtn.disabled = false;
+            processBtn.textContent = 'Procesar facturas';
+        };
+        
+        // Mostrar resultados y generar Excel
+        function displayResults(resultados) {
+            // Mostrar texto plano en la interfaz
+            resultDiv.innerHTML = resultados.map(r => `
+                <div style="margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px;">
+                    <strong>📄 ${r.archivo}</strong><br>
+                    <pre style="white-space: pre-wrap; background: #1a1a1a; padding: 10px; border-radius: 10px;">${r.extraccion}</pre>
+                </div>
+            `).join('');
+            
+            // Generar archivo Excel usando SheetJS
+            generarExcel(resultados);
+        }
+        
+        function generarExcel(resultados) {
+            // Transformar los resultados en filas para Excel
+            const rows = [];
+            rows.push(['Archivo', 'Empresa', 'ID_Factura', 'Fecha', 'Moneda', 'Base_Imponible', 'Impuesto', 'Total', 'Porcentaje_Impuesto', 'Raw_Extraccion']);
+            
+            for (const res of resultados) {
+                const partes = res.extraccion.split('|').map(s => s.trim());
+                // Si la extracción tiene error, meter todo en la última columna
+                if (res.extraccion.startsWith('ERROR')) {
+                    rows.push([res.archivo, '', '', '', '', '', '', '', '', res.extraccion]);
+                } else {
+                    rows.push([
+                        res.archivo,
+                        partes[0] || 'N/A',
+                        partes[1] || 'N/A',
+                        partes[2] || 'N/A',
+                        partes[3] || 'N/A',
+                        partes[4] || 'N/A',
+                        partes[5] || 'N/A',
+                        partes[6] || 'N/A',
+                        partes[7] || 'N/A',
+                        res.extraccion
+                    ]);
+                }
+            }
+            
+            // Crear libro de Excel
+            const ws = XLSX.utils.aoa_to_sheet(rows);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Facturas procesadas');
+            // Generar archivo y descargar
+            XLSX.writeFile(wb, `facturas_${new Date().toISOString().slice(0,19)}.xlsx`);
+        }
+        
+        // Arrastrar y soltar archivos
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#007bff';
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = 'rgba(255,255,255,0.2)';
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'rgba(255,255,255,0.2)';
+            const files = Array.from(e.dataTransfer.files);
+            selectedFiles = files;
+            renderFileList();
+        });
+    </script>
+    
+    <!-- SheetJS (XLSX) para generar Excel en el frontend -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="logo">AITANC Prime</div>
+        <div class="user-info">
+            <span>📧 <span id="userEmail">cargando...</span></span>
+            <span>💳 <span id="plan">---</span></span>
+            <button class="btn-outline btn" onclick="logout()">Cerrar sesión</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 class="card-title">Sube tus facturas</h2>
+        <p>Formatos aceptados: JPG, PNG, PDF. La IA extraerá los datos y generará un Excel.</p>
+        
+        <div class="counter">
+            📊 Facturas usadas este mes: <span class="counter-value" id="used">0</span> / <span id="max">0</span>
+        </div>
+        
+        <div class="upload-area" id="uploadArea">
+            <div>📁 Haz clic o arrastra archivos aquí</div>
+            <input type="file" id="fileInput" multiple accept="image/jpeg,image/png,application/pdf">
+        </div>
+        
+        <div id="fileList" class="file-list">
+            <p style="color: #aaa;">No hay archivos seleccionados</p>
+        </div>
+        
+        <button class="btn" id="processBtn" onclick="processInvoices()">Procesar facturas</button>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <h3 class="card-title" style="font-size: 1.4rem;">Resultados de la extracción</h3>
+        <div id="result" class="result-area">
+            <p style="color: #aaa;">Los datos extraídos aparecerán aquí y se descargará automáticamente un Excel.</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>
