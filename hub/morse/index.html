@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Conversión a Código Morse</title>
+    <link rel="stylesheet" href="morse_styles.css"> </head>
+<body>
+    <div class="container">
+        <h1>¡Traduce la Palabra a Morse!</h1>
+        <div class="game-area">
+            <p>Palabra a traducir:</p>
+            <h2 id="word-to-translate">...</h2>
+
+            <label for="morse-input">Tu código Morse (puntos y rayas):</label>
+            <input type="text" id="morse-input" placeholder="Ej: .- / -... / -.-.">
+
+            <div class="buttons">
+                <button onclick="checkAnswer()">Comprobar</button>
+                <button onclick="generateNewWord()">Nueva Palabra</button>
+            </div>
+
+            <div id="result-message"></div>
+            <p class="hint">Usa `.` para el punto y `-` para la raya. Separa letras con un espacio (` `) y palabras con una barra (`/`).</p>
+
+            <h3>Tabla de Referencia (¡Solo si te rindes!)</h3>
+            <div id="morse-table-container">
+                </div>
+        </div>
+    </div>
+
+    <script src="morse_script.js"></script> <script>
+        // Si no quieres crear archivos separados, puedes pegar el JS aquí:
+        // CÓDIGO JS AQUÍ
+    </script>
+</body>
+</html>
