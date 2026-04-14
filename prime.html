@@ -149,16 +149,11 @@
             }
             
             try {
+                // Dentro de processInvoices, reemplaza el fetch por:
                 const response = await fetch(WORKER_URL, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${SECRET_TOKEN}` },
-                    body: formData
+                method: 'POST',
+                body: formData  // Sin headers de autorización
                 });
-                
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Worker respondió con ${response.status}: ${errorText}`);
-                }
                 
                 const data = await response.json();
                 const { resultados, resumen } = data;
