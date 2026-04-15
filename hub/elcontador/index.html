@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Center Ultra + Birthdays</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #38bdf8;
+            --secondary: #818cf8;
+            --text: #f1f5f9;
+            --danger: #ef4444;
+            --pipi: #10b981;
+            --pause: #f59e0b;
+            --salida: #ec4899;
+            --birthday: #f472b6;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, system-ui, sans-serif;
+            margin: 0;
+            padding: 20px 20px 100px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .time-display {
+            font-size: 2rem;
+            font-weight: bold;
+            font-variant-numeric: tabular-nums;
+            margin: 10px 0;
+        }
+
+        .label {
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 1.5px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        /* --- MENÚ DE CUMPLEAÑOS --- */
+        .birthday-btn {
+            background: var(--birthday);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(244, 114, 182, 0.3);
+            transition: transform 0.2s;
+        }
+        .birthday-btn:active { transform: scale(0.95); }
+
+        #birthday-menu {
+            display: none;
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%; max-width: 500px;
+            max-height: 80vh;
+            background: #1e293b;
+            border: 2px solid var(--birthday);
+            border-radius: 20px;
+            padding: 20px;
+            z-index: 2000;
+            overflow-y: auto;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+        }
+
+        .birthday-item {
+            background: rgba(255,255,255,0.05);
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .birthday-name { color: var(--birthday); font-weight: bold; font-size: 1.1rem; }
+        .birthday-countdown { font-family: monospace; font-size: 1rem; margin-top: 5px; }
+
+        .overlay-bg {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1999;
+        }
+
+        /* --- BARRA DE PROGRESO --- */
+        .progress-track { background: #334155; border-radius: 10px; height: 15px; margin: 10px 0; overflow: hidden; }
+        .progress-fill { background: var(--accent); height: 100%; width: 0%; transition: width 1s; }
+
+        .server-footer {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: rgba(15, 23, 42, 0.9); padding: 10px;
+            display: flex; justify-content: space-around; font-size: 0.8rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="overlay-bg" id="modal-overlay" onclick="toggleBirthdays()"></div>
+
+    <h1>Time Center Pro</h1>
+
+    <div class="dashboard">
+        <div class="card" style="grid-column: 1 / -1;">
+            <div class="label" id="prog-label">Progreso del Día</div>
+            <div class="progress-track"><div id="progress-bar" class="progress-fill"></div></div>
+            <div id="prog-text" style="font-size: 0.8rem; opacity: 0.7;">Calculando...</div>
+        </div>
+
+        <div class="card"><div class="label" style="color: var(--pipi);">Pipi Pausen</div><div id="pipi-timer" class="time-display">--:--:--</div></div>
+        <div class="card"><div class="label" style="color: var(--pause);">Pausen</div><div id="pause-timer" class="time-display">--:--:--</div></div>
+        <div class="card"><div class="label" style="color: var(--salida);">Salida</div><div id="salida-timer" class="time-display">--:--:--</div></div>
+
+        <div class="card" style="border: 2px solid #fbbf24;">
+            <div class="label" style="color: #fbbf24;">🍔 Trading Hamburguesas</div>
+            <div id="trading-timer" class="time-display" style="font-size: 1.5rem;">--:--:--</div>
+        </div>
+
+        <div class="card"><div class="label" style="color: var(--accent);">Misión: Viernes 15:00</div><div id="viernes-timer" class="time-display">--:--:--</div></div>
+    </div>
+
+    <button class="birthday-btn" onclick="toggleBirthdays()">🎂 VER CUMPLEAÑOS</button>
+
+    <div id="birthday-menu">
+        <h2 style="text-align: center; color: var(--birthday);">Próximos Cumpleaños</h2>
+        <div id="birthday-list">
+            </div>
+        <button class="birthday-btn" style="width: 100%; background: #334155;" onclick="toggleBirthdays()">CERRAR</button>
+    </div>
+
+    <div class="server-footer">
+        <div id="footer-time">Sincronizando...</div>
+        <div>IPAD COLEGIO EDITION</div>
+    </div>
+
+    <script>
+        const cumpleaños = [
+            { nombre: "Pasto Verde", dia: 2, mes: 0 }, // Enero es 0
+            { nombre: "AdrianaAA", dia: 15, mes: 3 }, // Abril es 3
+            { nombre: "Zoe", dia: 7, mes: 4 },        // Mayo es 4
+            { nombre: "Danirep", dia: 13, mes: 4 },
+            { nombre: "PedroXXX", dia: 17, mes: 4 },
+            { nombre: "Alexperiment", dia: 31, mes: 6 }, // Julio es 6
+            { nombre: "Gioele +7kg diarios", dia: 29, mes: 8 } // Septiembre es 8
+        ];
+
+        function toggleBirthdays() {
+            const menu = document.getElementById('birthday-menu');
+            const overlay = document.getElementById('modal-overlay');
+            const isVisible = menu.style.display === 'block';
+            menu.style.display = isVisible ? 'none' : 'block';
+            overlay.style.display = isVisible ? 'none' : 'block';
+        }
+
+        function updateAll() {
+            const ahora = new Date();
+            document.getElementById('footer-time').innerText = ahora.toLocaleTimeString();
+
+            // 1. TRADING HAMBURGUESAS (1 Junio)
+            const tradingDate = new Date(ahora.getFullYear(), 5, 1, 14, 0);
+            renderTimer(tradingDate, 'trading-timer', ahora);
+
+            // 2. RUTINAS (Simplificado para el ejemplo)
+            updateProgressBar(ahora);
+
+            // 3. ACTUALIZAR LISTA CUMPLEAÑOS
+            const listContainer = document.getElementById('birthday-list');
+            listContainer.innerHTML = '';
+            
+            cumpleaños.forEach(c => {
+                let target = new Date(ahora.getFullYear(), c.mes, c.dia, 0, 0, 0);
+                if (ahora > target && (ahora.getDate() !== c.dia || ahora.getMonth() !== c.mes)) {
+                    target.setFullYear(ahora.getFullYear() + 1);
+                }
+
+                const diff = target - ahora;
+                let text = "";
+
+                if (ahora.getDate() === c.dia && ahora.getMonth() === c.mes) {
+                    text = "🌟 ¡ES HOY! 🌟";
+                } else {
+                    const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                    const m = Math.floor((diff / 1000 / 60) % 60);
+                    text = `${d}d ${h}h ${m}m`;
+                }
+
+                listContainer.innerHTML += `
+                    <div class="birthday-item">
+                        <span class="birthday-name">${c.nombre}</span>
+                        <span class="birthday-countdown">${text}</span>
+                    </div>
+                `;
+            });
+
+            // 4. OTROS TIMERS
+            const proxViernes = new Date(ahora);
+            let dV = 5 - ahora.getDay();
+            if (dV < 0 || (dV === 0 && ahora.getHours() >= 15)) dV += 7;
+            proxViernes.setDate(ahora.getDate() + dV);
+            proxViernes.setHours(15, 0, 0, 0);
+            renderTimer(proxViernes, 'viernes-timer', ahora);
+        }
+
+        function renderTimer(target, elementId, ahora) {
+            const diff = target - ahora;
+            if (diff > 0) {
+                const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                const m = Math.floor((diff / 1000 / 60) % 60);
+                const s = Math.floor((diff / 1000) % 60);
+                document.getElementById(elementId).innerText = `${d > 0 ? d + 'd ' : ''}${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            } else {
+                document.getElementById(elementId).innerText = "00:00:00";
+            }
+        }
+
+        function updateProgressBar(ahora) {
+            const dia = ahora.getDay();
+            const bar = document.getElementById('progress-bar');
+            let inicio = new Date(ahora); inicio.setHours(8,0,0);
+            let fin = new Date(ahora);
+            if ([2,3].includes(dia)) fin.setHours(14,15,0); else fin.setHours(15,0,0);
+
+            let total = fin - inicio;
+            let pasado = ahora - inicio;
+            let pct = Math.min(100, Math.max(0, Math.floor((pasado/total)*100)));
+            bar.style.width = pct + "%";
+            document.getElementById('prog-text').innerText = `${pct}% del día completado`;
+        }
+
+        setInterval(updateAll, 1000);
+        updateAll();
+    </script>
+</body>
+</html>
