@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>domke.com | Image Converter</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: #1e293b;
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid #334155;
+            text-align: center;
+            max-width: 400px;
+        }
+        h1 { background: linear-gradient(90deg, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 30px; }
+        input[type="file"] { display: none; }
+        .upload-btn {
+            background: #6366f1;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: inline-block;
+            transition: 0.3s;
+        }
+        .upload-btn:hover { background: #4f46e5; }
+        #preview { margin-top: 20px; max-width: 100%; border-radius: 10px; display: none; }
+        #downloadBtn {
+            display: none;
+            margin-top: 20px;
+            color: #818cf8;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>domke.com</h1>
+        <p>Selecciona una imagen o archivo para convertir a JPG</p>
+        
+        <label for="fileInput" class="upload-btn">Seleccionar Archivo</label>
+        <input type="file" id="fileInput" accept="image/*">
+
+        <canvas id="canvas" style="display:none;"></canvas>
+        <img id="preview" alt="Preview">
+        
+        <a id="downloadBtn">Descargar JPG convertido</a>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const canvas = document.getElementById('canvas');
+        const preview = document.getElementById('preview');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const ctx = canvas.getContext('2d');
+
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    // Configurar el canvas al tamaño de la imagen
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    
+                    // Dibujar fondo blanco (por si hay transparencias en PNG)
+                    ctx.fillStyle = "#FFFFFF";
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    // Dibujar la imagen original
+                    ctx.drawImage(img, 0, 0);
+
+                    // Convertir a JPG (Calidad 0.9)
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+                    
+                    // Mostrar preview y botón de descarga
+                    preview.src = dataUrl;
+                    preview.style.display = 'block';
+                    downloadBtn.href = dataUrl;
+                    downloadBtn.download = `domkecom-${Date.now()}.jpg`;
+                    downloadBtn.style.display = 'inline-block';
+                }
+                img.src = event.target.result;
+            }
+            reader.readAsDataURL(file);
+        });
+    </script>
+</body>
+</html>
