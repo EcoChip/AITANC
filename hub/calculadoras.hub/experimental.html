@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>🧮 Calculadora Científica Completa · Todos los botones</title>
+  <!-- Math.js para evaluación segura y funciones avanzadas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', 'Roboto', system-ui, sans-serif;
+    }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      background: linear-gradient(145deg, #1e2b3a 0%, #0f172a 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+    .calculator {
+      max-width: 1000px;
+      width: 100%;
+      background: rgba(18, 28, 40, 0.9);
+      backdrop-filter: blur(12px);
+      border-radius: 36px;
+      box-shadow: 0 25px 50px -8px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.06);
+      padding: 24px 20px 28px;
+      border: 1px solid rgba(120, 180, 255, 0.15);
+    }
+    .display-container {
+      margin-bottom: 20px;
+    }
+    #display {
+      width: 100%;
+      background: #0b121c;
+      border: none;
+      border-radius: 24px;
+      padding: 22px 20px;
+      font-size: 2.3rem;
+      font-weight: 500;
+      color: #e3f2fd;
+      text-align: right;
+      box-shadow: inset 0 6px 10px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.3);
+      border: 1px solid #2d3e5a;
+      letter-spacing: 1px;
+      line-height: 1.3;
+      word-wrap: break-word;
+      overflow-x: auto;
+      white-space: nowrap;
+      font-family: 'JetBrains Mono', 'Cascadia Code', monospace;
+    }
+    #display:focus {
+      outline: 2px solid #3b82f6;
+    }
+    .buttons-panel {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 10px;
+    }
+    /* Botón base */
+    .btn {
+      background: #1e2f44;
+      border: none;
+      border-radius: 18px;
+      padding: 14px 4px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #e2e8f0;
+      box-shadow: 0 5px 0 #0f1a24, 0 3px 8px rgba(0,0,0,0.3);
+      cursor: pointer;
+      transition: all 0.06s ease;
+      text-align: center;
+      border: 1px solid #2d4b66;
+      user-select: none;
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+    .btn:hover {
+      background: #2a405b;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 0 #0f1a24, 0 6px 12px black;
+      border-color: #4f7aa6;
+    }
+    .btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 1px 0 #0f1a24, 0 3px 8px black;
+    }
+    /* Categorías de color */
+    .num {
+      background: #263b4f;
+      color: #f0f9ff;
+      font-weight: 700;
+      border-color: #3a5e7a;
+    }
+    .operator {
+      background: #3b4e62;
+      color: #ffdd99;
+      font-weight: 700;
+      border-color: #5e7e9c;
+    }
+    .func {
+      background: #2a3a4a;
+      color: #a5d8ff;
+      border-color: #3c6e9c;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+    .const {
+      background: #1f3a4e;
+      color: #b4e6b4;
+      border-color: #2e7a5e;
+    }
+    .memory {
+      background: #3d2e4a;
+      color: #dbbdf0;
+      border-color: #7a5f9c;
+    }
+    .equal {
+      background: #1e4d6b;
+      color: white;
+      font-weight: 800;
+      font-size: 1.5rem;
+      border-color: #2a8ab3;
+      box-shadow: 0 5px 0 #0e2a3b, 0 3px 8px black;
+    }
+    .clear {
+      background: #5f3e3e;
+      color: #ffb4b4;
+      border-color: #b16e6e;
+    }
+    .back {
+      background: #4a3f2e;
+      color: #ffdb9f;
+      border-color: #b38f5a;
+    }
+    /* Ajuste de fuente para botones con texto largo */
+    .btn.small-text {
+      font-size: 0.9rem;
+      padding: 14px 2px;
+    }
+    /* Ocupar más columnas para = */
+    .span-2 {
+      grid-column: span 2;
+    }
+    /* Responsive: reducir columnas en pantallas pequeñas */
+    @media (max-width: 700px) {
+      .buttons-panel {
+        grid-template-columns: repeat(8, 1fr);
+        gap: 8px;
+      }
+      .btn {
+        padding: 12px 2px;
+        font-size: 1rem;
+        border-radius: 14px;
+      }
+      #display {
+        font-size: 1.8rem;
+        padding: 18px 14px;
+      }
+    }
+    @media (max-width: 550px) {
+      .buttons-panel {
+        grid-template-columns: repeat(6, 1fr);
+      }
+      .btn {
+        font-size: 0.9rem;
+        padding: 12px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="calculator">
+  <div class="display-container">
+    <input type="text" id="display" value="0" readonly>
+  </div>
+  <div class="buttons-panel" id="buttonGrid">
+    <!-- FILA 1: Limpieza / Memoria / Constantes -->
+    <button class="btn clear" data-action="clearAll">AC</button>
+    <button class="btn clear" data-action="clearEntry">CE</button>
+    <button class="btn back" data-action="backspace">⌫</button>
+    <button class="btn memory" data-action="memoryClear">MC</button>
+    <button class="btn memory" data-action="memoryRecall">MR</button>
+    <button class="btn memory" data-action="memoryAdd">M+</button>
+    <button class="btn memory" data-action="memorySubtract">M-</button>
+    <button class="btn const" data-const="pi">π</button>
+    <button class="btn const" data-const="e">e</button>
+    <button class="btn func" data-func="rand">Rand</button>
+
+    <!-- FILA 2: Funciones trigonométricas / hiperbólicas? (menos usadas) -->
+    <button class="btn func" data-func="sin">sin</button>
+    <button class="btn func" data-func="cos">cos</button>
+    <button class="btn func" data-func="tan">tan</button>
+    <button class="btn func" data-func="asin">asin</button>
+    <button class="btn func" data-func="acos">acos</button>
+    <button class="btn func" data-func="atan">atan</button>
+    <button class="btn func" data-func="sinh">sinh</button>
+    <button class="btn func" data-func="cosh">cosh</button>
+    <button class="btn func" data-func="tanh">tanh</button>
+    <button class="btn func" data-func="asinh">asinh</button>
+
+    <!-- FILA 3: Logaritmos, potencias, raíces -->
+    <button class="btn func" data-func="log">log₁₀</button>
+    <button class="btn func" data-func="ln">ln</button>
+    <button class="btn func" data-func="sqrt">√</button>
+    <button class="btn func" data-func="cbrt">∛</button>
+    <button class="btn func" data-func="square">x²</button>
+    <button class="btn func" data-func="cube">x³</button>
+    <button class="btn func" data-func="pow">xʸ</button>
+    <button class="btn func" data-func="exp">eˣ</button>
+    <button class="btn func" data-func="tenPow">10ˣ</button>
+    <button class="btn func" data-func="inv">1/x</button>
+
+    <!-- FILA 4: Factorial, valor abs, módulo, porcentaje, etc -->
+    <button class="btn func" data-func="factorial">n!</button>
+    <button class="btn func" data-func="abs">|x|</button>
+    <button class="btn operator" data-operator="mod">mod</button>
+    <button class="btn operator" data-operator="%">%</button>
+    <button class="btn func" data-func="round">round</button>
+    <button class="btn func" data-func="floor">⌊x⌋</button>
+    <button class="btn func" data-func="ceil">⌈x⌉</button>
+    <button class="btn func" data-func="sign">sign</button>
+    <button class="btn func" data-func="csc">csc</button>
+    <button class="btn func" data-func="sec">sec</button>
+
+    <!-- FILA 5: Números y paréntesis -->
+    <button class="btn num" data-number="7">7</button>
+    <button class="btn num" data-number="8">8</button>
+    <button class="btn num" data-number="9">9</button>
+    <button class="btn operator" data-operator="/">÷</button>
+    <button class="btn operator" data-operator="(">(</button>
+    <button class="btn operator" data-operator=")">)</button>
+    <button class="btn func" data-func="deg">deg</button>
+    <button class="btn func" data-func="rad">rad</button>
+    <button class="btn const" data-const="phi">φ</button>
+    <button class="btn const" data-const="tau">τ</button>
+
+    <!-- FILA 6 -->
+    <button class="btn num" data-number="4">4</button>
+    <button class="btn num" data-number="5">5</button>
+    <button class="btn num" data-number="6">6</button>
+    <button class="btn operator" data-operator="*">×</button>
+    <button class="btn func" data-func="log2">log₂</button>
+    <button class="btn func" data-func="log1p">log1p</button>
+    <button class="btn func" data-func="expm1">expm1</button>
+    <button class="btn func" data-func="gamma">Γ</button>
+    <button class="btn func" data-func="lgamma">lgamma</button>
+    <button class="btn func" data-func="erf">erf</button>
+
+    <!-- FILA 7 -->
+    <button class="btn num" data-number="1">1</button>
+    <button class="btn num" data-number="2">2</button>
+    <button class="btn num" data-number="3">3</button>
+    <button class="btn operator" data-operator="-">−</button>
+    <button class="btn func" data-func="gcd">gcd</button>
+    <button class="btn func" data-func="lcm">lcm</button>
+    <button class="btn func" data-func="hypot">hypot</button>
+    <button class="btn func" data-func="norm">norm</button>
+    <button class="btn func" data-func="binom">C(n,k)</button>
+    <button class="btn func" data-func="perm">P(n,k)</button>
+
+    <!-- FILA 8 -->
+    <button class="btn num" data-number="0">0</button>
+    <button class="btn num" data-number=".">.</button>
+    <button class="btn operator" data-operator="+">+</button>
+    <button class="btn operator" data-operator="^">^</button>
+    <button class="btn func" data-func="root">ⁿ√</button>
+    <button class="btn func" data-func="std">σ</button>
+    <button class="btn func" data-func="var">σ²</button>
+    <button class="btn func" data-func="median">med</button>
+    <button class="btn func" data-func="mode">moda</button>
+    <button class="btn equal span-2" data-action="evaluate">=</button>
+  </div>
+  <div style="margin-top: 16px; text-align: right; opacity: 0.7; color: #9bb8da; font-size: 0.8rem; padding-right: 8px;">
+    <span>🧪 Modo: rad · Mem: <span id="memIndicator">0</span></span>
+  </div>
+</div>
+
+<script>
+  (function(){
+    "use strict";
+
+    // ---------- CONFIGURACIÓN ----------
+    const display = document.getElementById('display');
+    const memSpan = document.getElementById('memIndicator');
+    
+    // Estado
+    let currentExpression = '';
+    let memory = 0;
+    let lastResult = null;
+    let shouldReset = false; // después de evaluar, si se pulsa número reemplaza
+
+    // math.js ya está disponible globalmente como 'math'
+    
+    // Actualizar display
+    function updateDisplay(value) {
+      display.value = value || '0';
+    }
+
+    // Mostrar indicador de memoria
+    function updateMemIndicator() {
+      memSpan.textContent = memory.toString().slice(0, 10);
+    }
+
+    // Reiniciar estado (AC)
+    function allClear() {
+      currentExpression = '';
+      shouldReset = false;
+      updateDisplay('0');
+    }
+
+    // Borrar último caracter
+    function backspace() {
+      if (shouldReset) {
+        currentExpression = '';
+        shouldReset = false;
+      }
+      currentExpression = currentExpression.slice(0, -1);
+      updateDisplay(currentExpression || '0');
+    }
+
+    // Insertar texto en expresión
+    function insertText(text) {
+      if (shouldReset) {
+        // Si venimos de un "=" y el usuario escribe número/operador...
+        if (/^[0-9.(πe]/.test(text)) {
+          currentExpression = '';
+        } else {
+          // si es operador, continuamos con el resultado anterior
+          if (lastResult !== null && /^[+\-*/^%]/.test(text)) {
+            currentExpression = lastResult.toString();
+          } else {
+            currentExpression = '';
+          }
+        }
+        shouldReset = false;
+      }
+      currentExpression += text;
+      updateDisplay(currentExpression);
+    }
+
+    // Preprocesar % (porcentaje) y otras adaptaciones
+    function preprocessExpression(expr) {
+      // Reemplazar número%  -> (número/100)
+      // Maneja decimales y números seguidos de %
+      let processed = expr.replace(/(\d+(\.\d+)?)%/g, '($1/100)');
+      
+      // Reemplazar 'mod' por ' mod ' (operador modulo mathjs)
+      processed = processed.replace(/mod/g, ' mod ');
+      
+      // Reemplazar funciones especiales no nativas de mathjs pero que tenemos como botones
+      // Ya usamos directamente nombres compatibles con math.js
+      
+      // Manejar factorial con '!' (mathjs lo soporta)
+      
+      // Constantes φ, τ (mathjs tiene phi, tau? mathjs tiene 'phi'? sí, y tau)
+      // ya las insertamos como phi, tau.
+      
+      return processed;
+    }
+
+    // Evaluar expresión usando math.js
+    function evaluateExpression() {
+      if (!currentExpression.trim()) {
+        updateDisplay('0');
+        return;
+      }
+      
+      try {
+        let exprToEval = preprocessExpression(currentExpression);
+        
+        // Si no hay operadores ni funciones, devolver tal cual
+        // math.evaluate puede lanzar errores, los capturamos.
+        const result = math.evaluate(exprToEval);
+        
+        // Formatear resultado
+        let resultStr;
+        if (typeof result === 'number') {
+          // Evitar notación científica fea si es posible
+          if (Math.abs(result) < 1e15 && Math.abs(result) > 1e-7) {
+            resultStr = math.format(result, {precision: 14});
+          } else {
+            resultStr = math.format(result, {notation: 'auto', precision: 10});
+          }
+        } else if (result && typeof result === 'object') {
+          // matrices, complejos? mostrar string
+          resultStr = result.toString();
+        } else {
+          resultStr = String(result);
+        }
+        
+        lastResult = result;
+        currentExpression = resultStr;
+        updateDisplay(resultStr);
+        shouldReset = true;
+      } catch (error) {
+        console.warn('Error eval:', error);
+        updateDisplay('Error');
+        shouldReset = true;
+        currentExpression = '';
+      }
+    }
+
+    // Manejar funciones especiales (insertan con paréntesis)
+    function handleFunc(funcName) {
+      let insert = '';
+      const needsArg = ['sin','cos','tan','asin','acos','atan','sinh','cosh','tanh','asinh','acosh','atanh',
+                        'log','log10','log2','ln','sqrt','cbrt','abs','round','floor','ceil','sign',
+                        'exp','expm1','log1p','gamma','lgamma','erf','gcd','lcm','hypot','norm',
+                        'csc','sec','cot','deg','rad'];
+      // Mapear alias
+      const mapFunc = {
+        'log': 'log10',   // en nuestra UI log es base 10, mathjs log10
+        'ln': 'log',      // natural log
+        'sqrt': 'sqrt',
+        'cbrt': 'cbrt',
+        'square': 'square',
+        'cube': 'cube',
+        'pow': 'pow',
+        'exp': 'exp',
+        'tenPow': '10^',
+        'inv': 'inv',
+        'factorial': '!',
+        'abs': 'abs',
+        'round': 'round',
+        'floor': 'floor',
+        'ceil': 'ceil',
+        'sign': 'sign',
+        'csc': 'csc',
+        'sec': 'sec',
+        'deg': 'deg',
+        'rad': 'rad',
+        'log2': 'log2',
+        'log1p': 'log1p',
+        'expm1': 'expm1',
+        'gamma': 'gamma',
+        'lgamma': 'lgamma',
+        'erf': 'erf',
+        'gcd': 'gcd',
+        'lcm': 'lcm',
+        'hypot': 'hypot',
+        'norm': 'norm',
+        'binom': 'binomial',
+        'perm': 'permutations',
+        'root': 'nthRoot',
+        'std': 'std',
+        'var': 'var',
+        'median': 'median',
+        'mode': 'mode',
+        'rand': 'random',
+      };
+      
+      let mathFunc = mapFunc[funcName] || funcName;
+      
+      // Casos especiales que no llevan paréntesis automático
+      if (funcName === 'square') {
+        insert = '^2';
+      } else if (funcName === 'cube') {
+        insert = '^3';
+      } else if (funcName === 'inv') {
+        insert = '^(-1)';
+      } else if (funcName === 'factorial') {
+        insert = '!';
+      } else if (funcName === 'tenPow') {
+        insert = '10^(';
+      } else if (funcName === 'pow') {
+        insert = '^(';
+      } else if (funcName === 'root') {
+        insert = 'nthRoot(';
+      } else if (funcName === 'rand') {
+        insert = 'random()';
+      } else if (funcName === 'binom') {
+        insert = 'binomial(';
+      } else if (funcName === 'perm') {
+        insert = 'permutations(';
+      } else if (mathFunc.endsWith(')') || mathFunc.includes('(')) {
+        insert = mathFunc;
+      } else if (needsArg.includes(funcName) || /^(sin|cos|tan|log|sqrt|cbrt|abs|round|floor|ceil|exp|gamma|erf|gcd|lcm|hypot|norm|std|var|median|mode)$/i.test(funcName)) {
+        insert = mathFunc + '(';
+      } else {
+        insert = mathFunc;
+      }
+      
+      insertText(insert);
+    }
+
+    // Manejar constantes
+    function handleConst(constName) {
+      const map = {
+        'pi': 'pi',
+        'e': 'e',
+        'phi': 'phi',
+        'tau': 'tau'
+      };
+      insertText(map[constName] || constName);
+    }
+
+    // Manejar operadores
+    function handleOperator(op) {
+      if (op === '%') {
+        insertText('%');
+      } else if (op === 'mod') {
+        insertText(' mod ');
+      } else {
+        insertText(op);
+      }
+    }
+
+    // Memoria
+    function memoryAdd() {
+      try {
+        const val = math.evaluate(currentExpression || '0');
+        memory += Number(val);
+        updateMemIndicator();
+      } catch (e) { /* ignorar */ }
+    }
+    function memorySubtract() {
+      try {
+        const val = math.evaluate(currentExpression || '0');
+        memory -= Number(val);
+        updateMemIndicator();
+      } catch (e) {}
+    }
+    function memoryRecall() {
+      insertText(memory.toString());
+    }
+    function memoryClear() {
+      memory = 0;
+      updateMemIndicator();
+    }
+
+    // Event delegation
+    const grid = document.getElementById('buttonGrid');
+    
+    grid.addEventListener('click', (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      
+      const action = btn.dataset.action;
+      const number = btn.dataset.number;
+      const operator = btn.dataset.operator;
+      const func = btn.dataset.func;
+      const constant = btn.dataset.const;
+      
+      // Efecto háptico opcional (sin importancia)
+      
+      if (number !== undefined) {
+        insertText(number);
+      } else if (operator !== undefined) {
+        handleOperator(operator);
+      } else if (func !== undefined) {
+        handleFunc(func);
+      } else if (constant !== undefined) {
+        handleConst(constant);
+      } else if (action) {
+        switch (action) {
+          case 'clearAll': allClear(); break;
+          case 'clearEntry': currentExpression = ''; updateDisplay('0'); shouldReset = false; break;
+          case 'backspace': backspace(); break;
+          case 'evaluate': evaluateExpression(); break;
+          case 'memoryClear': memoryClear(); break;
+          case 'memoryRecall': memoryRecall(); break;
+          case 'memoryAdd': memoryAdd(); break;
+          case 'memorySubtract': memorySubtract(); break;
+          default: break;
+        }
+      }
+      
+      // Pequeño feedback visual
+      btn.style.transform = 'translateY(1px)';
+      setTimeout(() => btn.style.transform = '', 60);
+    });
+
+    // Soporte básico de teclado (opcional pero útil)
+    document.addEventListener('keydown', (e) => {
+      const key = e.key;
+      if (key >= '0' && key <= '9' || key === '.') {
+        insertText(key);
+        e.preventDefault();
+      } else if (key === '+' || key === '-' || key === '*' || key === '/' || key === '^' || key === '(' || key === ')') {
+        let op = key;
+        if (key === '*') op = '*';
+        if (key === '/') op = '/';
+        handleOperator(op);
+        e.preventDefault();
+      } else if (key === 'Enter' || key === '=') {
+        evaluateExpression();
+        e.preventDefault();
+      } else if (key === 'Backspace') {
+        backspace();
+        e.preventDefault();
+      } else if (key === 'Escape') {
+        allClear();
+        e.preventDefault();
+      } else if (key === '%') {
+        handleOperator('%');
+        e.preventDefault();
+      }
+    });
+
+    // Inicializar
+    allClear();
+    updateMemIndicator();
+    
+    // Exponer para depuración (no necesario)
+    window.calc = { memory };
+  })();
+</script>
+</body>
+</html>
