@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadoras Hub | Aitanc</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --accent: #10b981;
+        }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .header { text-align: center; margin-bottom: 40px; }
+        .header h1 { 
+            font-size: 2.2rem; 
+            background: linear-gradient(90deg, #10b981, #3b82f6); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+        }
+
+        .section-title {
+            width: 100%;
+            max-width: 900px;
+            margin: 30px 0 15px 0;
+            font-size: 1.1rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 5px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .calc-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: white;
+            border: 1px solid #334155;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .calc-card:hover {
+            border-color: var(--accent);
+            transform: scale(1.03);
+            background: #24334d;
+        }
+
+        .icon { font-size: 2rem; margin-bottom: 10px; }
+        .calc-card h3 { margin: 5px 0; font-size: 1.1rem; }
+        
+        .sandbox { border-style: dashed; opacity: 0.7; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Calculadoras Hub</h1>
+        <p>Herramientas matemáticas y de medición</p>
+    </div>
+
+    <div class="section-title">Matemática Básica</div>
+    <div class="grid">
+        <a href="basica.html" class="calc-card">
+            <span class="icon">➕</span>
+            <h3>Estándar</h3>
+        </a>
+        <a href="porcentajes.html" class="calc-card">
+            <span class="icon">%</span>
+            <h3>Porcentajes</h3>
+        </a>
+    </div>
+
+    <div class="section-title">Salud y Cuerpo</div>
+    <div class="grid">
+        <a href="imc.html" class="calc-card">
+            <span class="icon">⚖️</span>
+            <h3>IMC</h3>
+        </a>
+        <a href="calorias.html" class="calc-card">
+            <span class="icon">🔥</span>
+            <h3>Calorías</h3>
+        </a>
+    </div>
+
+    <div class="section-title">Ingeniería / Avanzado</div>
+    <div class="grid">
+        <a href="imaginarios.html" class="calc-card">
+            <span class="icon"><i>i</i></span>
+            <h3>Números Imaginarios</h3>
+        </a>
+        <a href="matrices.html" class="calc-card">
+            <span class="icon">📋</span>
+            <h3>Matrices</h3>
+        </a>
+    </div>
+
+    <div class="section-title">Sandbox</div>
+    <div class="grid">
+        <a href="experimental.html" class="calc-card sandbox">
+            <span class="icon">🏗️</span>
+            <h3>Pruebas</h3>
+        </a>
+    </div>
+
+</body>
+</html>
