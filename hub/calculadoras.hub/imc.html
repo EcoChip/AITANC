@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Calculadora IMC | Aitanc</title>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; display: flex; flex-direction: column; align-items: center; padding: 50px; }
+        .calc-box { background: #1e293b; padding: 30px; border-radius: 15px; border: 1px solid #334155; width: 320px; text-align: center; }
+        input { width: 80%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #475569; background: #0f172a; color: white; text-align: center; }
+        button { background: #10b981; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; width: 85%; font-weight: bold; margin-top: 10px; }
+        button:hover { background: #059669; }
+        #resultLabel { margin-top: 25px; font-weight: bold; font-size: 1.2rem; min-height: 1.5em; }
+        .score { font-size: 2.5rem; display: block; margin-bottom: 5px; color: #10b981; }
+        .category { color: #94a3b8; font-style: italic; }
+    </style>
+</head>
+<body>
+    <div class="calc-box">
+        <h2>Calculadora IMC</h2>
+        <input type="number" id="peso" placeholder="Peso (kg)" step="0.1">
+        <input type="number" id="altura" placeholder="Altura (cm)">
+        <button onclick="calcular()">Calcular Nivel</button>
+
+        <div id="resultLabel"></div>
+    </div>
+
+    <script>
+        function calcular() {
+            const peso = parseFloat(document.getElementById('peso').value);
+            const altura = parseFloat(document.getElementById('altura').value) / 100;
+            const resDiv = document.getElementById('resultLabel');
+
+            if (peso > 0 && altura > 0) {
+                const imc = (peso / (altura * altura)).toFixed(1);
+                let nivel = "";
+                let color = "#f8fafc";
+
+                if (imc < 16) { nivel = "Palillo"; color = "#60a5fa"; }
+                else if (imc < 18.5) { nivel = "Esqueleto"; color = "#93c5fd"; }
+                else if (imc < 21) { nivel = "Normal bajo"; color = "#34d399"; }
+                else if (imc < 24) { nivel = "PERFECT"; color = "#10b981"; }
+                else if (imc < 27) { nivel = "Normal alto"; color = "#fbbf24"; }
+                else if (imc < 30) { nivel = "Gordito"; color = "#f59e0b"; }
+                else if (imc < 35) { nivel = "Terrorista de buffets"; color = "#ef4444"; }
+                else { nivel = "Agujero negro de comida +7kg diarios"; color = "#7f1d1d"; }
+
+                resDiv.innerHTML = `<span class="score">${imc}</span><span class="category" style="color:${color}">${nivel}</span>`;
+            } else {
+                resDiv.innerHTML = "Introduce datos válidos";
+            }
+        }
+    </script>
+</body>
+</html>
