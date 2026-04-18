@@ -3,104 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AITANC Prime | Panel de control</title>
+    <title>AITANC | Procesar facturas</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <script src="https://js.stripe.com/v3/"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Poppins', sans-serif; background: #000000; color: #ffffff; padding: 40px 20px; }
-        .container { max-width: 1400px; margin: 0 auto; }
-        
-        /* Header */
-        .header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .logo { font-size: 1.8rem; font-weight: 700; background: linear-gradient(135deg, #007bff, #00c6ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .user-info { background: #0a0a0a; padding: 10px 20px; border-radius: 50px; font-size: 0.9rem; display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
-        .btn { background: linear-gradient(135deg, #007bff, #00c6ff); padding: 10px 24px; border-radius: 50px; color: white; font-weight: 600; border: none; cursor: pointer; transition: 0.3s; font-family: 'Poppins', sans-serif; }
+        .btn { background: linear-gradient(135deg, #007bff, #00c6ff); padding: 12px 28px; border-radius: 50px; color: white; font-weight: 600; border: none; cursor: pointer; transition: 0.3s; }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,123,255,0.3); }
         .btn-outline { background: transparent; border: 1px solid #007bff; }
-        .btn-danger { background: linear-gradient(135deg, #ff4d4d, #cc0000); }
-        .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,0,0,0.3); }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,123,255,0.3); }
-        
-        /* Grid de 2 columnas */
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
-        @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
-        
-        /* Tarjetas */
         .card { background: #0a0a0a; border-radius: 30px; padding: 30px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 30px; }
-        .card-title { font-size: 1.5rem; margin-bottom: 20px; background: linear-gradient(135deg, #fff, #007bff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .card-title small { font-size: 0.8rem; color: #666; }
-        
-        /* Precios */
-        .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
-        .pricing-card { background: #111; padding: 25px; border-radius: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
-        .pricing-card:hover { border-color: #007bff; transform: translateY(-5px); }
-        .pricing-card h3 { font-size: 1.5rem; margin-bottom: 10px; }
-        .price { font-size: 2rem; font-weight: 700; color: #007bff; margin: 15px 0; }
-        .price span { font-size: 0.9rem; color: #888; }
-        .features { list-style: none; margin: 20px 0; text-align: left; }
-        .features li { margin: 10px 0; display: flex; align-items: center; gap: 10px; }
-        .features li::before { content: '✓'; color: #00c6ff; }
-        
-        /* Subida de archivos */
-        .upload-area { border: 2px dashed rgba(255,255,255,0.2); border-radius: 20px; padding: 40px; text-align: center; transition: 0.3s; cursor: pointer; margin-bottom: 20px; }
+        .upload-area { border: 2px dashed rgba(255,255,255,0.2); border-radius: 20px; padding: 40px; text-align: center; cursor: pointer; margin-bottom: 20px; }
         .upload-area:hover { border-color: #007bff; background: rgba(0,123,255,0.05); }
-        .upload-area input { display: none; }
-        .file-list { margin-top: 20px; text-align: left; max-height: 200px; overflow-y: auto; }
-        .file-item { background: #1a1a1a; padding: 10px 15px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-        
-        /* Progreso */
+        .file-list { margin-top: 20px; max-height: 200px; overflow-y: auto; }
+        .file-item { background: #1a1a1a; padding: 10px 15px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; }
         .progress-bar { width: 100%; height: 6px; background: #1a1a1a; border-radius: 10px; overflow: hidden; margin: 20px 0; }
         .progress-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #007bff, #00c6ff); transition: width 0.3s; }
-        
-        /* Contador */
+        .result-area { background: #111; border-radius: 20px; padding: 20px; max-height: 400px; overflow-y: auto; font-size: 0.85rem; }
         .counter { background: #1a1a1a; padding: 15px; border-radius: 15px; text-align: center; margin-bottom: 20px; }
         .counter-value { font-size: 2rem; font-weight: 700; color: #007bff; }
-        
-        /* Resultados */
-        .result-area { background: #111; border-radius: 20px; padding: 20px; max-height: 400px; overflow-y: auto; font-family: monospace; font-size: 0.85rem; }
-        
-        /* Contacto */
-        .contact-info { background: #111; padding: 15px; border-radius: 15px; text-align: center; margin-top: 20px; }
-        .contact-info a { color: #007bff; text-decoration: none; }
-        
-        hr { border-color: rgba(255,255,255,0.05); margin: 20px 0; }
+        @media (max-width: 768px) { .header { flex-direction: column; gap: 15px; } }
     </style>
-
-    <!-- Firebase SDKs -->
+    
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
         import { getFirestore, doc, getDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
         
-        // Configuración de Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDxsR6Y265FgDtZNllbCje8JG7njcmymK4",
             authDomain: "users-aitanc.firebaseapp.com",
             projectId: "users-aitanc",
             storageBucket: "users-aitanc.firebasestorage.app",
             messagingSenderId: "123745859673",
-            appId: "1:123745859673:web:7a57f30f089356567c9948",
-            measurementId: "G-S8JDQHVVBH"
+            appId: "1:123745859673:web:7a57f30f089356567c9948"
         };
         
-        // URL del Worker
-        const WORKER_URL = 'https://aitancgeminiproxyv2.nda941237.workers.dev';
-        
-        // Inicializar Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        
-        // Stripe (clave pública de prueba, reemplazar con la real)
-        const stripe = Stripe('pk_test_tu_clave_publica_aqui');
+        const WORKER_URL = 'https://aitancgeminiproxyv2.nda941237.workers.dev';
         
         let currentUser = null;
         let userData = null;
         let selectedFiles = [];
         
-        // Elementos DOM
-        const userEmailSpan = document.getElementById('userEmail');
-        const planSpan = document.getElementById('plan');
+        // Elementos
         const usedSpan = document.getElementById('used');
         const maxSpan = document.getElementById('max');
         const uploadArea = document.getElementById('uploadArea');
@@ -110,52 +61,16 @@
         const progressBar = document.getElementById('progressFill');
         const resultDiv = document.getElementById('result');
         
-        // Verificar autenticación
         onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                window.location.href = '/';
-                return;
-            }
+            if (!user) { window.location.href = '/'; return; }
             currentUser = user;
-            const userDocRef = doc(db, 'users', user.uid);
-            const userDoc = await getDoc(userDocRef);
-            if (!userDoc.exists()) {
-                alert('Usuario no encontrado en la base de datos.');
-                window.location.href = '/';
-                return;
-            }
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            if (!userDoc.exists()) { window.location.href = '/'; return; }
             userData = userDoc.data();
-            userEmailSpan.textContent = user.email;
-            planSpan.textContent = userData.plan === 'pro' ? 'Plan Pro' : (userData.plan === 'basic' ? 'Plan Básico' : 'Gratuito');
             usedSpan.textContent = userData.facturas_usadas || 0;
             maxSpan.textContent = userData.facturas_max || 5;
         });
         
-        // Cerrar sesión
-        window.logout = async () => {
-            await signOut(auth);
-            window.location.href = '/';
-        };
-        
-        // Cancelar suscripción (por ahora solo alerta, luego se conecta con Stripe)
-        window.cancelSubscription = () => {
-            if (confirm('¿Estás seguro de que quieres cancelar tu suscripción? Perderás el acceso a la zona Prime.')) {
-                alert('Función en desarrollo. Contacta con soporte: aitanc.ia@gmail.com');
-            }
-        };
-        
-        // Comprar plan (redirige a Stripe Checkout)
-        window.buyPlan = async (plan) => {
-            if (!currentUser) {
-                alert('Inicia sesión primero.');
-                return;
-            }
-            // Aquí se llamaría a un Worker de Stripe para crear la sesión de pago
-            // Por ahora simulamos la redirección
-            alert(`Próximamente: pago del plan ${plan} por ${plan === 'basic' ? '199€' : '499€'}. Contacta con aitanc.ia@gmail.com para activar.`);
-        };
-        
-        // Manejo de archivos
         uploadArea.addEventListener('click', () => fileInput.click());
         fileInput.addEventListener('change', (e) => {
             selectedFiles = Array.from(e.target.files);
@@ -170,7 +85,7 @@
             fileListDiv.innerHTML = selectedFiles.map((file, idx) => `
                 <div class="file-item">
                     <span>📄 ${file.name} (${(file.size / 1024).toFixed(1)} KB)</span>
-                    <button class="btn-outline btn" style="padding: 5px 12px;" onclick="window.removeFile(${idx})">Eliminar</button>
+                    <button class="btn-outline btn" style="padding: 5px 12px;" onclick="removeFile(${idx})">Eliminar</button>
                 </div>
             `).join('');
         }
@@ -181,12 +96,9 @@
             fileInput.value = '';
         };
         
-        // Procesar facturas
         window.processInvoices = async () => {
-            if (selectedFiles.length === 0) {
-                alert('Selecciona al menos una factura.');
-                return;
-            }
+            if (!userData) { alert('Cargando usuario...'); return; }
+            if (selectedFiles.length === 0) { alert('Selecciona al menos una factura.'); return; }
             
             const nuevasUsadas = (userData.facturas_usadas || 0) + selectedFiles.length;
             if (nuevasUsadas > (userData.facturas_max || 5)) {
@@ -200,25 +112,15 @@
             resultDiv.innerHTML = '<p style="color: #aaa;">Enviando al motor IA...</p>';
             
             const formData = new FormData();
-            for (const file of selectedFiles) {
-                formData.append('files', file);
-            }
+            for (const file of selectedFiles) formData.append('files', file);
             
             try {
-                const response = await fetch(WORKER_URL, {
-                    method: 'POST',
-                    body: formData
-                });
-                
+                const response = await fetch(WORKER_URL, { method: 'POST', body: formData });
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 const data = await response.json();
-                
-                if (!data || !data.resultados || !data.resumen) {
-                    throw new Error('Estructura de respuesta inválida');
-                }
+                if (!data || !data.resultados || !data.resumen) throw new Error('Estructura inválida');
                 
                 const { resultados, resumen } = data;
-                
                 resultDiv.innerHTML = `
                     <div style="background: #1a1a1a; padding: 15px; border-radius: 15px; margin-bottom: 20px;">
                         <h4>📊 Resumen ejecutivo</h4>
@@ -231,34 +133,28 @@
                     </div>
                     <div id="detalleResultados"></div>
                 `;
-                
-                const detalleDiv = document.getElementById('detalleResultados');
-                detalleDiv.innerHTML = resultados.map(r => `
+                document.getElementById('detalleResultados').innerHTML = resultados.map(r => `
                     <div style="margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px;">
-                        <strong>📄 ${r.Archivo || 'desconocido'}</strong><br>
-                        Status: ${r.Status || 'N/A'}<br>
+                        <strong>📄 ${r.Archivo}</strong><br>
+                        Status: ${r.Status}<br>
                         Emisor: ${r.Emisor || 'N/A'}<br>
                         ID: ${r.ID_Factura || 'N/A'}<br>
                         Fecha: ${r.Fecha || 'N/A'}<br>
-                        Moneda: ${r.Moneda || 'EUR'}<br>
                         Base: ${(r["Base (€)"] || 0).toFixed(2)} €<br>
                         Impuestos: ${(r["Impuestos (€)"] || 0).toFixed(2)} €<br>
                         Extras: ${(r["Extras/Envío (€)"] || 0).toFixed(2)} €<br>
                         Total Real: ${(r["Total Real (€)"] || 0).toFixed(2)} €<br>
-                        <span style="color: ${r.Status && r.Status.includes('OK') ? '#2ecc71' : '#ff6b6b'}">${r.Info_Auditoría || ''}</span>
+                        <span style="color: ${r.Status.includes('OK') ? '#2ecc71' : '#ff6b6b'}">${r.Info_Auditoría || ''}</span>
                     </div>
                 `).join('');
                 
                 generarExcel(resultados, resumen);
                 
-                const userDocRef = doc(db, 'users', currentUser.uid);
-                await updateDoc(userDocRef, { facturas_usadas: nuevasUsadas });
+                await updateDoc(doc(db, 'users', currentUser.uid), { facturas_usadas: nuevasUsadas });
                 userData.facturas_usadas = nuevasUsadas;
                 usedSpan.textContent = nuevasUsadas;
-                
                 progressBar.style.width = '100%';
                 setTimeout(() => progressBar.style.width = '0%', 1000);
-                
             } catch (error) {
                 resultDiv.innerHTML = `<div style="color: #ff6b6b;">Error: ${error.message}</div>`;
             } finally {
@@ -268,140 +164,46 @@
         };
         
         function generarExcel(resultados, resumen) {
-            const detalleRows = resultados.map(r => [
-                r.Archivo, r.Status, r.Emisor || '', r.ID_Factura || '', r.Fecha || '',
-                r.Moneda || '', r["Base (€)"] || 0, r["Impuestos (€)"] || 0,
-                r["Extras/Envío (€)"] || 0, r["Total Real (€)"] || 0, r.Info_Auditoría || ''
-            ]);
-            detalleRows.unshift(['Archivo', 'Status', 'Emisor', 'ID_Factura', 'Fecha', 'Moneda',
-                'Base (€)', 'Impuestos (€)', 'Extras/Envío (€)', 'Total Real (€)', 'Info Auditoría']);
-            
-            const resumenRows = [
-                ['Métrica', 'Valor'],
-                ['Total facturas procesadas', resumen.total_facturas],
-                ['Total Base Imponible', resumen.total_base],
-                ['Total Impuestos', resumen.total_impuestos],
-                ['Total Extras/Envío', resumen.total_extras],
-                ['Total Real Facturado', resumen.total_real],
-                ['Facturas con errores/sospechosas', resumen.facturas_con_error]
-            ];
-            
+            const detalleRows = resultados.map(r => [r.Archivo, r.Status, r.Emisor || '', r.ID_Factura || '', r.Fecha || '',
+                r.Moneda || '', r["Base (€)"] || 0, r["Impuestos (€)"] || 0, r["Extras/Envío (€)"] || 0, r["Total Real (€)"] || 0, r.Info_Auditoría || '']);
+            detalleRows.unshift(['Archivo', 'Status', 'Emisor', 'ID_Factura', 'Fecha', 'Moneda', 'Base (€)', 'Impuestos (€)', 'Extras/Envío (€)', 'Total Real (€)', 'Info Auditoría']);
+            const resumenRows = [['Métrica', 'Valor'], ['Total facturas', resumen.total_facturas], ['Total Base Imponible', resumen.total_base], ['Total Impuestos', resumen.total_impuestos], ['Total Extras/Envío', resumen.total_extras], ['Total Real Facturado', resumen.total_real], ['Facturas con errores', resumen.facturas_con_error]];
             const wb = XLSX.utils.book_new();
-            const wsDetalle = XLSX.utils.aoa_to_sheet(detalleRows);
-            const wsResumen = XLSX.utils.aoa_to_sheet(resumenRows);
-            XLSX.utils.book_append_sheet(wb, wsDetalle, 'Detalle');
-            XLSX.utils.book_append_sheet(wb, wsResumen, 'Resumen Ejecutivo');
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(detalleRows), 'Detalle');
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(resumenRows), 'Resumen Ejecutivo');
             XLSX.writeFile(wb, `facturas_${new Date().toISOString().slice(0,19)}.xlsx`);
         }
         
-        // Drag & drop
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.style.borderColor = '#007bff';
-        });
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.style.borderColor = 'rgba(255,255,255,0.2)';
-        });
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.style.borderColor = 'rgba(255,255,255,0.2)';
-            selectedFiles = Array.from(e.dataTransfer.files);
-            renderFileList();
-        });
+        uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.style.borderColor = '#007bff'; });
+        uploadArea.addEventListener('dragleave', () => { uploadArea.style.borderColor = 'rgba(255,255,255,0.2)'; });
+        uploadArea.addEventListener('drop', (e) => { e.preventDefault(); uploadArea.style.borderColor = 'rgba(255,255,255,0.2)'; selectedFiles = Array.from(e.dataTransfer.files); renderFileList(); });
     </script>
-    
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 <div class="container">
-    <!-- Header -->
     <div class="header">
-        <div class="logo">AITANC Prime</div>
-        <div class="user-info">
-            <span>📧 <span id="userEmail">cargando...</span></span>
-            <span>💳 Plan: <span id="plan">---</span></span>
-            <button class="btn-outline btn" onclick="logout()">Cerrar sesión</button>
-        </div>
+        <div class="logo">AITANC | Procesar facturas</div>
+        <button class="btn-outline btn" onclick="window.location.href='/prime/'">← Volver al panel</button>
     </div>
-
-    <!-- Grid 2 columnas: Compras + Subir archivos -->
-    <div class="grid-2">
-        <!-- Zona de compra -->
-        <div class="card">
-            <h2 class="card-title">💰 Comprar planes</h2>
-            <div class="pricing-grid">
-                <div class="pricing-card">
-                    <h3>Plan Básico</h3>
-                    <div class="price">199€ <span>/mes</span></div>
-                    <ul class="features">
-                        <li>329 facturas / mes</li>
-                        <li>Extracción básica</li>
-                        <li>Excel con resumen</li>
-                        <li>Soporte estándar</li>
-                    </ul>
-                    <button class="btn" onclick="buyPlan('basic')">Contratar ahora</button>
-                </div>
-                <div class="pricing-card" style="border: 2px solid #007bff;">
-                    <h3>Plan Pro</h3>
-                    <div class="price">499€ <span>/mes</span></div>
-                    <ul class="features">
-                        <li>1.000 facturas / mes</li>
-                        <li>Detección de gastos ocultos</li>
-                        <li>Excel profesional con auditoría</li>
-                        <li>Soporte prioritario</li>
-                    </ul>
-                    <button class="btn" onclick="buyPlan('pro')">Contratar ahora</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Zona de subida de archivos -->
-        <div class="card">
-            <h2 class="card-title">📤 Procesar facturas</h2>
-            <div class="counter">
-                📊 Facturas usadas este mes: <span class="counter-value" id="used">0</span> / <span id="max">0</span>
-            </div>
-            <div class="upload-area" id="uploadArea">
-                <div>📁 Haz clic o arrastra archivos aquí</div>
-                <div style="font-size: 0.8rem; color: #888;">JPG, PNG, PDF</div>
-                <input type="file" id="fileInput" multiple accept="image/jpeg,image/png,application/pdf">
-            </div>
-            <div id="fileList" class="file-list">
-                <p style="color: #aaa;">No hay archivos seleccionados</p>
-            </div>
-            <button class="btn" id="processBtn" onclick="processInvoices()" style="width: 100%;">Procesar facturas</button>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill"></div>
-            </div>
-        </div>
+    
+    <div class="counter">
+        📊 Facturas usadas este mes: <span class="counter-value" id="used">0</span> / <span id="max">0</span>
     </div>
-
-    <!-- Resultados -->
+    
     <div class="card">
-        <h2 class="card-title">📊 Resultados de la extracción</h2>
-        <div id="result" class="result-area">
-            <p style="color: #aaa;">Los datos extraídos aparecerán aquí y se descargará automáticamente un Excel.</p>
+        <div class="upload-area" id="uploadArea">
+            <div>📁 Haz clic o arrastra archivos aquí</div>
+            <div style="font-size: 0.8rem; color: #888;">JPG, PNG, PDF</div>
+            <input type="file" id="fileInput" multiple accept="image/jpeg,image/png,application/pdf" style="display:none;">
         </div>
+        <div id="fileList" class="file-list"><p style="color: #aaa;">No hay archivos seleccionados</p></div>
+        <button class="btn" id="processBtn" onclick="processInvoices()" style="width:100%;">Procesar facturas</button>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
     </div>
-
-    <!-- Zona de contacto y cancelación -->
-    <div class="grid-2">
-        <div class="card">
-            <h2 class="card-title">📧 Contacto</h2>
-            <div class="contact-info">
-                <p>📩 <a href="mailto:aitanc.ia@gmail.com">aitanc.ia@gmail.com</a></p>
-                <p>⏱️ Respuesta en menos de 24h laborables</p>
-            </div>
-        </div>
-        <div class="card">
-            <h2 class="card-title">⚠️ Zona de suscripción</h2>
-            <div class="contact-info">
-                <p>🔹 Plan actual: <strong id="planName">---</strong></p>
-                <p>📅 Próxima facturación: según fecha de contratación</p>
-                <button class="btn-danger btn" onclick="cancelSubscription()" style="margin-top: 15px;">Cancelar suscripción</button>
-                <p style="font-size: 0.7rem; color: #666; margin-top: 10px;">La cancelación será efectiva al final del periodo actual.</p>
-            </div>
-        </div>
+    
+    <div class="card">
+        <h3>📊 Resultados de la extracción</h3>
+        <div id="result" class="result-area"><p style="color: #aaa;">Los datos extraídos aparecerán aquí y se descargará automáticamente un Excel.</p></div>
     </div>
 </div>
 </body>
