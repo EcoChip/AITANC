@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Control de Agua, Proteínas y Calorías</title>
+  <style>
+    :root{
+      --bg:#0f1724;
+      --card:#0b1220;
+      --muted:#98a0b3;
+      --glass: rgba(255,255,255,0.03);
+      --accent-blue: #2f8ef8;
+      --accent-red: #f25057;
+      --accent-orange: #ff8a34;
+      --glass-border: rgba(255,255,255,0.04);
+      --radius: 14px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,#071022 0%, #081226 100%);color:#e6eef8}
+    main{max-width:1100px;margin:28px auto;padding:28px;}
+
+    header{display:flex;gap:16px;align-items:center;justify-content:space-between;margin-bottom:20px}
+    h1{font-size:20px;margin:0}
+    p.lead{margin:0;color:var(--muted);font-size:13px}
+
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    @media (max-width:980px){.grid{grid-template-columns:1fr}}
+
+    .card{background:linear-gradient(180deg,rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:18px;border-radius:var(--radius);border:1px solid var(--glass-border);box-shadow:0 6px 30px rgba(2,6,23,0.5)}
+    .section-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .val{font-weight:600;font-size:18px}
+    .muted{color:var(--muted);font-size:13px}
+
+    .btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+    .small-btn{background:var(--glass);border:1px dashed rgba(255,255,255,0.03);padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:600}
+    .tiny{font-size:13px;padding:6px 10px}
+    .edit-btn{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:13px;margin-left:6px}
+
+    .bar-wrap{background:rgba(255,255,255,0.03);height:18px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.02)}
+    .bar{height:100%;width:0%;transition:width 800ms cubic-bezier(.2,.8,.2,1);display:flex;align-items:center;padding-left:8px;font-weight:700}
+    .bar span{font-size:13px}
+
+    .bar.water{background:linear-gradient(90deg,var(--accent-blue), #64b6ff)}
+    .bar.protein{background:linear-gradient(90deg,var(--accent-red), #ff7b88)}
+    .bar.cal{background:linear-gradient(90deg,var(--accent-orange), #ffb078)}
+
+    .list{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+    .item{display:flex;align-items:center;justify-content:space-between;padding:8px;border-radius:10px;background:rgba(255,255,255,0.02)}
+    .item .meta{color:var(--muted);font-size:13px}
+    .controls{display:flex;gap:8px}
+
+    footer{margin-top:18px;color:var(--muted);font-size:13px;text-align:center}
+
+    .modal-bg{position:fixed;inset:0;background:rgba(2,6,23,0.6);display:none;align-items:center;justify-content:center}
+    .modal{background:var(--card);padding:18px;border-radius:12px;min-width:320px}
+    .row{display:flex;gap:8px;align-items:center}
+    input[type="text"],input[type="number"],select{background:transparent;border:1px solid var(--glass-border);padding:8px;border-radius:8px;color:inherit;outline:none}
+    label{font-size:13px;color:var(--muted)}
+
+    .tiny-link{font-size:13px;color:var(--muted);cursor:pointer}
+    .top-controls{display:flex;gap:8px;align-items:center}
+    .pill{background:rgba(255,255,255,0.02);padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,0.02);font-size:13px}
+
+    /* date nav */
+    .date-nav{display:flex;gap:8px;align-items:center}
+    .dot-week{display:flex;gap:6px;align-items:center}
+    .dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.06)}
+    .dot.active{box-shadow:0 0 0 3px rgba(255,255,255,0.03)}
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <h1>Control de Agua · Proteínas · Calorías</h1>
+        <p class="lead">Minimal y moderno — personaliza botones, días y objetivos. Los datos se guardan en tu navegador y se conserva el historial de los últimos 7 días.</p>
+      </div>
+      <div class="top-controls">
+        <div class="date-nav">
+          <button class="small-btn tiny" onclick="changeSelectedDate(-1)">◀</button>
+          <div class="pill" id="selected-date">Hoy</div>
+          <button class="small-btn tiny" onclick="changeSelectedDate(1)">▶</button>
+        </div>
+        <div class="pill">Estado: local</div>
+        <button class="small-btn tiny" onclick="resetAll()">Reiniciar</button>
+      </div>
+    </header>
+
+    <section class="grid">
+      <!-- Agua -->
+      <div class="card" id="card-water">
+        <div class="section-title">
+          <div>
+            <div class="muted">Agua</div>
+            <div class="val"><span id="water-amount">0</span> ml</div>
+          </div>
+          <div>
+            <label class="muted">Objetivo</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input id="water-goal" type="number" min="100" value="2000" style="width:100px" />
+              <button class="small-btn tiny" onclick="saveGoal('water')">Guardar</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="bar-wrap" style="margin-bottom:10px">
+          <div class="bar water" id="water-bar"><span id="water-bar-text">0%</span></div>
+        </div>
+
+        <div class="muted">Botones rápidos (pulsa para añadir)</div>
+        <div class="btns" id="water-buttons"></div>
+        <div style="margin-top:10px;display:flex;gap:8px;align-items:center">
+          <button class="small-btn" onclick="openModal('water')">+ Añadir botón</button>
+          <button class="small-btn" onclick="undo('water')">Deshacer</button>
+        </div>
+      </div>
+
+      <!-- Proteínas -->
+      <div class="card" id="card-protein">
+        <div class="section-title">
+          <div>
+            <div class="muted">Proteínas</div>
+            <div class="val"><span id="protein-amount">0</span> g</div>
+          </div>
+          <div>
+            <label class="muted">Objetivo diario</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input id="protein-goal" type="number" min="10" value="100" style="width:100px" />
+              <button class="small-btn tiny" onclick="saveGoal('protein')">Guardar</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="bar-wrap" style="margin-bottom:10px">
+          <div class="bar protein" id="protein-bar"><span id="protein-bar-text">0%</span></div>
+        </div>
+
+        <div class="muted">Personaliza botones y los días con objetivo distinto</div>
+        <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <button class="small-btn" onclick="openModal('protein')">+ Añadir alimento</button>
+          <button class="small-btn" onclick="openDaySettings()">Config. días</button>
+          <button class="small-btn" onclick="undo('protein')">Deshacer</button>
+        </div>
+
+        <div class="list" id="protein-list"></div>
+      </div>
+
+      <!-- Calorías -->
+      <div class="card" id="card-cal">
+        <div class="section-title">
+          <div>
+            <div class="muted">Calorías</div>
+            <div class="val"><span id="cal-amount">0</span> kcal</div>
+          </div>
+          <div>
+            <label class="muted">Objetivo</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input id="cal-goal" type="number" min="500" value="2000" style="width:100px" />
+              <button class="small-btn tiny" onclick="saveGoal('cal')">Guardar</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="bar-wrap" style="margin-bottom:10px">
+          <div class="bar cal" id="cal-bar"><span id="cal-bar-text">0%</span></div>
+        </div>
+
+        <div class="muted">Alimentos personalizados</div>
+        <div style="margin-top:8px;display:flex;gap:8px">
+          <button class="small-btn" onclick="openModal('cal')">+ Añadir alimento</button>
+          <button class="small-btn" onclick="undo('cal')">Deshacer</button>
+        </div>
+
+        <div class="list" id="cal-list"></div>
+      </div>
+    </section>
+
+    <footer>
+      Hecho con ❤️ — Personaliza, prueba y dime qué mejorar.
+    </footer>
+  </main>
+
+  <!-- Modal -->
+  <div class="modal-bg" id="modal-bg">
+    <div class="modal" id="modal">
+      <h3 id="modal-title">Añadir</h3>
+      <div style="margin-top:8px;display:flex;flex-direction:column;gap:8px">
+        <label>Nombre</label>
+        <input id="m-name" type="text" />
+        <label id="m-label">Valor (ml / g / kcal)</label>
+        <input id="m-value" type="number" />
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+          <button class="small-btn" onclick="closeModal()">Cerrar</button>
+          <button class="small-btn" onclick="saveModal()">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Day settings modal -->
+  <div class="modal-bg" id="days-bg">
+    <div class="modal">
+      <h3>Configuración de días</h3>
+      <p class="muted">Puedes establecer un objetivo de proteínas distinto por día (ej: martes y jueves más proteína).</p>
+      <div style="margin-top:10px;display:grid;grid-template-columns:repeat(2,1fr);gap:8px">
+        <label>Lunes <input id="day-1" type="number" /></label>
+        <label>Martes <input id="day-2" type="number" /></label>
+        <label>Miércoles <input id="day-3" type="number" /></label>
+        <label>Jueves <input id="day-4" type="number" /></label>
+        <label>Viernes <input id="day-5" type="number" /></label>
+        <label>Sábado <input id="day-6" type="number" /></label>
+        <label>Domingo <input id="day-0" type="number" /></label>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+        <button class="small-btn" onclick="closeDays()">Cerrar</button>
+        <button class="small-btn" onclick="saveDays()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* --- Storage keys and defaults --- */
+    const KEY = 'cont_salud_v1';
+    const defaults = {
+      water: {goal:2000,buttons:[{name:'Vaso',value:250},{name:'Chupito',value:50},{name:'Botella',value:500}],history:{},undo:[]},
+      protein: {goal:100,buttons:[{name:'Clara huevo',value:6},{name:'Pechuga',value:30}],list:[],dayGoals:{0:90,1:90,2:120,3:90,4:120,5:110,6:90},history:{},undo:[]},
+      cal: {goal:2000,buttons:[],list:[],history:{},undo:[]},
+      ui:{selectedDate:getDateKey(new Date())}
+    };
+
+    let state = loadState();
+    let modalFor = null;
+
+    function formatDateKey(key){ // yyyy-mm-dd -> dd MMM
+      const d = new Date(key + 'T00:00:00');
+      return d.toLocaleDateString(undefined,{weekday:'short',day:'2-digit',month:'short'});
+    }
+    function getDateKey(d){
+      const y = d.getFullYear(); const m = String(d.getMonth()+1).padStart(2,'0'); const day = String(d.getDate()).padStart(2,'0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function loadState(){
+      try{
+        const s = JSON.parse(localStorage.getItem(KEY));
+        if(!s) return JSON.parse(JSON.stringify(defaults));
+        // ensure ui.selectedDate exists
+        s.ui = s.ui || {};
+        s.ui.selectedDate = s.ui.selectedDate || getDateKey(new Date());
+        return Object.assign(JSON.parse(JSON.stringify(defaults)), s);
+      }catch(e){return JSON.parse(JSON.stringify(defaults))}
+    }
+
+    function saveState(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+
+    /* --- Rendering --- */
+    function render(){
+      // update selected date label
+      const sel = state.ui.selectedDate;
+      const todayKey = getDateKey(new Date());
+      document.getElementById('selected-date').textContent = (sel===todayKey) ? 'Hoy' : formatDateKey(sel);
+
+      // Agua
+      const w = Number(state.water.history[sel] || 0);
+      document.getElementById('water-amount').textContent = w;
+      document.getElementById('water-goal').value = state.water.goal;
+      updateBar('water', w, state.water.goal, 'ml');
+      renderButtons('water');
+
+      // Proteinas
+      const p = Number(state.protein.history[sel] || 0);
+      // today's protein goal may vary by weekday
+      const dayIndex = new Date(sel + 'T00:00:00').getDay();
+      const pgoal = (state.protein.dayGoals && state.protein.dayGoals[dayIndex]) ? state.protein.dayGoals[dayIndex] : state.protein.goal;
+      document.getElementById('protein-amount').textContent = p;
+      document.getElementById('protein-goal').value = state.protein.goal;
+      updateBar('protein', p, pgoal, 'g');
+      renderProteinList();
+
+      // Calorias
+      const c = Number(state.cal.history[sel] || 0);
+      document.getElementById('cal-amount').textContent = c;
+      document.getElementById('cal-goal').value = state.cal.goal;
+      updateBar('cal', c, state.cal.goal, 'kcal');
+      renderCalList();
+
+      // save and prune old days
+      pruneHistoryTo7Days();
+      saveState();
+    }
+
+    function updateBar(kind, value, goal, unit){
+      const pct = Math.min(100, Math.round((value/goal)*100));
+      const bar = document.getElementById(kind+'-bar');
+      bar.style.width = pct + '%';
+      document.getElementById(kind+'-bar-text').textContent = pct + '% ('+value+' '+unit+')';
+    }
+
+    function renderButtons(kind){
+      const cont = document.getElementById(kind+'-buttons');
+      if(!cont) return;
+      cont.innerHTML = '';
+      const arr = state[kind].buttons || [];
+      arr.forEach((b,i)=>{
+        const btn = document.createElement('button');
+        btn.className = 'small-btn tiny';
+        btn.textContent = `${b.name} +${b.value}`;
+        btn.onclick = ()=> addValue(kind, b.value, b.name);
+        const edit = document.createElement('button');
+        edit.className = 'edit-btn';
+        edit.textContent = '✎';
+        edit.onclick = (e)=>{ e.stopPropagation(); openEditButton(kind,i); };
+        const wrapper = document.createElement('div');
+        wrapper.style.display='inline-flex';wrapper.style.alignItems='center';wrapper.appendChild(btn);wrapper.appendChild(edit);
+        cont.appendChild(wrapper);
+      });
+    }
+
+    function renderProteinList(){
+      const list = document.getElementById('protein-list'); list.innerHTML='';
+      (state.protein.list||[]).forEach((it,idx)=>{
+        const el = document.createElement('div'); el.className='item';
+        el.innerHTML = `<div><div style="font-weight:700">${it.name}</div><div class='meta'>${it.value} g</div></div>`;
+        const controls = document.createElement('div'); controls.className='controls';
+        const add = document.createElement('button'); add.className='small-btn tiny'; add.textContent='+'; add.onclick = ()=>{ addValue('protein', it.value, it.name) };
+        const del = document.createElement('button'); del.className='small-btn tiny'; del.textContent='Eliminar'; del.onclick = ()=>{ state.protein.list.splice(idx,1); render(); }
+        controls.appendChild(add); controls.appendChild(del);
+        el.appendChild(controls);
+        list.appendChild(el);
+      });
+    }
+
+    function renderCalList(){
+      const list = document.getElementById('cal-list'); list.innerHTML='';
+      (state.cal.list||[]).forEach((it,idx)=>{
+        const el = document.createElement('div'); el.className='item';
+        el.innerHTML = `<div><div style="font-weight:700">${it.name}</div><div class='meta'>${it.value} kcal</div></div>`;
+        const controls = document.createElement('div'); controls.className='controls';
+        const add = document.createElement('button'); add.className='small-btn tiny'; add.textContent='+'; add.onclick = ()=>{ addValue('cal', it.value, it.name) };
+        const del = document.createElement('button'); del.className='small-btn tiny'; del.textContent='Eliminar'; del.onclick = ()=>{ state.cal.list.splice(idx,1); render(); }
+        controls.appendChild(add); controls.appendChild(del);
+        el.appendChild(controls);
+        list.appendChild(el);
+      });
+    }
+
+    /* --- Add values and undo (with per-day history) --- */
+    function addValue(kind, value, label){
+      const sel = state.ui.selectedDate;
+      state[kind].history = state[kind].history || {};
+      const prev = Number(state[kind].history[sel] || 0);
+      state[kind].history[sel] = prev + Number(value);
+
+      // push undo entry with date so undo affects same day
+      state[kind].undo = state[kind].undo || [];
+      state[kind].undo.push({value:Number(value),label,day:sel,ts:Date.now()});
+
+      pruneHistoryTo7Days();
+      render();
+    }
+    function undo(kind){
+      const u = state[kind].undo || [];
+      if(!u.length) return alert('Nada que deshacer');
+      const last = u.pop();
+      const day = last.day || state.ui.selectedDate;
+      state[kind].history[day] = Math.max(0, (state[kind].history[day] || 0) - last.value);
+      render();
+    }
+
+    function pruneHistoryTo7Days(){
+      const keep = getLastNDates(7);
+      ['water','protein','cal'].forEach(k=>{
+        const h = state[k].history || {};
+        Object.keys(h).forEach(dateKey=>{ if(!keep.includes(dateKey)) delete h[dateKey]; });
+      });
+    }
+    function getLastNDates(n){
+      const arr = [];
+      const today = new Date(state.ui.selectedDate);
+      // ensure we return last n days ending on selectedDate
+      for(let i=n-1;i>=0;i--){ const d=new Date(today); d.setDate(d.getDate()-i); arr.push(getDateKey(d)); }
+      return arr;
+    }
+
+    /* --- Modal for adding/editing buttons or foods --- */
+    function openModal(kind){
+      modalFor = kind;
+      document.getElementById('modal-title').textContent = (kind==='water') ? 'Añadir botón de agua' : (kind==='protein' ? 'Añadir alimento (proteína)' : 'Añadir alimento (calorías)');
+      document.getElementById('m-name').value='';
+      document.getElementById('m-value').value='';
+      document.getElementById('modal-bg').style.display='flex';
+    }
+    function closeModal(){ document.getElementById('modal-bg').style.display='none'; modalFor=null; }
+    function saveModal(){
+      const name = document.getElementById('m-name').value.trim();
+      const val = Number(document.getElementById('m-value').value);
+      if(!name || !val) return alert('Pon nombre y valor');
+      if(modalFor==='water'){ state.water.buttons.push({name:name,value:val}); }
+      if(modalFor==='protein'){ state.protein.list.push({name:name,value:val}); }
+      if(modalFor==='cal'){ state.cal.list.push({name:name,value:val}); }
+      closeModal(); render();
+    }
+
+    function openEditButton(kind,index){
+      modalFor = {edit:true,kind,idx:index};
+      const b = state[kind].buttons[index];
+      document.getElementById('modal-title').textContent = 'Editar botón';
+      document.getElementById('m-name').value = b.name;
+      document.getElementById('m-value').value = b.value;
+      document.getElementById('modal-bg').style.display='flex';
+      document.getElementById('modal').querySelector('button:last-child').onclick = ()=>{
+        const name = document.getElementById('m-name').value.trim();
+        const val = Number(document.getElementById('m-value').value);
+        if(!name || !val) return alert('Pon nombre y valor');
+        state[kind].buttons[index] = {name,val};
+        document.getElementById('modal').querySelector('button:last-child').onclick = saveModal;
+        closeModal(); render();
+      };
+    }
+
+    /* --- Day settings modal --- */
+    function openDaySettings(){
+      const dg = state.protein.dayGoals || {};
+      for(let i=0;i<7;i++){ document.getElementById('day-'+i).value = dg[i] || state.protein.goal; }
+      document.getElementById('days-bg').style.display='flex';
+    }
+    function closeDays(){ document.getElementById('days-bg').style.display='none'; }
+    function saveDays(){
+      const dg = {};
+      for(let i=0;i<7;i++){ dg[i] = Number(document.getElementById('day-'+i).value) || state.protein.goal; }
+      state.protein.dayGoals = dg; saveState(); closeDays(); render();
+    }
+
+    /* --- Goals saving --- */
+    function saveGoal(kind){
+      if(kind==='water') state.water.goal = Number(document.getElementById('water-goal').value) || state.water.goal;
+      if(kind==='protein') state.protein.goal = Number(document.getElementById('protein-goal').value) || state.protein.goal;
+      if(kind==='cal') state.cal.goal = Number(document.getElementById('cal-goal').value) || state.cal.goal;
+      saveState(); render();
+    }
+
+    /* --- Date navigation --- */
+    function changeSelectedDate(offset){
+      const cur = new Date(state.ui.selectedDate + 'T00:00:00');
+      cur.setDate(cur.getDate() + offset);
+      state.ui.selectedDate = getDateKey(cur);
+      render();
+    }
+
+    /* --- Reset --- */
+    function resetAll(){ if(!confirm('Reiniciar todos los datos?')) return; localStorage.removeItem(KEY); state = loadState(); render(); }
+
+    /* initial render */
+    render();
+  </script>
+</body>
+</html>
