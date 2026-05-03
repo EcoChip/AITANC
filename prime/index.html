@@ -26,12 +26,28 @@
         .counter { background: #1a1a1a; padding: 15px; border-radius: 15px; text-align: center; margin-bottom: 20px; }
         .counter-value { font-size: 2rem; font-weight: 700; color: #007bff; }
         @media (max-width: 768px) { .header { flex-direction: column; gap: 15px; } }
+        
+        /* Advertencia si falta token */
+        .token-warning { background: rgba(255, 100, 100, 0.1); border: 1px solid #ff6666; color: #ff6666; padding: 12px; border-radius: 12px; margin-bottom: 20px; text-align: center; font-size: 0.85rem; }
     </style>
     
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
         import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
         import { getFirestore, doc, getDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+        
+        // ============================================================
+        // 🔐 CONFIGURACIÓN DE AUTENTICACIÓN BEARER
+        // ============================================================
+        // ⚠️ IMPORTANTE: Esta clave debe ser la MISMA que usas en tu Worker
+        // En producción, mejor leerla desde variable de entorno.
+        // En Vercel, configura AUTH_SECRET en Environment Variables
+        const AUTH_TOKEN = 'aitanc_pro_2024_secure_key_998877';
+        
+        // URL del Worker
+        const WORKER_URL = 'https://aitancgeminiproxyv2.nda941237.workers.dev';
+        
+        // ============================================================
         
         const firebaseConfig = {
             apiKey: "AIzaSyDxsR6Y265FgDtZNllbCje8JG7njcmymK4",
@@ -45,7 +61,6 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const WORKER_URL = 'https://aitancgeminiproxyv2.nda941237.workers.dev';
         
         let currentUser = null;
         let userData = null;
@@ -115,8 +130,24 @@
             for (const file of selectedFiles) formData.append('files', file);
             
             try {
-                const response = await fetch(WORKER_URL, { method: 'POST', body: formData });
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                // 🔐 LLAMADA AL WORKER CON AUTENTICACIÓN BEARER
+                const response = await fetch(WORKER_URL, { 
+                    method: 'POST', 
+                    headers: {
+                        // El Content-Type NO se pone manualmente cuando usas FormData
+                        // El navegador lo establece automáticamente con el boundary
+                        'Authorization': `Bearer ${AUTH_TOKEN}`
+                    },
+                    body: formData 
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        throw new Error('Error de autenticación. Token inválido o expirado.');
+                    }
+                    throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+                }
+                
                 const data = await response.json();
                 if (!data || !data.resultados || !data.resumen) throw new Error('Estructura inválida');
                 
@@ -156,7 +187,8 @@
                 progressBar.style.width = '100%';
                 setTimeout(() => progressBar.style.width = '0%', 1000);
             } catch (error) {
-                resultDiv.innerHTML = `<div style="color: #ff6b6b;">Error: ${error.message}</div>`;
+                console.error('Error detallado:', error);
+                resultDiv.innerHTML = `<div style="color: #ff6b6b;">❌ Error: ${error.message}</div>`;
             } finally {
                 processBtn.disabled = false;
                 processBtn.textContent = 'Procesar facturas';
