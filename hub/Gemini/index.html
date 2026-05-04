@@ -79,7 +79,7 @@
         // === CONFIGURACIÓN DE LA API ===
         // ¡ADVERTENCIA! PONER LA CLAVE AQUÍ ES INSEGURO SI PUBLICAS LA WEB.
         const API_KEY = 'AIzaSyAFnNlclLQdpA7ki2nGhyxuXNbBfmJWuCg'; 
-        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2-flash:generateContent?key=${API_KEY}`;
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${API_KEY}`;
 
         // === ESTADO DE LA APLICACIÓN ===
         let chats = JSON.parse(localStorage.getItem('gemini_clone_chats')) || [];
