@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi IA - Clon de Gemini</title>
+    <style>
+        :root {
+            --bg-color: #131314;
+            --sidebar-bg: #1e1f20;
+            --text-color: #e3e3e3;
+            --user-msg: #282a2c;
+            --ai-msg: transparent;
+            --accent: #a8c7fa;
+            --border: #444746;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+
+        body { display: flex; height: 100vh; background-color: var(--bg-color); color: var(--text-color); }
+
+        /* Sidebar (Historial) */
+        aside { width: 280px; background-color: var(--sidebar-bg); display: flex; flex-direction: column; padding: 15px; border-right: 1px solid var(--border); transition: 0.3s; }
+        .new-chat-btn { background-color: var(--bg-color); color: var(--text-color); border: 1px solid var(--border); padding: 12px; border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 14px; margin-bottom: 20px; transition: 0.2s; }
+        .new-chat-btn:hover { background-color: #2a2b2e; }
+        
+        .chat-list { flex: 1; overflow-y: auto; list-style: none; }
+        .chat-item { padding: 10px; margin-bottom: 5px; border-radius: 10px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+        .chat-item:hover, .chat-item.active { background-color: #2a2b2e; }
+        .chat-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .chat-actions button { background: none; border: none; color: var(--text-color); cursor: pointer; opacity: 0.6; padding: 2px 5px; }
+        .chat-actions button:hover { opacity: 1; color: var(--accent); }
+
+        /* Main Chat Area */
+        main { flex: 1; display: flex; flex-direction: column; position: relative; }
+        
+        .messages-container { flex: 1; overflow-y: auto; padding: 20px 15%; display: flex; flex-direction: column; gap: 20px; }
+        .message { max-width: 80%; padding: 15px 20px; border-radius: 20px; line-height: 1.5; }
+        .message.user { align-self: flex-end; background-color: var(--user-msg); border-bottom-right-radius: 5px; }
+        .message.ai { align-self: flex-start; background-color: var(--ai-msg); }
+
+        /* Input Area */
+        .input-container { padding: 20px 15%; background-color: var(--bg-color); }
+        .input-box { display: flex; background-color: var(--sidebar-bg); border-radius: 30px; padding: 10px 20px; align-items: center; border: 1px solid var(--border); }
+        .input-box input { flex: 1; background: none; border: none; color: var(--text-color); font-size: 16px; outline: none; padding: 10px; }
+        .input-box button { background: none; border: none; color: var(--accent); cursor: pointer; font-weight: bold; font-size: 16px; padding: 10px; }
+        .input-box button:disabled { color: gray; cursor: not-allowed; }
+
+        /* Responsive */
+        @media (max-width: 768px) { aside { display: none; } .messages-container, .input-container { padding: 20px 5%; } }
+    </style>
+</head>
+<body>
+
+    <!-- Panel lateral: Historial de chats -->
+    <aside>
+        <button class="new-chat-btn" onclick="createNewChat()">
+            ➕ Nuevo Chat
+        </button>
+        <ul class="chat-list" id="chat-list">
+            <!-- Los chats se cargarán aquí dinámicamente -->
+        </ul>
+    </aside>
+
+    <!-- Área principal del chat -->
+    <main>
+        <div class="messages-container" id="messages-container">
+            <!-- Los mensajes aparecerán aquí -->
+        </div>
+        <div class="input-container">
+            <div class="input-box">
+                <input type="text" id="user-input" placeholder="Escribe tu mensaje aquí..." onkeypress="handleEnter(event)">
+                <button id="send-btn" onclick="sendMessage()">Enviar</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // === CONFIGURACIÓN DE LA API ===
+        // ¡ADVERTENCIA! PONER LA CLAVE AQUÍ ES INSEGURO SI PUBLICAS LA WEB.
+        const API_KEY = 'AIzaSyAFnNlclLQdpA7ki2nGhyxuXNbBfmJWuCg'; 
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+
+        // === ESTADO DE LA APLICACIÓN ===
+        let chats = JSON.parse(localStorage.getItem('gemini_clone_chats')) || [];
+        let currentChatId = null;
+
+        const chatListEl = document.getElementById('chat-list');
+        const messagesContainerEl = document.getElementById('messages-container');
+        const userInputEl = document.getElementById('user-input');
+        const sendBtnEl = document.getElementById('send-btn');
+
+        // Inicialización
+        function init() {
+            if (chats.length === 0) {
+                createNewChat();
+            } else {
+                currentChatId = chats[0].id;
+                renderSidebar();
+                renderMessages();
+            }
+        }
+
+        // Crear un nuevo chat
+        function createNewChat() {
+            const newChat = {
+                id: Date.now().toString(),
+                name: 'Nuevo Chat',
+                messages: []
+            };
+            chats.unshift(newChat); // Añadir al principio
+            currentChatId = newChat.id;
+            saveData();
+            renderSidebar();
+            renderMessages();
+        }
+
+        // Guardar en localStorage
+        function saveData() {
+            localStorage.setItem('gemini_clone_chats', JSON.stringify(chats));
+        }
+
+        // Renderizar el historial en la barra lateral
+        function renderSidebar() {
+            chatListEl.innerHTML = '';
+            chats.forEach(chat => {
+                const li = document.createElement('li');
+                li.className = `chat-item ${chat.id === currentChatId ? 'active' : ''}`;
+                
+                li.innerHTML = `
+                    <span class="chat-name" onclick="selectChat('${chat.id}')">${chat.name}</span>
+                    <div class="chat-actions">
+                        <button onclick="renameChat('${chat.id}', event)">✏️</button>
+                        <button onclick="deleteChat('${chat.id}', event)">🗑️</button>
+                    </div>
+                `;
+                chatListEl.appendChild(li);
+            });
+        }
+
+        // Seleccionar un chat del historial
+        function selectChat(id) {
+            currentChatId = id;
+            renderSidebar();
+            renderMessages();
+        }
+
+        // Cambiar el nombre de un chat
+        function renameChat(id, event) {
+            event.stopPropagation(); // Evitar que se seleccione el chat al hacer clic en renombrar
+            const newName = prompt('Introduce el nuevo nombre para este chat:');
+            if (newName && newName.trim() !== '') {
+                const chat = chats.find(c => c.id === id);
+                if (chat) {
+                    chat.name = newName.trim();
+                    saveData();
+                    renderSidebar();
+                }
+            }
+        }
+
+        // Eliminar un chat
+        function deleteChat(id, event) {
+            event.stopPropagation();
+            if (confirm('¿Estás seguro de que deseas eliminar este chat?')) {
+                chats = chats.filter(c => c.id !== id);
+                if (chats.length === 0) {
+                    createNewChat();
+                } else if (currentChatId === id) {
+                    currentChatId = chats[0].id;
+                }
+                saveData();
+                renderSidebar();
+                renderMessages();
+            }
+        }
+
+        // Renderizar los mensajes del chat actual
+        function renderMessages() {
+            messagesContainerEl.innerHTML = '';
+            const currentChat = chats.find(c => c.id === currentChatId);
+            if (!currentChat) return;
+
+            currentChat.messages.forEach(msg => {
+                appendMessageToDOM(msg.sender, msg.text);
+            });
+            scrollToBottom();
+        }
+
+        function appendMessageToDOM(sender, text) {
+            const div = document.createElement('div');
+            div.className = `message ${sender}`;
+            
+            // Convertir saltos de línea a <br>
+            div.innerHTML = text.replace(/\n/g, '<br>');
+            messagesContainerEl.appendChild(div);
+            scrollToBottom();
+        }
+
+        function scrollToBottom() {
+            messagesContainerEl.scrollTop = messagesContainerEl.scrollHeight;
+        }
+
+        function handleEnter(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // Enviar mensaje a la API de Gemini
+        async function sendMessage() {
+            const text = userInputEl.value.trim();
+            if (!text) return;
+
+            // Bloquear input mientras carga
+            userInputEl.value = '';
+            userInputEl.disabled = true;
+            sendBtnEl.disabled = true;
+
+            const currentChat = chats.find(c => c.id === currentChatId);
+
+            // Cambiar nombre automático si es el primer mensaje
+            if (currentChat.messages.length === 0) {
+                currentChat.name = text.substring(0, 20) + (text.length > 20 ? '...' : '');
+                renderSidebar();
+            }
+
+            // Añadir mensaje del usuario
+            currentChat.messages.push({ sender: 'user', text: text });
+            appendMessageToDOM('user', text);
+            saveData();
+
+            // Preparar el historial para el contexto (opcional, aquí enviamos solo el prompt actual para simplificar)
+            // Para mantener contexto real, tendrías que mapear currentChat.messages al formato de Gemini.
+            
+            const requestBody = {
+                contents: [{
+                    parts: [{ text: text }]
+                }]
+            };
+
+            try {
+                // Mostrar "Escribiendo..."
+                appendMessageToDOM('ai', '<i>Pensando...</i>');
+                const lastMsgEl = messagesContainerEl.lastChild;
+
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    throw new Error(data.error.message);
+                }
+
+                const aiText = data.candidates[0].content.parts[0].text;
+                
+                // Actualizar DOM
+                lastMsgEl.innerHTML = aiText.replace(/\n/g, '<br>');
+                
+                // Guardar en historial
+                currentChat.messages.push({ sender: 'ai', text: aiText });
+                saveData();
+
+            } catch (error) {
+                messagesContainerEl.lastChild.innerHTML = `<span style="color: red;">Error: ${error.message}</span>`;
+            } finally {
+                userInputEl.disabled = false;
+                sendBtnEl.disabled = false;
+                userInputEl.focus();
+                scrollToBottom();
+            }
+        }
+
+        // Iniciar la app
+        init();
+    </script>
+</body>
+</html>
