@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=yes">
+  <title>ARIMA · Alta Cocina Vanguardista Bilbao | Estrella Michelin</title>
+  <!-- Google Fonts: Playfair Display para serif elegante + Inter para cuerpo -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,500;1,600&display=swap" rel="stylesheet">
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0a0a0a;
+      color: #e8e3d9;
+      line-height: 1.5;
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Paleta Quiet Luxury: negro profundo, gris grafito, oro viejo y bronce */
+    :root {
+      --bg-dark: #0a0a0a;
+      --bg-graphite: #1a1a1c;
+      --gold: #c5a55e;
+      --gold-hover: #dbb86c;
+      --bronze: #a6804c;
+      --text-primary: #f0ede6;
+      --text-secondary: #b9b3a8;
+      --border-subtle: rgba(197, 165, 94, 0.25);
+      --transition: 0.35s cubic-bezier(0.33, 1, 0.68, 1);
+      --shadow-gold: 0 0 20px rgba(197, 165, 94, 0.2);
+    }
+
+    h1, h2, h3, .serif {
+      font-family: 'Playfair Display', 'Times New Roman', serif;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--text-primary);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 28px;
+    }
+
+    /* Botones */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      font-weight: 500;
+      padding: 0.85rem 2.2rem;
+      border-radius: 3px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      border: 1px solid var(--gold);
+      background: transparent;
+      color: var(--gold);
+      transition: all var(--transition);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      font-family: 'Inter', sans-serif;
+      background: rgba(10,10,10,0.7);
+      backdrop-filter: blur(4px);
+    }
+
+    .btn:hover {
+      background: var(--gold);
+      color: #0a0a0a;
+      border-color: var(--gold);
+      box-shadow: var(--shadow-gold);
+    }
+
+    .btn-gold {
+      background: var(--gold);
+      color: #0a0a0a;
+      font-weight: 600;
+    }
+    .btn-gold:hover {
+      background: var(--gold-hover);
+    }
+
+    /* Header */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.6rem 0;
+      position: relative;
+      z-index: 10;
+    }
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 2px;
+    }
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      font-weight: 400;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 1.5px;
+    }
+    .nav-links span {
+      cursor: default;
+      transition: color 0.3s;
+    }
+    .nav-links span:hover {
+      color: var(--gold);
+    }
+
+    /* HERO full screen */
+    .hero {
+      position: relative;
+      height: 100vh;
+      min-height: 650px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+      filter: brightness(0.45);
+    }
+    .hero-overlay {
+      position: relative;
+      z-index: 2;
+      max-width: 800px;
+      padding: 0 20px;
+    }
+    .hero h1 {
+      font-size: clamp(2.8rem, 7vw, 5rem);
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: #ffffff;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.6);
+    }
+    .hero p {
+      font-size: 1.2rem;
+      color: #ddd6cc;
+      margin-bottom: 2.5rem;
+      font-weight: 300;
+    }
+
+    /* TABS MENÚ */
+    .menu-section {
+      padding: 5rem 0;
+      background: var(--bg-graphite);
+    }
+    .section-title {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    .section-title h2 {
+      font-size: 2.8rem;
+      color: var(--gold);
+      margin-bottom: 0.5rem;
+    }
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-bottom: 3rem;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0.5rem 1rem;
+      border-bottom: 2px solid transparent;
+      transition: 0.3s;
+      font-weight: 500;
+    }
+    .tab-btn.active {
+      color: var(--gold);
+      border-bottom-color: var(--gold);
+    }
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+    }
+    .dish-card {
+      background: #1e1e20;
+      border: 1px solid #2c2c2e;
+      padding: 1.5rem;
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+    .dish-card:hover {
+      border-color: var(--gold);
+    }
+    .dish-card h4 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: var(--text-primary);
+      margin-bottom: 0.3rem;
+    }
+    .price {
+      color: var(--gold);
+      font-weight: 600;
+      margin-top: 0.8rem;
+    }
+
+    /* RESERVAS SIMULADOR */
+    .reservation-section {
+      padding: 5rem 0;
+      background: var(--bg-dark);
+    }
+    .reservation-box {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #111113;
+      padding: 2.5rem;
+      border: 1px solid #2c2c2e;
+    }
+    .form-group {
+      margin-bottom: 1.6rem;
+    }
+    .form-group label {
+      display: block;
+      color: var(--gold);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.4rem;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      background: #1a1a1c;
+      border: 1px solid #3a3a3c;
+      color: #e8e3d9;
+      padding: 0.8rem;
+      font-family: 'Inter', sans-serif;
+    }
+    .loading-spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2px solid transparent;
+      border-top: 2px solid var(--gold);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-left: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .confirmation-msg {
+      display: none;
+      text-align: center;
+      padding: 2rem;
+      color: var(--gold);
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+    }
+
+    /* CHATBOT CONCIERGE */
+    .chatbot-widget {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 12px;
+    }
+    .chat-bubble {
+      background: #1e1e20;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      padding: 0.8rem 1.4rem;
+      border-radius: 30px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .chat-window {
+      width: 340px;
+      max-width: calc(100vw - 40px);
+      background: #121214;
+      border: 1px solid #333;
+      display: none;
+      flex-direction: column;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .chat-window.open {
+      display: flex;
+    }
+    .chat-header {
+      background: #1a1a1c;
+      padding: 0.9rem;
+      border-bottom: 1px solid #333;
+      display: flex;
+      justify-content: space-between;
+      color: var(--gold);
+    }
+    .chat-messages {
+      height: 220px;
+      overflow-y: auto;
+      padding: 1rem;
+      background: #0f0f10;
+    }
+    .quick-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 0.7rem;
+      border-top: 1px solid #222;
+    }
+    .quick-opt {
+      background: #1e1e20;
+      border: 1px solid #444;
+      color: #ccc;
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      cursor: pointer;
+    }
+    .quick-opt:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    @media (max-width: 640px) {
+      .nav-links { gap: 1rem; }
+      .hero h1 { font-size: 2.2rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="top-bar">
+      <div class="logo">ARIMA</div>
+      <div class="nav-links">
+        <span>Inicio</span>
+        <span>Menú</span>
+        <span>Reservas</span>
+        <span>Contacto</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=1470&auto=format&fit=crop" alt="Restaurante de lujo Bilbao" class="hero-bg">
+    <div class="hero-overlay">
+      <h1>Una experiencia gastronómica inolvidable en Bilbao</h1>
+      <p>Alta cocina vanguardista con alma vizcaína · Menú degustación · Bodega excepcional</p>
+      <button class="btn btn-gold" id="reserveHeroBtn"><i class="fas fa-chair"></i> Asegurar una Mesa</button>
+    </div>
+  </section>
+
+  <!-- MENÚ DIGITAL INTERACTIVO -->
+  <section class="menu-section" id="menuSection">
+    <div class="container">
+      <div class="section-title">
+        <h2>Nuestra Carta</h2>
+      </div>
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="degustacion">Menú Degustación</button>
+        <button class="tab-btn" data-tab="entrantes">Entrantes</button>
+        <button class="tab-btn" data-tab="bodega">Bodega</button>
+      </div>
+      <div class="tab-content active" id="degustacion">
+        <div class="menu-grid">
+          <div class="dish-card"><h4>Viaje Atlántico</h4><p>Ostra, erizo de mar y caviar</p><p class="price">145€</p></div>
+          <div class="dish-card"><h4>Pichón asado</h4><p>Remolacha fermentada y chocolate</p><p class="price">160€</p></div>
+        </div>
+      </div>
+      <div class="tab-content" id="entrantes">
+        <div class="menu-grid">
+          <div class="dish-card"><h4>Tartar de atún rojo</h4><p>Alga wakame y sésamo negro</p><p class="price">34€</p></div>
+          <div class="dish-card"><h4>Alcachofa confitada</h4><p>Foie gras y trufa</p><p class="price">28€</p></div>
+        </div>
+      </div>
+      <div class="tab-content" id="bodega">
+        <div class="menu-grid">
+          <div class="dish-card"><h4>Château Margaux 2015</h4><p>Burdeos, Francia</p><p class="price">290€</p></div>
+          <div class="dish-card"><h4>Viña Tondonia Reserva</h4><p>Rioja Alta</p><p class="price">85€</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SIMULADOR DE RESERVAS -->
+  <section class="reservation-section" id="reservationSection">
+    <div class="container">
+      <div class="section-title"><h2>Reserve su experiencia</h2></div>
+      <div class="reservation-box" id="reservationFormContainer">
+        <div id="reservationForm">
+          <div class="form-group"><label>Comensales</label><select id="guests"><option>2</option><option>4</option><option>6</option></select></div>
+          <div class="form-group"><label>Fecha</label><input type="date" id="resDate"></div>
+          <div class="form-group"><label>Hora</label><input type="time" id="resTime"></div>
+          <button class="btn btn-gold" id="submitReservationBtn" style="width:100%">Solicitar Reserva</button>
+        </div>
+        <div class="confirmation-msg" id="confirmationMessage">
+          <i class="fas fa-check-circle" style="font-size:2rem;display:block;margin-bottom:1rem;"></i>
+          Solicitud recibida. Un asesor de sala se pondrá en contacto para confirmar su mesa exclusiva.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ASISTENTE CONCIERGE IA -->
+  <div class="chatbot-widget" id="chatbotWidget">
+    <div class="chat-bubble" id="chatBubble"><i class="fas fa-wine-glass-alt"></i> Sommelier & Concierge AI</div>
+    <div class="chat-window" id="chatWindow">
+      <div class="chat-header"><span>Concierge Virtual</span><button style="background:none;border:none;color:var(--gold);cursor:pointer;" id="closeChat">✕</button></div>
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="quick-options" id="quickOptions">
+        <button class="quick-opt" data-q="dress">Código de vestimenta</button>
+        <button class="quick-opt" data-q="allergens">Opciones alérgenos</button>
+        <button class="quick-opt" data-q="pairing">Maridajes recomendados</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // Tabs menú
+      const tabs = document.querySelectorAll('.tab-btn');
+      const contents = document.querySelectorAll('.tab-content');
+      tabs.forEach(btn => {
+        btn.addEventListener('click', () => {
+          tabs.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const target = btn.dataset.tab;
+          contents.forEach(c => c.classList.remove('active'));
+          document.getElementById(target).classList.add('active');
+        });
+      });
+
+      // Hero button scroll
+      document.getElementById('reserveHeroBtn').addEventListener('click', () => {
+        document.getElementById('reservationSection').scrollIntoView({ behavior: 'smooth' });
+      });
+
+      // Simulador reservas
+      const submitBtn = document.getElementById('submitReservationBtn');
+      const formDiv = document.getElementById('reservationForm');
+      const confirmMsg = document.getElementById('confirmationMessage');
+
+      submitBtn.addEventListener('click', function() {
+        submitBtn.innerHTML = 'Procesando <span class="loading-spinner"></span>';
+        submitBtn.disabled = true;
+        setTimeout(() => {
+          formDiv.style.display = 'none';
+          confirmMsg.style.display = 'block';
+        }, 1800);
+      });
+
+      // Chatbot concierge
+      const chatBubble = document.getElementById('chatBubble');
+      const chatWindow = document.getElementById('chatWindow');
+      const closeChat = document.getElementById('closeChat');
+      const chatMessages = document.getElementById('chatMessages');
+      const quickOpts = document.getElementById('quickOptions');
+
+      const responses = {
+        dress: '👔 Nuestro código de vestimenta es elegante informal. Se recomienda chaqueta para caballeros y evite ropa deportiva.',
+        allergens: '🍃 Adaptamos nuestro menú a alergias e intolerancias. Indíquelo al hacer la reserva y nuestro chef preparará alternativas.',
+        pairing: '🍷 Recomendamos nuestro maridaje de vinos seleccionados por el sumiller: desde txakoli local hasta Borgoñas exclusivos.'
+      };
+
+      function addMsg(text, isUser = false) {
+        const d = document.createElement('div');
+        d.style.marginBottom = '10px';
+        d.style.color = isUser ? '#c5a55e' : '#ccc';
+        d.textContent = text;
+        chatMessages.appendChild(d);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      chatBubble.addEventListener('click', () => {
+        chatWindow.classList.add('open');
+        chatBubble.style.display = 'none';
+        if (chatMessages.children.length === 0) addMsg('Buenas noches, soy su concierge. ¿En qué puedo asistirle?');
+      });
+      closeChat.addEventListener('click', () => {
+        chatWindow.classList.remove('open');
+        chatBubble.style.display = 'flex';
+      });
+
+      quickOpts.addEventListener('click', (e) => {
+        if (e.target.classList.contains('quick-opt')) {
+          const q = e.target.dataset.q;
+          addMsg(e.target.textContent, true);
+          setTimeout(() => addMsg(responses[q] || 'Estoy a su disposición.'), 500);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
