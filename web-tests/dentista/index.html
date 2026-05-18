@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=yes">
+  <title>Clínica Dental Bilbao | Sonrisa Premium & Odontología de confianza</title>
+  <!-- Google Fonts: Inter & Montserrat combinadas para elegancia -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Font Awesome 6 para iconos premium -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #ffffff;
+      color: #1a2a3a;
+      line-height: 1.5;
+      scroll-behavior: smooth;
+    }
+
+    /* Paleta premium: blanco, azul oscuro corporativo, verde menta suave y dorado */
+    :root {
+      --deep-blue: #0b2a3f;
+      --navy: #103a50;
+      --accent-mint: #7ec8a3;
+      --accent-mint-hover: #5fb08a;
+      --soft-gold: #c9a962;
+      --white: #ffffff;
+      --off-white: #f9fbfd;
+      --border-light: #e6edf2;
+      --text-dark: #1e2f3c;
+      --text-gray: #4b5c6b;
+      --shadow-card: 0 10px 25px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.02);
+      --shadow-hover: 0 18px 32px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.03);
+      --transition: 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      --border-radius-lg: 24px;
+    }
+
+    h1, h2, h3 {
+      font-family: 'Montserrat', 'Inter', sans-serif;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 28px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      padding: 0.9rem 2.2rem;
+      border-radius: 50px;
+      font-size: 1rem;
+      cursor: pointer;
+      border: none;
+      transition: all var(--transition);
+      letter-spacing: 0.3px;
+      background: transparent;
+    }
+
+    .btn-primary {
+      background: var(--deep-blue);
+      color: white;
+      box-shadow: 0 8px 18px rgba(11, 42, 63, 0.25);
+    }
+    .btn-primary:hover {
+      background: #0e3a52;
+      transform: translateY(-3px);
+      box-shadow: 0 14px 26px rgba(11, 42, 63, 0.35);
+    }
+
+    .btn-accent {
+      background: var(--accent-mint);
+      color: var(--deep-blue);
+      font-weight: 700;
+      box-shadow: 0 6px 14px rgba(126, 200, 163, 0.3);
+    }
+    .btn-accent:hover {
+      background: var(--accent-mint-hover);
+      transform: translateY(-2px);
+    }
+
+    /* Header */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 0;
+      flex-wrap: wrap;
+    }
+    .logo {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: 1.7rem;
+      color: var(--deep-blue);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .logo i {
+      color: var(--accent-mint);
+      font-size: 2rem;
+    }
+    .nav-links {
+      display: flex;
+      gap: 2.2rem;
+      font-weight: 500;
+      color: var(--navy);
+    }
+    .nav-links span {
+      cursor: default;
+      transition: color 0.2s;
+      font-size: 0.95rem;
+    }
+    .nav-links span:hover {
+      color: var(--accent-mint);
+    }
+
+    /* Hero */
+    .hero {
+      padding: 2rem 0 4rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .hero-content {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .hero h1 {
+      font-size: clamp(2.5rem, 6vw, 3.6rem);
+      line-height: 1.2;
+      color: var(--deep-blue);
+      margin-bottom: 1.2rem;
+    }
+    .hero p {
+      font-size: 1.2rem;
+      color: var(--text-gray);
+      margin-bottom: 2.2rem;
+    }
+    .hero-image {
+      margin-top: 2rem;
+      border-radius: 32px;
+      overflow: hidden;
+      box-shadow: 0 20px 35px rgba(0,0,0,0.08);
+      max-width: 900px;
+      width: 100%;
+    }
+    .hero-image img {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: cover;
+    }
+
+    /* Tratamientos */
+    .treatments-section {
+      padding: 4rem 0;
+      background: var(--off-white);
+      border-radius: 70px 70px 0 0;
+      margin-top: 1.5rem;
+    }
+    .section-title {
+      text-align: center;
+      margin-bottom: 2.8rem;
+    }
+    .section-title h2 {
+      font-size: 2.3rem;
+      color: var(--deep-blue);
+    }
+    .section-subtitle {
+      color: var(--text-gray);
+      margin-top: 0.5rem;
+    }
+    .treatments-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 2rem;
+    }
+    .treatment-card {
+      background: white;
+      border-radius: 28px;
+      padding: 2rem 1.5rem;
+      box-shadow: var(--shadow-card);
+      border: 1px solid var(--border-light);
+      transition: all var(--transition);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .treatment-card:hover {
+      transform: translateY(-10px);
+      box-shadow: var(--shadow-hover);
+      border-color: var(--accent-mint);
+    }
+    .icon-circle {
+      background: rgba(126, 200, 163, 0.15);
+      width: 60px;
+      height: 60px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-mint);
+      font-size: 1.8rem;
+      margin-bottom: 1.5rem;
+    }
+    .treatment-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .treatment-card p {
+      color: var(--text-gray);
+      margin-bottom: 1.5rem;
+    }
+
+    /* Formulario */
+    .booking-section {
+      padding: 4rem 0;
+      background: white;
+    }
+    .booking-form {
+      max-width: 650px;
+      margin: 0 auto;
+      background: var(--off-white);
+      border-radius: 36px;
+      padding: 2.5rem 2rem;
+      box-shadow: var(--shadow-card);
+    }
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    .form-group label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 0.4rem;
+      color: var(--deep-blue);
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 0.9rem 1.2rem;
+      border: 1px solid var(--border-light);
+      border-radius: 20px;
+      font-size: 1rem;
+      background: white;
+      transition: 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: var(--accent-mint);
+      box-shadow: 0 0 0 3px rgba(126,200,163,0.2);
+    }
+
+    /* Toast */
+    .toast-message {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--deep-blue);
+      color: white;
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      font-weight: 600;
+      box-shadow: 0 18px 30px rgba(0,0,0,0.2);
+      z-index: 2000;
+      opacity: 0;
+      transition: transform 0.35s ease, opacity 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      white-space: nowrap;
+    }
+    .toast-message.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* CHATBOT IA */
+    .chatbot-widget {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 12px;
+    }
+    .chat-bubble {
+      background: var(--deep-blue);
+      color: white;
+      padding: 0.9rem 1.5rem;
+      border-radius: 40px 40px 8px 40px;
+      font-weight: 600;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.15);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .chat-bubble i {
+      color: var(--accent-mint);
+    }
+    .chat-window {
+      width: 350px;
+      max-width: calc(100vw - 40px);
+      background: white;
+      border-radius: 28px;
+      box-shadow: 0 25px 45px rgba(0,0,0,0.2);
+      overflow: hidden;
+      display: none;
+      flex-direction: column;
+      border: 1px solid #eef2f6;
+      animation: fadeIn 0.3s ease;
+    }
+    .chat-window.open {
+      display: flex;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .chat-header {
+      background: var(--deep-blue);
+      color: white;
+      padding: 1rem 1.3rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .chat-messages {
+      padding: 1.2rem;
+      height: 240px;
+      overflow-y: auto;
+      background: #f9fbfd;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .message {
+      max-width: 85%;
+      padding: 0.7rem 1rem;
+      border-radius: 18px 18px 18px 4px;
+      background: white;
+      font-size: 0.9rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+    .quick-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 0.7rem 1rem;
+      border-top: 1px solid #edf2f7;
+    }
+    .quick-btn {
+      background: #eef7f1;
+      border: none;
+      color: var(--deep-blue);
+      font-weight: 600;
+      font-size: 0.75rem;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .quick-btn:hover {
+      background: var(--accent-mint);
+      color: white;
+    }
+
+    @media (max-width: 640px) {
+      .nav-links {
+        gap: 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 0.8rem;
+      }
+      .top-bar {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="top-bar">
+      <div class="logo">
+        <i class="fas fa-tooth"></i> DentalBilbao
+      </div>
+      <div class="nav-links">
+        <span>Inicio</span>
+        <span>Tratamientos</span>
+        <span>Equipo</span>
+        <span>Contacto</span>
+      </div>
+    </div>
+
+    <!-- HERO SECTION con imagen real Unsplash -->
+    <section class="hero">
+      <div class="hero-content">
+        <h1>Tu sonrisa en manos de expertos en Bilbao</h1>
+        <p>Odontología de precisión con tecnología digital avanzada. Primera consulta gratuita y financiación a medida.</p>
+        <button class="btn btn-primary" id="ctaBookingBtn"><i class="far fa-calendar-check"></i> Reservar Cita Gratuita</button>
+      </div>
+      <div class="hero-image">
+        <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?q=80&w=1200&auto=format&fit=crop" alt="Clínica dental moderna en Bilbao con dentista profesional">
+      </div>
+    </section>
+  </div>
+
+  <!-- TRATAMIENTOS -->
+  <section class="treatments-section">
+    <div class="container">
+      <div class="section-title">
+        <h2>Tratamientos premium</h2>
+        <p class="section-subtitle">Cuidado dental personalizado con los mejores especialistas</p>
+      </div>
+      <div class="treatments-grid">
+        <div class="treatment-card">
+          <div class="icon-circle"><i class="fas fa-tooth"></i></div>
+          <h3>Implantes</h3>
+          <p>Recupera tu dentadura con implantes de titanio de última generación. Cirugía guiada 3D.</p>
+          <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?q=80&w=400&auto=format&fit=crop" alt="Implante dental profesional" style="width:100%; border-radius:18px; margin-top:0.5rem; height:120px; object-fit:cover;">
+        </div>
+        <div class="treatment-card">
+          <div class="icon-circle"><i class="fas fa-smile"></i></div>
+          <h3>Ortodoncia Invisible</h3>
+          <p>Invisalign y brackets estéticos. Alineadores transparentes para una sonrisa perfecta sin brackets metálicos.</p>
+          <img src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?q=80&w=400&auto=format&fit=crop" alt="Ortodoncia invisible Invisalign" style="width:100%; border-radius:18px; margin-top:0.5rem; height:120px; object-fit:cover;">
+        </div>
+        <div class="treatment-card">
+          <div class="icon-circle"><i class="fas fa-star"></i></div>
+          <h3>Estética Dental</h3>
+          <p>Blanqueamiento láser, carillas de porcelana y diseño de sonrisa. Resultados naturales e inmediatos.</p>
+          <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?q=80&w=400&auto=format&fit=crop" alt="Estética dental y blanqueamiento" style="width:100%; border-radius:18px; margin-top:0.5rem; height:120px; object-fit:cover;">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FORMULARIO DE RESERVA -->
+  <section class="booking-section" id="bookingFormSection">
+    <div class="container">
+      <div class="section-title">
+        <h2>Solicita tu cita gratuita</h2>
+        <p class="section-subtitle">Te llamaremos en menos de 15 minutos para confirmar disponibilidad</p>
+      </div>
+      <div class="booking-form">
+        <div class="form-group">
+          <label>Nombre completo</label>
+          <input type="text" id="nameInput" placeholder="Ej: María García">
+        </div>
+        <div class="form-group">
+          <label>Teléfono</label>
+          <input type="tel" id="phoneInput" placeholder="666 123 456">
+        </div>
+        <div class="form-group">
+          <label>Tratamiento de interés</label>
+          <select id="treatmentSelect">
+            <option value="">Selecciona un tratamiento</option>
+            <option>Implantes</option>
+            <option>Ortodoncia Invisible</option>
+            <option>Estética Dental</option>
+            <option>Revisión general</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Fecha preferida</label>
+          <input type="date" id="dateInput">
+        </div>
+        <button class="btn btn-accent" id="submitBookingBtn" style="width:100%; margin-top:0.8rem;">
+          <i class="fas fa-paper-plane"></i> Enviar solicitud
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Toast notification -->
+  <div class="toast-message" id="toast"><i class="fas fa-check-circle"></i> ¡Cita solicitada! Te llamaremos en menos de 15 minutos para confirmar.</div>
+
+  <!-- CHATBOT ODONTOAI -->
+  <div class="chatbot-widget" id="chatbotWidget">
+    <div class="chat-bubble" id="chatBubble">
+      <i class="fas fa-robot"></i> OdontoAI
+    </div>
+    <div class="chat-window" id="chatWindow">
+      <div class="chat-header">
+        <span><i class="fas fa-comment-medical"></i> OdontoAI · Asistente virtual</span>
+        <button style="background:none;border:none;color:white;cursor:pointer;" id="closeChatBtn"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="quick-buttons" id="quickButtons">
+        <button class="quick-btn" data-query="precios">¿Precios de Invisalign?</button>
+        <button class="quick-btn" data-query="urgencias">¿Urgencias 24h?</button>
+        <button class="quick-btn" data-query="ubicacion">¿Dónde estáis?</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // TOAST
+      const toast = document.getElementById('toast');
+      function showToast() {
+        toast.classList.add('show');
+        setTimeout(() => {
+          toast.classList.remove('show');
+        }, 4000);
+      }
+
+      // Formulario
+      document.getElementById('submitBookingBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        const name = document.getElementById('nameInput').value.trim();
+        const phone = document.getElementById('phoneInput').value.trim();
+        if (name === '' || phone === '') {
+          alert('Por favor completa al menos nombre y teléfono.');
+          return;
+        }
+        showToast();
+        // Limpiar formulario
+        document.getElementById('nameInput').value = '';
+        document.getElementById('phoneInput').value = '';
+        document.getElementById('treatmentSelect').value = '';
+        document.getElementById('dateInput').value = '';
+      });
+
+      // CTA Hero lleva al formulario
+      document.getElementById('ctaBookingBtn').addEventListener('click', function() {
+        document.getElementById('bookingFormSection').scrollIntoView({ behavior: 'smooth' });
+      });
+
+      // CHATBOT
+      const chatBubble = document.getElementById('chatBubble');
+      const chatWindow = document.getElementById('chatWindow');
+      const closeChatBtn = document.getElementById('closeChatBtn');
+      const chatMessages = document.getElementById('chatMessages');
+      const quickButtons = document.getElementById('quickButtons');
+
+      const botResponses = {
+        precios: "💰 Los precios de Invisalign en nuestra clínica de Bilbao parten desde 2.490€ (tratamiento completo). Incluye estudio digital 3D gratuito y seguimiento. Ofrecemos financiación sin intereses.",
+        urgencias: "🚨 Sí, disponemos de urgencias dentales 24h en Bilbao. Llama al 944 555 123 y te atenderemos de inmediato. También puedes acudir a nuestra clínica en Gran Vía 45.",
+        ubicacion: "📍 Estamos en pleno centro de Bilbao: Gran Vía de Don Diego López de Haro 45, 48011 Bilbao. Fácil acceso en metro (parada Moyúa). Consulta gratuita de parking."
+      };
+
+      function addMessage(text, isUser = false) {
+        const msg = document.createElement('div');
+        msg.className = 'message';
+        if (isUser) msg.style.background = '#e0f2e9';
+        msg.textContent = text;
+        chatMessages.appendChild(msg);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      function resetChat() {
+        chatMessages.innerHTML = '';
+        addMessage('👋 ¡Hola! Soy OdontoAI, tu asistente dental en Bilbao. ¿En qué puedo ayudarte hoy?');
+      }
+
+      function openChat() {
+        chatWindow.classList.add('open');
+        chatBubble.style.display = 'none';
+        if (chatMessages.children.length === 0) resetChat();
+      }
+
+      function closeChat() {
+        chatWindow.classList.remove('open');
+        chatBubble.style.display = 'flex';
+      }
+
+      chatBubble.addEventListener('click', openChat);
+      closeChatBtn.addEventListener('click', closeChat);
+
+      // Quick buttons
+      quickButtons.addEventListener('click', function(e) {
+        if (e.target.classList.contains('quick-btn')) {
+          const query = e.target.dataset.query;
+          const questionText = e.target.textContent;
+          addMessage(questionText, true);
+          // Simular respuesta
+          setTimeout(() => {
+            if (botResponses[query]) {
+              addMessage(botResponses[query]);
+            } else {
+              addMessage('Estoy aquí para ayudarte. Pregúntame sobre precios, urgencias o ubicación.');
+            }
+          }, 400);
+        }
+      });
+
+      // Cerrar chat al hacer clic fuera (opcional pero no implementado para no molestar)
+    })();
+  </script>
+</body>
+</html>
