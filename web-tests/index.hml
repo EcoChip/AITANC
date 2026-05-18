@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Tester - Ejemplos de Webs</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .header {
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+
+        .header .examples-badge {
+            display: inline-block;
+            background: #f0f0f0;
+            color: #555;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .btn-example {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 20px;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: white;
+            gap: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-example::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-example:hover::before {
+            left: 100%;
+        }
+
+        .btn-example:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+        }
+
+        .btn-example:active {
+            transform: translateY(-2px);
+        }
+
+        .btn-dentista {
+            background: linear-gradient(135deg, #00b4db, #0083b0);
+        }
+
+        .btn-restaurante {
+            background: linear-gradient(135deg, #f5af19, #f12711);
+        }
+
+        .btn-taller {
+            background: linear-gradient(135deg, #434343, #000000);
+        }
+
+        .btn-example .icon {
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+        }
+
+        .btn-example .btn-description {
+            font-size: 0.85rem;
+            font-weight: 400;
+            opacity: 0.9;
+        }
+
+        .footer-note {
+            margin-top: 30px;
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        .folder-structure {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 25px;
+            text-align: left;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #555;
+            border: 1px solid #e0e0e0;
+        }
+
+        .folder-structure strong {
+            color: #333;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .btn-example {
+                padding: 25px 15px;
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Web Tester</h1>
+            <p class="subtitle">Panel de pruebas para ejemplos de landing pages</p>
+            <span class="examples-badge">📁 3 ejemplos disponibles</span>
+        </div>
+
+        <div class="buttons-grid">
+            <!-- Botón Dentista -->
+            <a href="./dentista/index.html" class="btn-example btn-dentista">
+                <span class="icon">🦷</span>
+                Dentista
+                <span class="btn-description">Clínica dental</span>
+            </a>
+
+            <!-- Botón Restaurante de Lujo -->
+            <a href="./restaurante-lujo/index.html" class="btn-example btn-restaurante">
+                <span class="icon">🍽️</span>
+                Restaurante de Lujo
+                <span class="btn-description">Alta cocina</span>
+            </a>
+
+            <!-- Botón Taller Mecánico -->
+            <a href="./taller-mecanico/index.html" class="btn-example btn-taller">
+                <span class="icon">🔧</span>
+                Taller Mecánico
+                <span class="btn-description">Servicio automotriz</span>
+            </a>
+        </div>
+
+        <div class="folder-structure">
+            <strong>📂 Estructura de carpetas esperada:</strong>
+            /web-tester/<br>
+            ├── index.html (este archivo)<br>
+            ├── 📁 dentista/<br>
+            │   └── index.html<br>
+            ├── 📁 restaurante-lujo/<br>
+            │   └── index.html<br>
+            └── 📁 taller-mecanico/<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;└── index.html
+        </div>
+
+        <p class="footer-note">
+            Haz clic en cualquier botón para abrir el ejemplo correspondiente
+        </p>
+    </div>
+</body>
+</html>
