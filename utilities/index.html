@@ -1,0 +1,1652 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚡ Super Toolbox — 100+ Utilidades</title>
+<!-- Font Awesome para iconos -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+/* ============================================================
+   RESET & VARIABLES
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f0f1a;
+  --surface:#1a1a2e;
+  --card:#16213e;
+  --card-hover:#1a1a40;
+  --accent:#e94560;
+  --accent2:#0f3460;
+  --text:#eee;
+  --text-muted:#999;
+  --radius:14px;
+  --shadow:0 4px 24px rgba(0,0,0,.4);
+  --transition:.25s ease;
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  line-height:1.6;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+header{
+  background:linear-gradient(135deg,var(--accent2),var(--accent));
+  padding:2.5rem 1rem 2rem;
+  text-align:center;
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 4px 30px rgba(233,69,96,.3);
+}
+header h1{font-size:clamp(1.6rem,5vw,2.8rem);font-weight:800;letter-spacing:-.5px;margin-bottom:.3rem}
+header h1 span{color:#ffdd57}
+header p.subtitle{font-size:.95rem;opacity:.85;margin-bottom:1.2rem}
+
+/* Search bar */
+.search-wrap{
+  max-width:560px;margin:0 auto;position:relative;
+}
+.search-wrap i{
+  position:absolute;left:16px;top:50%;transform:translateY(-50%);
+  color:var(--text-muted);font-size:1.1rem;
+}
+#searchInput{
+  width:100%;padding:.85rem 1rem .85rem 2.8rem;
+  border:2px solid rgba(255,255,255,.15);border-radius:50px;
+  background:rgba(0,0,0,.35);color:#fff;font-size:1rem;
+  outline:none;transition:var(--transition);
+}
+#searchInput:focus{border-color:var(--accent);background:rgba(0,0,0,.55)}
+#searchInput::placeholder{color:rgba(255,255,255,.45)}
+
+/* Counter badge */
+.counter{
+  display:inline-block;margin-top:.75rem;
+  background:rgba(0,0,0,.3);padding:.3rem 1rem;border-radius:50px;
+  font-size:.85rem;color:rgba(255,255,255,.8);
+}
+
+/* ============================================================
+   GRID
+   ============================================================ */
+main{max-width:1400px;margin:2rem auto;padding:0 1rem}
+#grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:1rem;
+}
+.card{
+  background:var(--card);border-radius:var(--radius);
+  padding:1.4rem 1.1rem;cursor:pointer;
+  transition:transform var(--transition),box-shadow var(--transition),background var(--transition);
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  border:1px solid rgba(255,255,255,.04);
+}
+.card:hover{
+  transform:translateY(-5px);
+  box-shadow:var(--shadow);
+  background:var(--card-hover);
+  border-color:rgba(233,69,96,.25);
+}
+.card .icon{font-size:2.2rem;margin-bottom:.6rem}
+.card h3{font-size:.95rem;font-weight:700;margin-bottom:.3rem}
+.card p{font-size:.78rem;color:var(--text-muted);line-height:1.4}
+
+/* No results */
+#noResults{
+  display:none;text-align:center;padding:4rem 1rem;
+  color:var(--text-muted);font-size:1.1rem;
+}
+#noResults i{font-size:3rem;display:block;margin-bottom:1rem;color:var(--accent)}
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+.modal-overlay{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(0,0,0,.7);backdrop-filter:blur(6px);
+  display:none;align-items:center;justify-content:center;
+  padding:1rem;
+}
+.modal-overlay.active{display:flex}
+.modal{
+  background:var(--surface);border-radius:var(--radius);
+  width:100%;max-width:620px;max-height:90vh;overflow-y:auto;
+  padding:2rem 1.8rem;position:relative;
+  box-shadow:0 12px 60px rgba(0,0,0,.6);
+  animation:modalIn .3s ease;
+}
+@keyframes modalIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+.modal-close{
+  position:absolute;top:12px;right:14px;
+  background:none;border:none;color:var(--text-muted);
+  font-size:1.5rem;cursor:pointer;transition:color var(--transition);
+}
+.modal-close:hover{color:var(--accent)}
+.modal h2{font-size:1.35rem;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+.modal h2 .icon{font-size:1.6rem}
+
+/* Form elements inside modals */
+.modal label{display:block;font-size:.85rem;color:var(--text-muted);margin:.7rem 0 .25rem}
+.modal input,.modal select,.modal textarea{
+  width:100%;padding:.65rem .8rem;border:1px solid rgba(255,255,255,.12);
+  border-radius:8px;background:rgba(0,0,0,.3);color:#fff;
+  font-size:.95rem;outline:none;transition:border var(--transition);
+  font-family:inherit;
+}
+.modal input:focus,.modal select:focus,.modal textarea:focus{border-color:var(--accent)}
+.modal textarea{resize:vertical;min-height:80px}
+.modal button.btn{
+  display:inline-block;margin-top:.8rem;
+  padding:.6rem 1.4rem;border:none;border-radius:8px;
+  background:var(--accent);color:#fff;font-size:.9rem;
+  cursor:pointer;font-weight:600;transition:background var(--transition);
+}
+.modal button.btn:hover{background:#c0392b}
+.modal .result-box{
+  margin-top:.8rem;padding:.8rem;border-radius:8px;
+  background:rgba(0,0,0,.3);font-family:'Courier New',monospace;
+  font-size:.9rem;word-break:break-all;min-height:38px;
+  border:1px solid rgba(255,255,255,.06);
+}
+.modal .row{display:flex;gap:.6rem;flex-wrap:wrap}
+.modal .row>*{flex:1;min-width:120px}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer{text-align:center;padding:2rem 1rem;color:var(--text-muted);font-size:.8rem}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media(max-width:600px){
+  header{padding:1.5rem .8rem 1.2rem}
+  .modal{padding:1.4rem 1rem}
+  #grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.7rem}
+  .card{padding:1rem .8rem}
+}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--accent2);border-radius:4px}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     HEADER
+     ============================================================ -->
+<header>
+  <h1>⚡ Super <span>Toolbox</span></h1>
+  <p class="subtitle">Más de 100 utilidades prácticas al alcance de un clic</p>
+  <div class="search-wrap">
+    <i class="fas fa-search"></i>
+    <input type="text" id="searchInput" placeholder="Buscar herramienta..." autofocus>
+  </div>
+  <div class="counter">Mostrando <strong id="visibleCount">0</strong> de <strong id="totalCount">0</strong> herramientas</div>
+</header>
+
+<!-- ============================================================
+     MAIN GRID
+     ============================================================ -->
+<main>
+  <div id="grid"></div>
+  <div id="noResults"><i class="fas fa-ghost"></i>No se encontraron herramientas. Prueba con otra búsqueda.</div>
+</main>
+
+<!-- ============================================================
+     MODAL OVERLAY
+     ============================================================ -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modal">
+    <button class="modal-close" id="modalClose">&times;</button>
+    <h2 id="modalTitle"><span class="icon"></span><span class="name"></span></h2>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<footer>Super Toolbox &copy; 2026 — Hecho con ❤️ y JavaScript</footer>
+
+<script>
+/* ============================================================
+   TOOLS DATA ARRAY
+   Each tool: { name, desc, icon (FA class or emoji), init(container) }
+   ============================================================ */
+const tools = [
+
+/* -------------------------------------------------------
+   1. Calculadora Básica
+   ------------------------------------------------------- */
+{
+  name:"Calculadora Básica",desc:"Suma, resta, multiplica y divide",icon:"fas fa-calculator",
+  init(c){
+    c.innerHTML=`<input id="calcDisplay" readonly style="font-size:1.6rem;text-align:right;margin-bottom:.6rem">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px" id="calcPad"></div>`;
+    const btns=['7','8','9','/','4','5','6','*','1','2','3','-','0','.','=','+','C'];
+    const pad=c.querySelector('#calcPad');const disp=c.querySelector('#calcDisplay');
+    btns.forEach(b=>{const btn=document.createElement('button');btn.className='btn';btn.textContent=b;
+      btn.style.cssText='padding:.7rem;font-size:1.1rem;border-radius:8px;';
+      btn.onclick=()=>{
+        if(b==='C')disp.value='';
+        else if(b==='='){try{disp.value=Function('"use strict";return('+disp.value+')')()}catch{disp.value='Error'}}
+        else disp.value+=b;
+      };pad.appendChild(btn)});
+  }
+},
+
+/* 2 */ {name:"Conversor de Longitud",desc:"Metros, km, millas, pies, pulgadas",icon:"fas fa-ruler",
+  init(c){
+    const units={m:1,km:1000,mi:1609.344,ft:0.3048,in:0.0254,cm:0.01,mm:0.001,yd:0.9144};
+    c.innerHTML=`<div class="row"><div><label>Valor</label><input id="lVal" type="number" value="1"></div>
+    <div><label>De</label><select id="lFrom">${Object.keys(units).map(u=>`<option>${u}</option>`).join('')}</select></div>
+    <div><label>A</label><select id="lTo">${Object.keys(units).map(u=>`<option ${u==='km'?'selected':''}>${u}</option>`).join('')}</select></div></div>
+    <button class="btn" id="lBtn">Convertir</button><div class="result-box" id="lRes"></div>`;
+    c.querySelector('#lBtn').onclick=()=>{const v=+c.querySelector('#lVal').value;
+      const f=units[c.querySelector('#lFrom').value];const t=units[c.querySelector('#lTo').value];
+      c.querySelector('#lRes').textContent=(v*f/t).toFixed(6)};
+  }
+},
+
+/* 3 */ {name:"Conversor de Peso",desc:"Kg, libras, onzas, gramos, toneladas",icon:"fas fa-weight-hanging",
+  init(c){
+    const u={kg:1,g:0.001,lb:0.453592,oz:0.0283495,t:1000,mg:0.000001,st:6.35029};
+    c.innerHTML=`<div class="row"><div><label>Valor</label><input id="wV" type="number" value="1"></div>
+    <div><label>De</label><select id="wF">${Object.keys(u).map(k=>`<option>${k}</option>`).join('')}</select></div>
+    <div><label>A</label><select id="wT">${Object.keys(u).map(k=>`<option ${k==='lb'?'selected':''}>${k}</option>`).join('')}</select></div></div>
+    <button class="btn" id="wB">Convertir</button><div class="result-box" id="wR"></div>`;
+    c.querySelector('#wB').onclick=()=>{const v=+c.querySelector('#wV').value;
+      c.querySelector('#wR').textContent=(v*u[c.querySelector('#wF').value]/u[c.querySelector('#wT').value]).toFixed(6)};
+  }
+},
+
+/* 4 */ {name:"Conversor de Temperatura",desc:"Celsius, Fahrenheit, Kelvin",icon:"fas fa-thermometer-half",
+  init(c){
+    c.innerHTML=`<div class="row"><div><label>Valor</label><input id="tV" type="number" value="100"></div>
+    <div><label>De</label><select id="tF"><option>C</option><option>F</option><option>K</option></select></div>
+    <div><label>A</label><select id="tT"><option>F</option><option>C</option><option>K</option></select></div></div>
+    <button class="btn" id="tB">Convertir</button><div class="result-box" id="tR"></div>`;
+    c.querySelector('#tB').onclick=()=>{let v=+c.querySelector('#tV').value;const f=c.querySelector('#tF').value;const t=c.querySelector('#tT').value;
+      if(f==='C')v=v;else if(f==='F')v=(v-32)*5/9;else v=v-273.15;
+      let r;if(t==='C')r=v;else if(t==='F')r=v*9/5+32;else r=v+273.15;
+      c.querySelector('#tR').textContent=r.toFixed(4)};
+  }
+},
+
+/* 5 */ {name:"Conversor de Divisas",desc:"USD, EUR, GBP, JPY, MXN (tasa fija)",icon:"fas fa-coins",
+  init(c){
+    const rates={USD:1,EUR:0.92,GBP:0.79,JPY:149.5,MXN:17.15,CAD:1.36,AUD:1.53,CHF:0.88,CNY:7.24,BRL:4.97};
+    c.innerHTML=`<div class="row"><div><label>Cantidad</label><input id="cV" type="number" value="100"></div>
+    <div><label>De</label><select id="cF">${Object.keys(rates).map(k=>`<option>${k}</option>`).join('')}</select></div>
+    <div><label>A</label><select id="cT">${Object.keys(rates).map(k=>`<option ${k==='EUR'?'selected':''}>${k}</option>`).join('')}</select></div></div>
+    <button class="btn" id="cB">Convertir</button><div class="result-box" id="cR"></div>`;
+    c.querySelector('#cB').onclick=()=>{const v=+c.querySelector('#cV').value;
+      const r=v/rates[c.querySelector('#cF').value]*rates[c.querySelector('#cT').value];
+      c.querySelector('#cR').textContent=r.toFixed(2)};
+  }
+},
+
+/* 6 */ {name:"Generador de Contraseñas",desc:"Contraseñas seguras personalizables",icon:"fas fa-key",
+  init(c){
+    c.innerHTML=`<label>Longitud: <strong id="pwLenVal">16</strong></label><input id="pwLen" type="range" min="4" max="64" value="16">
+    <label><input type="checkbox" id="pwUp" checked> Mayúsculas</label>
+    <label><input type="checkbox" id="pwNum" checked> Números</label>
+    <label><input type="checkbox" id="pwSym" checked> Símbolos</label>
+    <button class="btn" id="pwBtn">Generar</button><div class="result-box" id="pwRes" style="font-size:1.1rem;letter-spacing:1px"></div>`;
+    c.querySelector('#pwLen').oninput=e=>c.querySelector('#pwLenVal').textContent=e.target.value;
+    c.querySelector('#pwBtn').onclick=()=>{
+      let chars='abcdefghijklmnopqrstuvwxyz';
+      if(c.querySelector('#pwUp').checked)chars+='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      if(c.querySelector('#pwNum').checked)chars+='0123456789';
+      if(c.querySelector('#pwSym').checked)chars+='!@#$%^&*()_+-=[]{}|;:,.<>?';
+      const len=+c.querySelector('#pwLen').value;let pw='';
+      const arr=new Uint32Array(len);crypto.getRandomValues(arr);
+      for(let i=0;i<len;i++)pw+=chars[arr[i]%chars.length];
+      c.querySelector('#pwRes').textContent=pw;
+    };
+  }
+},
+
+/* 7 */ {name:"Generador de Números Aleatorios",desc:"Genera números en un rango",icon:"fas fa-dice",
+  init(c){
+    c.innerHTML=`<div class="row"><div><label>Mínimo</label><input id="rnMin" type="number" value="1"></div>
+    <div><label>Máximo</label><input id="rnMax" type="number" value="100"></div>
+    <div><label>Cantidad</label><input id="rnCnt" type="number" value="1" min="1" max="50"></div></div>
+    <button class="btn" id="rnBtn">Generar</button><div class="result-box" id="rnRes" style="font-size:1.2rem"></div>`;
+    c.querySelector('#rnBtn').onclick=()=>{const mi=+c.querySelector('#rnMin').value;const ma=+c.querySelector('#rnMax').value;
+      const n=Math.min(+c.querySelector('#rnCnt').value,50);const res=[];
+      for(let i=0;i<n;i++)res.push(Math.floor(Math.random()*(ma-mi+1))+mi);
+      c.querySelector('#rnRes').textContent=res.join(', ')};
+  }
+},
+
+/* 8 */ {name:"Generador de QR",desc:"Crea códigos QR desde texto o URL",icon:"fas fa-qrcode",
+  init(c){
+    c.innerHTML=`<label>Texto o URL</label><input id="qrTxt" value="https://example.com">
+    <button class="btn" id="qrBtn">Generar QR</button>
+    <div style="text-align:center;margin-top:1rem"><img id="qrImg" style="max-width:200px;border-radius:8px"></div>`;
+    c.querySelector('#qrBtn').onclick=()=>{const t=encodeURIComponent(c.querySelector('#qrTxt').value);
+      c.querySelector('#qrImg').src=`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${t}`};
+  }
+},
+
+/* 9 */ {name:"Temporizador",desc:"Cuenta regresiva personalizable",icon:"fas fa-hourglass-start",
+  init(c){
+    c.innerHTML=`<div class="row"><div><label>Min</label><input id="tmM" type="number" value="5" min="0"></div>
+    <div><label>Seg</label><input id="tmS" type="number" value="0" min="0" max="59"></div></div>
+    <div style="text-align:center;margin:1rem 0"><span id="tmDisp" style="font-size:2.5rem;font-weight:700;font-family:monospace">05:00</span></div>
+    <div class="row"><button class="btn" id="tmStart">Iniciar</button><button class="btn" id="tmStop" style="background:#555">Detener</button></div>`;
+    let iv=null;
+    c.querySelector('#tmStart').onclick=()=>{
+      clearInterval(iv);let total=+c.querySelector('#tmM').value*60+ +c.querySelector('#tmS').value;
+      const d=c.querySelector('#tmDisp');
+      const show=()=>{const m=Math.floor(total/60);const s=total%60;d.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')};
+      show();iv=setInterval(()=>{if(total<=0){clearInterval(iv);d.textContent='¡Tiempo!';return}total--;show()},1000)};
+    c.querySelector('#tmStop').onclick=()=>clearInterval(iv);
+  }
+},
+
+/* 10 */ {name:"Cronómetro",desc:"Cronómetro con vueltas",icon:"fas fa-stopwatch",
+  init(c){
+    c.innerHTML=`<div style="text-align:center"><span id="swDisp" style="font-size:2.5rem;font-weight:700;font-family:monospace">00:00.000</span></div>
+    <div class="row" style="margin-top:1rem"><button class="btn" id="swStart">Iniciar</button><button class="btn" id="swLap" style="background:var(--accent2)">Vuelta</button><button class="btn" id="swReset" style="background:#555">Reset</button></div>
+    <div id="swLaps" style="margin-top:.8rem;max-height:150px;overflow-y:auto;font-size:.85rem"></div>`;
+    let t0=0,elapsed=0,iv=null,lap=1;
+    const fmt=ms=>{const m=Math.floor(ms/60000);const s=Math.floor((ms%60000)/1000);const ml=ms%1000;
+      return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')+'.'+String(ml).padStart(3,'0')};
+    const disp=c.querySelector('#swDisp');
+    c.querySelector('#swStart').onclick=function(){
+      if(iv){clearInterval(iv);iv=null;this.textContent='Continuar';return}
+      t0=Date.now()-elapsed;this.textContent='Pausa';
+      iv=setInterval(()=>{elapsed=Date.now()-t0;disp.textContent=fmt(elapsed)},31)};
+    c.querySelector('#swLap').onclick=()=>{if(iv)c.querySelector('#swLaps').innerHTML+=`<div>Vuelta ${lap++}: ${fmt(elapsed)}</div>`};
+    c.querySelector('#swReset').onclick=()=>{clearInterval(iv);iv=null;elapsed=0;lap=1;disp.textContent='00:00.000';
+      c.querySelector('#swLaps').innerHTML='';c.querySelector('#swStart').textContent='Iniciar'};
+  }
+},
+
+/* 11 */ {name:"Texto a Binario",desc:"Convierte texto a código binario",icon:"fas fa-code",
+  init(c){
+    c.innerHTML=`<label>Texto</label><textarea id="t2bIn" rows="2">Hola Mundo</textarea>
+    <button class="btn" id="t2bBtn">Convertir</button><div class="result-box" id="t2bRes"></div>`;
+    c.querySelector('#t2bBtn').onclick=()=>{
+      c.querySelector('#t2bRes').textContent=[...c.querySelector('#t2bIn').value].map(ch=>ch.charCodeAt(0).toString(2).padStart(8,'0')).join(' ')};
+  }
+},
+
+/* 12 */ {name:"Binario a Texto",desc:"Decodifica binario a texto legible",icon:"fas fa-file-code",
+  init(c){
+    c.innerHTML=`<label>Binario (separado por espacios)</label><textarea id="b2tIn" rows="2">01001000 01101111 01101100 01100001</textarea>
+    <button class="btn" id="b2tBtn">Convertir</button><div class="result-box" id="b2tRes"></div>`;
+    c.querySelector('#b2tBtn').onclick=()=>{
+      c.querySelector('#b2tRes').textContent=c.querySelector('#b2tIn').value.trim().split(/\s+/).map(b=>String.fromCharCode(parseInt(b,2))).join('')};
+  }
+},
+
+/* 13 */ {name:"Contador de Caracteres",desc:"Cuenta caracteres, palabras y líneas",icon:"fas fa-font",
+  init(c){
+    c.innerHTML=`<textarea id="ccIn" rows="4" placeholder="Escribe o pega texto aquí..."></textarea>
+    <div class="result-box" id="ccRes">Caracteres: 0 | Palabras: 0 | Líneas: 0</div>`;
+    c.querySelector('#ccIn').oninput=e=>{const t=e.target.value;
+      const w=t.trim()?t.trim().split(/\s+/).length:0;
+      const l=t?t.split('\n').length:0;
+      c.querySelector('#ccRes').textContent=`Caracteres: ${t.length} | Palabras: ${w} | Líneas: ${l}`};
+  }
+},
+
+/* 14 */ {name:"Color Aleatorio",desc:"Genera colores HEX, RGB y HSL aleatorios",icon:"fas fa-palette",
+  init(c){
+    c.innerHTML=`<div style="text-align:center"><div id="caBox" style="width:120px;height:120px;border-radius:16px;margin:0 auto 1rem;border:3px solid rgba(255,255,255,.1)"></div>
+    <div class="result-box" id="caRes"></div></div><button class="btn" style="width:100%;margin-top:.5rem" id="caBtn">Nuevo Color</button>`;
+    const gen=()=>{const h='#'+Math.floor(Math.random()*16777215).toString(16).padStart(6,'0');
+      c.querySelector('#caBox').style.background=h;
+      const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);
+      c.querySelector('#caRes').textContent=`HEX: ${h} | RGB: ${r},${g},${b}`};
+    c.querySelector('#caBtn').onclick=gen;gen();
+  }
+},
+
+/* 15 */ {name:"Mayúsculas / Minúsculas",desc:"Convierte texto a UPPER, lower, Title Case",icon:"fas fa-text-height",
+  init(c){
+    c.innerHTML=`<textarea id="csIn" rows="3" placeholder="Escribe texto...">hola mundo cruel</textarea>
+    <div class="row"><button class="btn" data-t="up">MAYÚSCULAS</button><button class="btn" data-t="lo">minúsculas</button><button class="btn" data-t="ti">Title Case</button><button class="btn" data-t="se">oRaCiÓn</button></div>
+    <div class="result-box" id="csRes"></div>`;
+    c.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{const t=c.querySelector('#csIn').value;
+      const m=b.dataset.t;let r;
+      if(m==='up')r=t.toUpperCase();
+      else if(m==='lo')r=t.toLowerCase();
+      else if(m==='ti')r=t.replace(/\b\w/g,l=>l.toUpperCase());
+      else r=t.charAt(0).toUpperCase()+t.slice(1).toLowerCase();
+      c.querySelector('#csRes').textContent=r});
+  }
+},
+
+/* 16 */ {name:"Validador de Email",desc:"Verifica si un email tiene formato válido",icon:"fas fa-envelope-open-text",
+  init(c){
+    c.innerHTML=`<label>Email</label><input id="veIn" value="user@example.com">
+    <button class="btn" id="veBtn">Validar</button><div class="result-box" id="veRes"></div>`;
+    c.querySelector('#veBtn').onclick=()=>{const e=c.querySelector('#veIn').value;
+      const ok=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+      c.querySelector('#veRes').textContent=ok?'✅ Email válido':'❌ Email inválido'};
+  }
+},
+
+/* 17 */ {name:"Fortaleza de Contraseña",desc:"Evalúa la seguridad de tu contraseña",icon:"fas fa-shield-alt",
+  init(c){
+    c.innerHTML=`<label>Contraseña</label><input id="psIn" type="text" placeholder="Ingresa una contraseña">
+    <div class="result-box" id="psRes">Ingresa una contraseña para evaluar</div>`;
+    c.querySelector('#psIn').oninput=e=>{const p=e.target.value;let s=0;
+      if(p.length>=8)s++;if(p.length>=12)s++;if(/[A-Z]/.test(p))s++;if(/[a-z]/.test(p))s++;
+      if(/[0-9]/.test(p))s++;if(/[^A-Za-z0-9]/.test(p))s++;
+      const labels=['⚠️ Muy débil','⚠️ Débil','🟡 Regular','🟢 Buena','💪 Fuerte','🔒 Muy fuerte','🏆 Excelente'];
+      c.querySelector('#psRes').textContent=p?labels[s]:'Ingresa una contraseña para evaluar'};
+  }
+},
+
+/* 18 */ {name:"Generador Hash SHA-256",desc:"Genera hash SHA-256 de cualquier texto",icon:"fas fa-fingerprint",
+  init(c){
+    c.innerHTML=`<label>Texto</label><textarea id="shIn" rows="2">Hola Mundo</textarea>
+    <button class="btn" id="shBtn">Generar Hash</button><div class="result-box" id="shRes"></div>`;
+    c.querySelector('#shBtn').onclick=async()=>{
+      const data=new TextEncoder().encode(c.querySelector('#shIn').value);
+      const hash=await crypto.subtle.digest('SHA-256',data);
+      c.querySelector('#shRes').textContent=Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('')};
+  }
+},
+
+/* 19 */ {name:"Codificar/Decodificar Base64",desc:"Codifica o decodifica texto en Base64",icon:"fas fa-exchange-alt",
+  init(c){
+    c.innerHTML=`<textarea id="b64In" rows="3" placeholder="Texto aquí...">Hola Mundo</textarea>
+    <div class="row"><button class="btn" id="b64E">Codificar</button><button class="btn" id="b64D" style="background:var(--accent2)">Decodificar</button></div>
+    <div class="result-box" id="b64Res"></div>`;
+    c.querySelector('#b64E').onclick=()=>{try{c.querySelector('#b64Res').textContent=btoa(unescape(encodeURIComponent(c.querySelector('#b64In').value)))}catch{c.querySelector('#b64Res').textContent='Error'}};
+    c.querySelector('#b64D').onclick=()=>{try{c.querySelector('#b64Res').textContent=decodeURIComponent(escape(atob(c.querySelector('#b64In').value)))}catch{c.querySelector('#b64Res').textContent='Error al decodificar'}};
+  }
+},
+
+/* 20 */ {name:"Codificar URL",desc:"Encode/decode URI components",icon:"fas fa-link",
+  init(c){
+    c.innerHTML=`<textarea id="urlIn" rows="2" placeholder="URL o texto...">https://example.com/path?q=hola mundo&a=1</textarea>
+    <div class="row"><button class="btn" id="urlE">Codificar</button><button class="btn" id="urlD" style="background:var(--accent2)">Decodificar</button></div>
+    <div class="result-box" id="urlRes"></div>`;
+    c.querySelector('#urlE').onclick=()=>c.querySelector('#urlRes').textContent=encodeURIComponent(c.querySelector('#urlIn').value);
+    c.querySelector('#urlD').onclick=()=>{try{c.querySelector('#urlRes').textContent=decodeURIComponent(c.querySelector('#urlIn').value)}catch{c.querySelector('#urlRes').textContent='Error'}};
+  }
+},
+
+/* 21 */ {name:"Texto Lorem Ipsum",desc:"Genera párrafos de texto de relleno",icon:"fas fa-paragraph",
+  init(c){
+    const lorem="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.";
+    c.innerHTML=`<label>Párrafos</label><input id="liN" type="number" value="3" min="1" max="20">
+    <button class="btn" id="liBtn">Generar</button><div class="result-box" id="liRes" style="white-space:pre-wrap;max-height:300px;overflow-y:auto"></div>`;
+    c.querySelector('#liBtn').onclick=()=>{const n=+c.querySelector('#liN').value;
+      c.querySelector('#liRes').textContent=Array(n).fill(lorem).join('\n\n')};
+  }
+},
+
+/* 22 */ {name:"Reloj Mundial",desc:"Hora actual en diferentes zonas horarias",icon:"fas fa-globe",
+  init(c){
+    const zones=['America/New_York','America/Los_Angeles','America/Mexico_City','Europe/London','Europe/Madrid','Europe/Berlin','Asia/Tokyo','Asia/Shanghai','Australia/Sydney','Pacific/Auckland'];
+    c.innerHTML=`<div id="wzList" style="max-height:350px;overflow-y:auto"></div>`;
+    const update=()=>{c.querySelector('#wzList').innerHTML=zones.map(z=>{
+      const t=new Date().toLocaleString('es',{timeZone:z,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+      const d=new Date().toLocaleString('es',{timeZone:z,weekday:'short',day:'numeric',month:'short'});
+      return`<div style="display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid rgba(255,255,255,.06)"><span>${z.replace(/_/g,' ')}</span><span style="font-family:monospace;font-weight:700">${t} — ${d}</span></div>`}).join('')};
+    update();const iv=setInterval(update,1000);
+    c._cleanup=()=>clearInterval(iv);
+  }
+},
+
+/* 23 */ {name:"Calculadora de IMC",desc:"Índice de Masa Corporal",icon:"fas fa-heartbeat",
+  init(c){
+    c.innerHTML=`<div class="row"><div><label>Peso (kg)</label><input id="imcW" type="number" value="70"></div>
+    <div><label>Altura (cm)</label><input id="imcH" type="number" value="175"></div></div>
+    <button class="btn" id="imcBtn">Calcular</button><div class="result-box" id="imcRes"></div>`;
+    c.querySelector('#imcBtn').onclick=()=>{const w=+c.querySelector('#imcW').value;const h=+c.querySelector('#imcH').value/100;
+      const imc=w/(h*h);let cat;
+      if(imc<18.5)cat='Bajo peso';else if(imc<25)cat='Normal';else if(imc<30)cat='Sobrepeso';else cat='Obesidad';
+      c.querySelector('#imcRes').textContent=`IMC: ${imc.toFixed(1)} — ${cat}`};
+  }
+},
+
+/* 24 */ {name:"Calculadora de Edad",desc:"Calcula tu edad exacta",icon:"fas fa-birthday-cake",
+  init(c){
+    c.innerHTML=`<label>Fecha de nacimiento</label><input id="ageIn" type="date" value="1995-06-15">
+    <button class="btn" id="ageBtn">Calcular</button><div class="result-box" id="ageRes"></div>`;
+    c.querySelector('#ageBtn').onclick=()=>{const b=new Date(c.querySelector('#ageIn').value);const now=new Date();
+      let y=now.getFullYear()-b.getFullYear();let m=now.getMonth()-b.getMonth();let d=now.getDate()-b.getDate();
+      if(d<0){m--;d+=new Date(now.getFullYear(),now.getMonth(),0).getDate()}
+      if(m<0){y--;m+=12}
+      const days=Math.floor((now-b)/(86400000));
+      c.querySelector('#ageRes').textContent=`${y} años, ${m} meses, ${d} días (${days.toLocaleString()} días totales)`};
+  }
+},
+
+/* 25 */ {name:"Generador de UUID",desc:"Genera identificadores únicos UUID v4",icon:"fas fa-barcode",
+  init(c){
+    c.innerHTML=`<label>Cantidad</label><input id="uuN" type="number" value="5" min="1" max="20">
+    <button class="btn" id="uuBtn">Generar</button><div class="result-box" id="uuRes" style="white-space:pre-wrap"></div>`;
+    c.querySelector('#uuBtn').onclick=()=>{const n=+c.querySelector('#uuN').value;
+      const res=[];for(let i=0;i<n;i++)res.push(crypto.randomUUID());
+      c.querySelector('#uuRes').textContent=res.join('\n')};
+  }
+},
+
+/* 26 */ {name:"Conversor de Color",desc:"HEX ↔ RGB ↔ HSL",icon:"fas fa-eye-dropper",
+  init(c){
+    c.innerHTML=`<label>Color HEX</label><input id="ccHex" value="#e94560">
+    <button class="btn" id="ccBtn">Convertir</button><div class="result-box" id="ccRes"></div>
+    <div id="ccPrev" style="height:50px;border-radius:8px;margin-top:.5rem"></div>`;
+    c.querySelector('#ccBtn').onclick=()=>{let h=c.querySelector('#ccHex').value.replace('#','');
+      if(h.length===3)h=h.split('').map(c=>c+c).join('');
+      const r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);
+      const max=Math.max(r,g,b)/255,min=Math.min(r,g,b)/255;
+      const l=(max+min)/2;let s=0,hue=0;
+      if(max!==min){s=l>.5?(max-min)/(2-max-min):(max-min)/(max+min);
+        if(max===r/255)hue=((g/255-b/255)/(max-min))%6;
+        else if(max===g/255)hue=(b/255-r/255)/(max-min)+2;
+        else hue=(r/255-g/255)/(max-min)+4;
+        hue=Math.round(hue*60);if(hue<0)hue+=360}
+      c.querySelector('#ccRes').textContent=`RGB: ${r}, ${g}, ${b} | HSL: ${hue}°, ${Math.round(s*100)}%, ${Math.round(l*100)}%`;
+      c.querySelector('#ccPrev').style.background=`#${h}`};
+  }
+},
+
+/* 27 */ {name:"Calculadora de Porcentaje",desc:"Calcula porcentajes fácilmente",icon:"fas fa-percent",
+  init(c){
+    c.innerHTML=`<p style="font-size:.85rem;color:var(--text-muted)">¿Cuánto es el X% de Y?</p>
+    <div class="row"><div><label>Porcentaje (%)</label><input id="pcP" type="number" value="15"></div>
+    <div><label>De</label><input id="pcV" type="number" value="200"></div></div>
+    <button class="btn" id="pcBtn">Calcular</button><div class="result-box" id="pcRes"></div>`;
+    c.querySelector('#pcBtn').onclick=()=>{const p=+c.querySelector('#pcP').value;const v=+c.querySelector('#pcV').value;
+      c.querySelector('#pcRes').textContent=`${p}% de ${v} = ${(p/100*v).toFixed(4)}`};
+  }
+},
+
+/* 28 */ {name:"Calculadora de Propinas",desc:"Divide la cuenta con propina",icon:"fas fa-utensils",
+  init(c){
+    c.innerHTML=`<div class="row"><div><label>Total (\$)</label><input id="tipT" type="number" value="50"></div>
+    <div><label>Propina (%)</label><input id="tipP" type="number" value="15"></div>
+    <div><label>Personas</label><input id="tipN" type="number" value="2" min="1"></div></div>
+    <button class="btn" id="tipBtn">Calcular</button><div class="result-box" id="tipRes"></div>`;
+    c.querySelector('#tipBtn').onclick=()=>{const t=+c.querySelector('#tipT').value;const p=+c.querySelector('#tipP').value;const n=+c.querySelector('#tipN').value;
+      const tip=t*p/100;const total=t+tip;
+      c.querySelector('#tipRes').textContent=`Propina: \$${tip.toFixed(2)} | Total: \$${total.toFixed(2)} | Por persona: \$${(total/n).toFixed(2)}`};
+  }
+},
+
+/* 29 */ {name:"Conversor de Texto a ASCII",desc:"Muestra valores ASCII de cada carácter",icon:"fas fa-hashtag",
+  init(c){
+    c.innerHTML=`<textarea id="ascIn" rows="2" placeholder="Escribe texto...">ABC</textarea>
+    <button class="btn" id="ascBtn">Convertir</button><div class="result-box" id="ascRes"></div>`;
+    c.querySelector('#ascBtn').onclick=()=>{
+      c.querySelector('#ascRes').textContent=[...c.querySelector('#ascIn').value].map(ch=>`${ch}=${ch.charCodeAt(0)}`).join(' | ')};
+  }
+},
+
+/* 30 */ {name:"Conversor Decimal ↔ Hexadecimal",desc:"Convierte entre decimal y hexadecimal",icon:"fas fa-superscript",
+  init(c){
+    c.innerHTML=`<div class="row"><div><label>Decimal</label><input id="dhDec" type="number" value="255"></div>
+    <div><label>Hexadecimal</label><input id="dhHex" value="FF"></div></div>
+    <div class="row"><button class="btn" id="d2h">Dec → Hex</button><button class="btn" id="h2d" style="background:var(--accent2)">Hex → Dec</button></div>
+    <div class="result-box" id="dhRes"></div>`;
+    c.querySelector('#d2h').onclick=()=>c.querySelector('#dhRes').textContent=`0x${(+c.querySelector('#dhDec').value).toString(16).toUpperCase()}`;
+    c.querySelector('#h2d').onclick=()=>c.querySelector('#dhRes').textContent=parseInt(c.querySelector('#dhHex').value,16);
+  }
+},
+
+/* 31 */ {name:"Conversor Decimal ↔ Binario",desc:"Convierte entre decimal y binario",icon:"fas fa-microchip",
+  init(c){
+    c.innerHTML=`<div class="row"><div><label>Decimal</label><input id="dbDec" type="number" value="42"></div>
+    <div><label>Binario</label><input id="dbBin" value="101010"></div></div>
+    <div class="row"><button class="btn" id="d2b">Dec → Bin</button><button class="btn" id="b2d" style="background:var(--accent2)">Bin → Dec</button></div>
+    <div class="result-box" id="dbRes"></div>`;
+    c.querySelector('#d2b').onclick=()=>c.querySelector('#dbRes').textContent=(+c.querySelector('#dbDec').value).toString(2);
+    c.querySelector('#b2d').onclick=()=>c.querySelector('#dbRes').textContent=parseInt(c.querySelector('#dbBin').value,2);
+  }
+},
+
+/* 32 */ {name:"Conversor Romano",desc:"Convierte números a romanos y viceversa",icon:"fas fa-landmark",
+  init(c){
+    c.innerHTML=`<div class="row"><div><label>Número</label><input id="romN" type="number" value="2024" min="1" max="3999"></div></div>
+    <button class="btn" id="romBtn">Convertir a Romano</button><div class="result-box" id="romRes"></div>`;
+    c.querySelector('#romBtn').onclick=()=>{let n=+c.querySelector('#romN').value;
+      const vals=[[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']];
+      let r='';vals.forEach(([v,s])=>{while(n>=v){r+=s;n-=v}});
+      c.querySelector('#romRes').textContent=r};
+  }
+},
+
+/* 33 */ {name:"Invertir Texto",desc:"Invierte una cadena de texto",icon:"fas fa-undo",
+  init(c){
+    c.innerHTML=`<textarea id="revIn" rows="2">Hola Mundo</textarea>
+    <button class="btn" id="revBtn">Invertir</button><div class="result-box" id="revRes"></div>`;
+    c.querySelector('#revBtn').onclick=()=>c.querySelector('#revRes').textContent=[...c.querySelector('#revIn').value].reverse().join('');
+  }
+},
+
+/* 34 */ {name:"Eliminar Duplicados",desc:"Elimina líneas duplicadas de un texto",icon:"fas fa-clone",
+  init(c){
+    c.innerHTML=`<textarea id="ddIn" rows="5" placeholder="Una línea por elemento">manzana\nbanana\nmanzana\ncereza\nbanana</textarea>
+    <button class="btn" id="ddBtn">Eliminar Duplicados</button><div class="result-box" id="ddRes" style="white-space:pre-wrap"></div>`;
+    c.querySelector('#ddBtn').onclick=()=>{const lines=c.querySelector('#ddIn').value.split('\n');
+      c.querySelector('#ddRes').textContent=[...new Set(lines)].join('\n')};
+  }
+},
+
+/* 35 */ {name:"Ordenar Líneas",desc:"Ordena líneas alfabéticamente",icon:"fas fa-sort-alpha-down",
+  init(c){
+    c.innerHTML=`<textarea id="slIn" rows="5" placeholder="Una línea por elemento">Cherry\nApple\nBanana\nDate</textarea>
+    <div class="row"><button class="btn" id="slAsc">A → Z</button><button class="btn" id="slDesc" style="background:var(--accent2)">Z → A</button></div>
+    <div class="result-box" id="slRes" style="white-space:pre-wrap"></div>`;
+    c.querySelector('#slAsc').onclick=()=>c.querySelector('#slRes').textContent=c.querySelector('#slIn').value.split('\n').sort((a,b)=>a.localeCompare(b)).join('\n');
+    c.querySelector('#slDesc').onclick=()=>c.querySelector('#slRes').textContent=c.querySelector('#slIn').value.split('\n').sort((a,b)=>b.localeCompare(a)).join('\n');
+  }
+},
+
+/* 36 */ {name:"JSON Formatter",desc:"Formatea y valida JSON",icon:"fas fa-brackets-curly",
+  init(c){
+    c.innerHTML=`<textarea id="jfIn" rows="5" placeholder='{"key":"value"}'>${'{"name":"Super Toolbox","version":1,"features":["search","100+ tools"]}'}</textarea>
+    <div class="row"><button class="btn" id="jfFmt">Formatear</button><button class="btn" id="jfMin" style="background:var(--accent2)">Minificar</button></div>
+    <div class="result-box" id="jfRes" style="white-space:pre-wrap;max-height:300px;overflow-y:auto"></div>`;
+    c.querySelector('#jfFmt').onclick=()=>{try{c.querySelector('#jfRes').textContent=JSON.stringify(JSON.parse(c.querySelector('#jfIn').value),null,2)}catch(e){c.querySelector('#jfRes').textContent='❌ JSON inválido: '+e.message}};
+    c.querySelector('#jfMin').onclick=()=>{try{c.querySelector('#jfRes').textContent=JSON.stringify(JSON.parse(c.querySelector('#jfIn').value))}catch(e){c.querySelector('#jfRes').textContent='❌ JSON inválido: '+e.message}};
+  }
+},
+
+/* 37 */ {name:"Notas Rápidas",desc:"Bloc de notas con almacenamiento local",icon:"fas fa-sticky-note",
+  init(c){
+    c.innerHTML=`<textarea id="noteIn" rows="8" placeholder="Escribe tus notas aquí... Se guardan automáticamente.">${localStorage.getItem('st_notes')||''}</textarea>
+    <button class="btn" id="noteSave">💾 Guardar</button> <small id="noteStatus" style="color:var(--text-muted)"></small>`;
+    c.querySelector('#noteSave').onclick=()=>{localStorage.setItem('st_notes',c.querySelector('#noteIn').value);c.querySelector('#noteStatus').textContent='✅ Guardado!'};
+  }
+},
+
+/* 38 */ {name:"Lista de Tareas",desc:"To-do list con persistencia local",icon:"fas fa-tasks",
+  init(c){
+    let todos=JSON.parse(localStorage.getItem('st_todos')||'[]');
+    const render=()=>{c.querySelector('#tdList').innerHTML=todos.map((t,i)=>
+      `<div style="display:flex;align-items:center;gap:.5rem;padding:.4rem 0;border-bottom:1px solid rgba(255,255,255,.06)">
+      <input type="checkbox" ${t.done?'checked':''} data-i="${i}">
+      <span style="${t.done?'text-decoration:line-through;opacity:.5':''};flex:1">${t.text}</span>
+      <button data-del="${i}" style="background:none;border:none;color:var(--accent);cursor:pointer">✕</button></div>`).join('')||'<p style="color:var(--text-muted)">No hay tareas</p>';
+      c.querySelectorAll('[data-i]').forEach(cb=>cb.onchange=e=>{todos[e.target.dataset.i].done=e.target.checked;save();render()});
+      c.querySelectorAll('[data-del]').forEach(b=>b.onclick=e=>{todos.splice(e.target.dataset.del,1);save();render()})};
+    const save=()=>localStorage.setItem('st_todos',JSON.stringify(todos));
+    c.innerHTML=`<div class="row"><input id="tdIn" placeholder="Nueva tarea..." style="flex:3"><button class="btn" id="tdAdd" style="flex:1">Añadir</button></div>
+    <div id="tdList" style="margin-top:.8rem;max-height:300px;overflow-y:auto"></div>`;
+    c.querySelector('#tdAdd').onclick=()=>{const t=c.querySelector('#tdIn').value.trim();if(t){todos.push({text:t,done:false});save();render();c.querySelector('#tdIn').value=''}};
+    c.querySelector('#tdIn').onkeydown=e=>{if(e.key==='Enter')c.querySelector('#tdAdd').click()};
+    render();
+  }
+},
+
+/* 39 */ {name:"Markdown Preview",desc:"Vista previa de Markdown simple",icon:"fab fa-markdown",
+  init(c){
+    c.innerHTML=`<textarea id="mdIn" rows="6" placeholder="# Título\n**negrita** *cursiva*"># Hola\nEsto es **negrita** y *cursiva*.\n- Item 1\n- Item 2\n\n> Cita</textarea>
+    <button class="btn" id="mdBtn">Preview</button><div id="mdRes" style="margin-top:.8rem;padding:1rem;background:rgba(0,0,0,.3);border-radius:8px"></div>`;
+    c.querySelector('#mdBtn').onclick=()=>{let md=c.querySelector('#mdIn').value;
+      md=md.replace(/^### (.+)$/gm,'<h3>$1</h3>').replace(/^## (.+)$/gm,'<h2>$1</h2>').replace(/^# (.+)$/gm,'<h1>$1</h1>')
+        .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>')
+        .replace(/^- (.+)$/gm,'<li>$1</li>').replace(/(<li>.*<\/li>)/s,'<ul>$1</ul>')
+        .replace(/^> (.+)$/gm,'<blockquote style="border-left:3px solid var(--accent);padding-left:.8rem;color:var(--text-muted)">$1</blockquote>')
+        .replace(/\n/g,'<br>');
+      c.querySelector('#mdRes').innerHTML=md};
+  }
+},
+
+/* 40 */ {name:"Diferencia entre Fechas",desc:"Calcula días entre dos fechas",icon:"fas fa-calendar-alt",
+  init(c){
+    const today=new Date().toISOString().split('T')[0];
+    c.innerHTML=`<div class="row"><div><label>Fecha 1</label><input id="df1" type="date" value="${today}"></div>
+    <div><label>Fecha 2</label><input id="df2" type="date" value="2025-01-01"></div></div>
+    <button class="btn" id="dfBtn">Calcular</button><div class="result-box" id="dfRes"></div>`;
+    c.querySelector('#dfBtn').onclick=()=>{const d1=new Date(c.querySelector('#df1').value);const d2=new Date(c.querySelector('#df2').value);
+      const diff=Math.abs(d2-d1);const days=Math.floor(diff/86400000);
+      const weeks=Math.floor(days/7);const months=(Math.abs(d2.getFullYear()-d1.getFullYear())*12)+Math.abs(d2.getMonth()-d1.getMonth());
+      c.querySelector('#dfRes').textContent=`${days} días | ${weeks} semanas | ~${months} meses`};
+  }
+},
+
+/* 41 */ {name:"Tabla de Multiplicar",desc:"Genera tablas de multiplicar",icon:"fas fa-table",
+  init(c){
+    c.innerHTML=`<div class="row"><div><label>Número</label><input id="tmNum" type="number" value="7"></div>
+    <div><label>Hasta</label><input id="tmMax" type="number" value="12"></div></div>
+    <button class="btn" id="tmBtn">Generar</button><div class="result-box" id="tmRes" style="white-space:pre-wrap"></div>`;
+    c.querySelector('#tmBtn').onclick=()=>{const n=+c.querySelector('#tmNum').value;const max=+c.querySelector('#tmMax').value;
+      let r='';for(let i=1;i<=max;i++)r+=`${n} × ${i} = ${n*i}\n`;
+      c.querySelector('#tmRes').textContent=r};
+  }
+},
+
+/* 42 */ {name:"Conversor de Área",desc:"m², km², hectáreas, acres",icon:"fas fa-vector-square",
+  init(c){
+    const u={m2:1,km2:1e6,ha:1e4,acre:4046.86,ft2:0.0929,in2:0.000645};
+    c.innerHTML=`<div class="row"><div><label>Valor</label><input id="aV" type="number" value="1"></div>
+    <div><label>De</label><select id="aF">${Object.keys(u).map(k=>`<option>${k}</option>`).join('')}</select></div>
+    <div><label>A</label><select id="aT">${Object.keys(u).map(k=>`<option ${k==='km2'?'selected':''}>${k}</option>`).join('')}</select></div></div>
+    <button class="btn" id="aBtn">Convertir</button><div class="result-box" id="aRes"></div>`;
+    c.querySelector('#aBtn').onclick=()=>{const v=+c.querySelector('#aV').value;
+      c.querySelector('#aRes').textContent=(v*u[c.querySelector('#aF').value]/u[c.querySelector('#aT').value]).toFixed(6)};
+  }
+},
+
+/* 43 */ {name:"Conversor de Velocidad",desc:"km/h, mph, m/s, nudos",icon:"fas fa-tachometer-alt",
+  init(c){
+    const u={kmh:1,mph:1.60934,ms:3.6,knot:1.852,fts:1.09728};
+    c.innerHTML=`<div class="row"><div><label>Valor</label><input id="sV" type="number" value="100"></div>
+    <div><label>De</label><select id="sF">${Object.keys(u).map(k=>`<option>${k}</option>`).join('')}</select></div>
+    <div><label>A</label><select id="sT">${Object.keys(u).map(k=>`<option ${k==='mph'?'selected':''}>${k}</option>`).join('')}</select></div></div>
+    <button class="btn" id="sBtn">Convertir</button><div class="result-box" id="sRes"></div>`;
+    c.querySelector('#sBtn').onclick=()=>{const v=+c.querySelector('#sV').value;
+      c.querySelector('#sRes').textContent=(v*u[c.querySelector('#sF').value]/u[c.querySelector('#sT').value]).toFixed(4)};
+  }
+},
+
+/* 44 */ {name:"Conversor de Volumen",desc:"Litros, galones, ml, oz",icon:"fas fa-flask",
+  init(c){
+    const u={L:1,mL:0.001,gal:3.78541,qt:0.946353,cup:0.236588,floz:0.0295735,tbsp:0.0147868,tsp:0.00492892};
+    c.innerHTML=`<div class="row"><div><label>Valor</label><input id="vV" type="number" value="1"></div>
+    <div><label>De</label><select id="vF">${Object.keys(u).map(k=>`<option>${k}</option>`).join('')}</select></div>
+    <div><label>A</label><select id="vT">${Object.keys(u).map(k=>`<option ${k==='gal'?'selected':''}>${k}</option>`).join('')}</select></div></div>
+    <button class="btn" id="vBtn">Convertir</button><div class="result-box" id="vRes"></div>`;
+    c.querySelector('#vBtn').onclick=()=>{const v=+c.querySelector('#vV').value;
+      c.querySelector('#vRes').textContent=(v*u[c.querySelector('#vF').value]/u[c.querySelector('#vT').value]).toFixed(6)};
+  }
+},
+
+/* 45 */ {name:"Conversor de Datos",desc:"Bytes, KB, MB, GB, TB",icon:"fas fa-database",
+  init(c){
+    const u={B:1,KB:1024,MB:1048576,GB:1073741824,TB:1099511627776};
+    c.innerHTML=`<div class="row"><div><label>Valor</label><input id="dV" type="number" value="1"></div>
+    <div><label>De</label><select id="dF">${Object.keys(u).map(k=>`<option>${k}</option>`).join('')}</select></div>
+    <div><label>A</label><select id="dT">${Object.keys(u).map(k=>`<option ${k==='MB'?'selected':''}>${k}</option>`).join('')}</select></div></div>
+    <button class="btn" id="dBtn">Convertir</button><div class="result-box" id="dRes"></div>`;
+    c.querySelector('#dBtn').onclick=()=>{const v=+c.querySelector('#dV').value;
+      c.querySelector('#dRes').textContent=(v*u[c.querySelector('#dF').value]/u[c.querySelector('#dT').value]).toFixed(6)};
+  }
+},
+
+/* 46 */ {name:"Conversor de Tiempo",desc:"Segundos, minutos, horas, días",icon:"fas fa-clock",
+  init(c){
+    const u={s:1,min:60,h:3600,d:86400,sem:604800,mes:2592000,año:31536000};
+    c.innerHTML=`<div class="row"><div><label>Valor</label><input id="tiV" type="number" value="1"></div>
+    <div><label>De</label><select id="tiF">${Object.keys(u).map(k=>`<option>${k}</option>`).join('')}</select></div>
+    <div><label>A</label><select id="tiT">${Object.keys(u).map(k=>`<option ${k==='min'?'selected':''}>${k}</option>`).join('')}</select></div></div>
+    <button class="btn" id="tiBtn">Convertir</button><div class="result-box" id="tiRes"></div>`;
+    c.querySelector('#tiBtn').onclick=()=>{const v=+c.querySelector('#tiV').value;
+      c.querySelector('#tiRes').textContent=(v*u[c.querySelector('#tiF').value]/u[c.querySelector('#tiT').value]).toFixed(4)};
+  }
+},
+
+/* 47 */ {name:"Conversor de Energía",desc:"Julios, calorías, kWh, BTU",icon:"fas fa-bolt",
+  init(c){
+    const u={J:1,kJ:1000,cal:4.184,kcal:4184,Wh:3600,kWh:3600000,BTU:1055.06};
+    c.innerHTML=`<div class="row"><div><label>Valor</label><input id="eV" type="number" value="1"></div>
+    <div><label>De</label><select id="eF">${Object.keys(u).map(k=>`<option>${k}</option>`).join('')}</select></div>
+    <div><label>A</label><select id="eT">${Object.keys(u).map(k=>`<option ${k==='kcal'?'selected':''}>${k}</option>`).join('')}</select></div></div>
+    <button class="btn" id="eBtn">Convertir</button><div class="result-box" id="eRes"></div>`;
+    c.querySelector('#eBtn').onclick=()=>{const v=+c.querySelector('#eV').value;
+      c.querySelector('#eRes').textContent=(v*u[c.querySelector('#eF').value]/u[c.querySelector('#eT').value]).toFixed(6)};
+  }
+},
+
+/* 48 */ {name:"Conversor de Presión",desc:"Pa, bar, atm, psi, mmHg",icon:"fas fa-compress-arrows-alt",
+  init(c){
+    const u={Pa:1,hPa:100,kPa:1000,bar:100000,atm:101325,psi:6894.76,mmHg:133.322};
+    c.innerHTML=`<div class="row"><div><label>Valor</label><input id="pV" type="number" value="1"></div>
+    <div><label>De</label><select id="pF">${Object.keys(u).map(k=>`<option>${k}</option>`).join('')}</select></div>
+    <div><label>A</label><select id="pT">${Object.keys(u).map(k=>`<option ${k==='psi'?'selected':''}>${k}</option>`).join('')}</select></div></div>
+    <button class="btn" id="pBtn">Convertir</button><div class="result-box" id="pRes"></div>`;
+    c.querySelector('#pBtn').onclick=()=>{const v=+c.querySelector('#pV').value;
+      c.querySelector('#pRes').textContent=(v*u[c.querySelector('#pF').value]/u[c.querySelector('#pT').value]).toFixed(6)};
+  }
+},
+
+/* 49 */ {name:"Generador de Gradientes CSS",desc:"Crea gradientes de color con CSS",icon:"fas fa-paint-brush",
+  init(c){
+    c.innerHTML=`<div class="row"><div><label>Color 1</label><input id="gr1" type="color" value="#e94560"></div>
+    <div><label>Color 2</label><input id="gr2" type="color" value="#0f3460"></div>
+    <div><label>Ángulo (°)</label><input id="grA" type="number" value="135" min="0" max="360"></div></div>
+    <div id="grPrev" style="height:80px;border-radius:12px;margin:.8rem 0"></div>
+    <div class="result-box" id="grRes" style="font-size:.8rem"></div>`;
+    const upd=()=>{const c1=c.querySelector('#gr1').value;const c2=c.querySelector('#gr2').value;const a=c.querySelector('#grA').value;
+      const css=`linear-gradient(${a}deg, ${c1}, ${c2})`;
+      c.querySelector('#grPrev').style.background=css;
+      c.querySelector('#grRes').textContent=`background: ${css};`};
+    c.querySelector('#gr1').oninput=upd;c.querySelector('#gr2').oninput=upd;c.querySelector('#grA').oninput=upd;upd();
+  }
+},
+
+/* 50 */ {name:"Selector de Color (Picker)",desc:"Selecciona un color y obtén el código",icon:"fas fa-fill-drip",
+  init(c){
+    c.innerHTML=`<div style="text-align:center"><input id="cpIn" type="color" value="#ff6b6b" style="width:100px;height:100px;border:none;cursor:pointer;border-radius:12px">
+    <div class="result-box" id="cpRes" style="margin-top:1rem">#ff6b6b</div></div>`;
+    c.querySelector('#cpIn').oninput=e=>c.querySelector('#cpRes').textContent=e.target.value;
+  }
+},
+
+/* 51 */ {name:"Calculadora Científica",desc:"Funciones trigonométricas, logaritmos, potencias",icon:"fas fa-square-root-alt",
+  init(c){
+    c.innerHTML=`<input id="sciIn" placeholder="Expresión: Math.sin(Math.PI/2)" value="Math.sqrt(144)">
+    <button class="btn" id="sciBtn">Evaluar</button><div class="result-box" id="sciRes"></div>
+    <p style="font-size:.75rem;color:var(--text-muted);margin-top:.5rem">Usa Math.sin, Math.cos, Math.tan, Math.sqrt, Math.log, Math.pow, Math.PI, Math.E</p>`;
+    c.querySelector('#sciBtn').onclick=()=>{try{c.querySelector('#sciRes').textContent=Function('"use strict";return('+c.querySelector('#sciIn').value+')')()}catch(e){c.querySelector('#sciRes').textContent='Error: '+e.message}};
+  }
+},
+
+/* 52 */ {name:"Generador de Datos Falsos",desc:"Nombres, emails, teléfonos aleatorios",icon:"fas fa-user-secret",
+  init(c){
+    const fn=['Juan','María','Carlos','Ana','Pedro','Laura','Miguel','Elena','David','Sofía','Luis','Carmen','Diego','Lucía','Andrés'];
+    const ln=['García','López','Martínez','González','Rodríguez','Hernández','Pérez','Sánchez','Ramírez','Torres'];
+    const dom=['gmail.com','yahoo.com','outlook.com','mail.com','example.com'];
+    c.innerHTML=`<label>Cantidad</label><input id="fkN" type="number" value="5" min="1" max="20">
+    <button class="btn" id="fkBtn">Generar</button><div class="result-box" id="fkRes" style="white-space:pre-wrap;max-height:300px;overflow-y:auto;font-size:.8rem"></div>`;
+    c.querySelector('#fkBtn').onclick=()=>{const n=+c.querySelector('#fkN').value;let r='';
+      for(let i=0;i<n;i++){const f=fn[Math.floor(Math.random()*fn.length)];const l=ln[Math.floor(Math.random()*ln.length)];
+        const email=`${f.toLowerCase()}.${l.toLowerCase()}${Math.floor(Math.random()*99)}@${dom[Math.floor(Math.random()*dom.length)]}`;
+        const phone=`+${Math.floor(Math.random()*90)+10} ${Math.floor(Math.random()*900)+100} ${Math.floor(Math.random()*900)+100} ${Math.floor(Math.random()*9000)+1000}`;
+        r+=`${f} ${l} | ${email} | ${phone}\n`}
+      c.querySelector('#fkRes').textContent=r};
+  }
+},
+
+/* 53 */ {name:"Pomodoro Timer",desc:"Técnica Pomodoro: 25 min trabajo, 5 min descanso",icon:"fas fa-tomato",
+  init(c){
+    c.innerHTML=`<div style="text-align:center"><div id="pomLabel" style="font-size:1rem;margin-bottom:.5rem">🍅 Trabajo</div>
+    <div id="pomDisp" style="font-size:3rem;font-weight:700;font-family:monospace">25:00</div>
+    <div class="row" style="margin-top:1rem;justify-content:center"><button class="btn" id="pomStart">Iniciar</button><button class="btn" id="pomReset" style="background:#555">Reset</button></div>
+    <div id="pomCount" style="margin-top:.5rem;font-size:.85rem;color:var(--text-muted)">Pomodoros: 0</div></div>`;
+    let iv=null,total=25*60,isWork=true,poms=0,running=false;
+    const disp=c.querySelector('#pomDisp');const label=c.querySelector('#pomLabel');
+    const show=()=>{const m=Math.floor(total/60);const s=total%60;disp.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')};
+    c.querySelector('#pomStart').onclick=function(){
+      if(running){clearInterval(iv);running=false;this.textContent='Continuar';return}
+      running=true;this.textContent='Pausa';
+      iv=setInterval(()=>{if(total<=0){clearInterval(iv);running=false;
+        if(isWork){poms++;c.querySelector('#pomCount').textContent='Pomodoros: '+poms;total=5*60;isWork=false;label.textContent='☕ Descanso'}
+        else{total=25*60;isWork=true;label.textContent='🍅 Trabajo'}
+        show();c.querySelector('#pomStart').textContent='Iniciar';return}total--;show()},1000)};
+    c.querySelector('#pomReset').onclick=()=>{clearInterval(iv);running=false;total=25*60;isWork=true;
+      label.textContent='🍅 Trabajo';show();c.querySelector('#pomStart').textContent='Iniciar'};
+  }
+},
+
+/* 54 */ {name:"Generador de Lorem Ipsum Corto",desc:"Genera palabras aleatorias de relleno",icon:"fas fa-align-left",
+  init(c){
+    const words='lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi aliquip'.split(' ');
+    c.innerHTML=`<label>Número de palabras</label><input id="lwN" type="number" value="50" min="1" max="500">
+    <button class="btn" id="lwBtn">Generar</button><div class="result-box" id="lwRes" style="white-space:pre-wrap"></div>`;
+    c.querySelector('#lwBtn').onclick=()=>{const n=+c.querySelector('#lwN').value;
+      let r=[];for(let i=0;i<n;i++)r.push(words[Math.floor(Math.random()*words.length)]);
+      c.querySelector('#lwRes').textContent=r.join(' ')};
+  }
+},
+
+/* 55 */ {name:"Flip a Coin",desc:"Lanza una moneda: Cara o Cruz",icon:"fas fa-coins",
+  init(c){
+    c.innerHTML=`<div style="text-align:center"><div id="coinRes" style="font-size:3rem;margin:1rem 0">🪙</div>
+    <button class="btn" id="coinBtn" style="font-size:1.1rem;padding:.8rem 2rem">Lanzar Moneda</button>
+    <div id="coinStats" style="margin-top:1rem;font-size:.85rem;color:var(--text-muted)">Caras: 0 | Cruces: 0</div></div>`;
+    let heads=0,tails=0;
+    c.querySelector('#coinBtn').onclick=()=>{const r=Math.random()<0.5;
+      if(r){heads++;c.querySelector('#coinRes').textContent='👑 ¡Cara!'}
+      else{tails++;c.querySelector('#coinRes').textContent='🦅 ¡Cruz!'}
+      c.querySelector('#coinStats').textContent=`Caras: ${heads} | Cruces: ${tails}`};
+  }
+},
+
+/* 56 */ {name:"Dado Virtual",desc:"Lanza dados de diferentes caras",icon:"fas fa-dice-d20",
+  init(c){
+    c.innerHTML=`<div class="row"><div><label>Caras</label><select id="diceS"><option>6</option><option>4</option><option>8</option><option>10</option><option>12</option><option>20</option><option>100</option></select></div>
+    <div><label>Cantidad</label><input id="diceN" type="number" value="2" min="1" max="20"></div></div>
+    <button class="btn" id="diceBtn">🎲 Lanzar</button>
+    <div class="result-box" id="diceRes" style="font-size:1.3rem;text-align:center"></div>`;
+    c.querySelector('#diceBtn').onclick=()=>{const s=+c.querySelector('#diceS').value;const n=+c.querySelector('#diceN').value;
+      const res=[];for(let i=0;i<n;i++)res.push(Math.floor(Math.random()*s)+1);
+      c.querySelector('#diceRes').textContent=res.join(' + ')+' = '+res.reduce((a,b)=>a+b,0)};
+  }
+},
+
+/* 57 */ {name:"Piedra, Papel o Tijera",desc:"Juega contra la computadora",icon:"fas fa-hand-scissors",
+  init(c){
+    c.innerHTML=`<div style="text-align:center"><div class="row" style="justify-content:center;gap:1rem">
+    <button class="btn rps" data-c="🪨">🪨 Piedra</button><button class="btn rps" data-c="📄">📄 Papel</button><button class="btn rps" data-c="✂️">✂️ Tijera</button></div>
+    <div id="rpsRes" style="font-size:1.2rem;margin-top:1rem"></div>
+    <div id="rpsScore" style="font-size:.85rem;color:var(--text-muted);margin-top:.5rem">Ganadas: 0 | Perdidas: 0 | Empates: 0</div></div>`;
+    let w=0,l=0,d=0;const opts=['🪨','📄','✂️'];
+    const wins={'🪨':'✂️','📄':'🪨','✂️':'📄'};
+    c.querySelectorAll('.rps').forEach(b=>b.onclick=()=>{const p=b.dataset.c;const cpu=opts[Math.floor(Math.random()*3)];
+      let res;if(p===cpu){d++;res=`😐 Empate! Ambos: ${p}`}
+      else if(wins[p]===cpu){w++;res=`🎉 ¡Ganaste! ${p} vence a ${cpu}`}
+      else{l++;res=`😢 Perdiste. ${cpu} vence a ${p}`}
+      c.querySelector('#rpsRes').textContent=res;
+      c.querySelector('#rpsScore').textContent=`Ganadas: ${w} | Perdidas: ${l} | Empates: ${d}`});
+  }
+},
+
+/* 58 */ {name:"Regex Tester",desc:"Prueba expresiones regulares",icon:"fas fa-asterisk",
+  init(c){
+    c.innerHTML=`<label>Expresión Regular</label><input id="rxPat" value="\\b\\w+@\\w+\\.\\w+\\b">
+    <label>Flags</label><input id="rxFlg" value="gi" style="width:80px">
+    <label>Texto</label><textarea id="rxTxt" rows="3">Contacta a juan@mail.com o ana@test.org para info.</textarea>
+    <button class="btn" id="rxBtn">Probar</button><div class="result-box" id="rxRes" style="white-space:pre-wrap"></div>`;
+    c.querySelector('#rxBtn').onclick=()=>{try{const rx=new RegExp(c.querySelector('#rxPat').value,c.querySelector('#rxFlg').value);
+      const matches=c.querySelector('#rxTxt').value.match(rx);
+      c.querySelector('#rxRes').textContent=matches?`✅ ${matches.length} coincidencia(s):\n${matches.join('\n')}`:'❌ Sin coincidencias'}
+      catch(e){c.querySelector('#rxRes').textContent='Error: '+e.message}};
+  }
+},
+
+/* 59 */ {name:"Generador de Texto Inverso (Mirror)",desc:"Texto espejo: bɐlɐq",icon:"fas fa-reflect-horizontal",
+  init(c){
+    const map={'a':'ɐ','b':'q','c':'ɔ','d':'p','e':'ǝ','f':'ɟ','g':'ƃ','h':'ɥ','i':'ᴉ','j':'ɾ','k':'ʞ','l':'l','m':'ɯ','n':'u','o':'o','p':'d','q':'b','r':'ɹ','s':'s','t':'ʇ','u':'n','v':'ʌ','w':'ʍ','x':'x','y':'ʎ','z':'z'};
+    c.innerHTML=`<textarea id="mirIn" rows="2">Hola Mundo</textarea>
+    <button class="btn" id="mirBtn">Invertir</button><div class="result-box" id="mirRes" style="font-size:1.2rem"></div>`;
+    c.querySelector('#mirBtn').onclick=()=>{
+      c.querySelector('#mirRes').textContent=[...c.querySelector('#mirIn').value.toLowerCase()].reverse().map(ch=>map[ch]||ch).join('')};
+  }
+},
+
+/* 60 */ {name:"Convertir a Emoji Text",desc:"Convierte texto a letras emoji 🅰🅱🅲",icon:"fas fa-smile",
+  init(c){
+    c.innerHTML=`<textarea id="emjIn" rows="2">hola</textarea>
+    <button class="btn" id="emjBtn">Convertir</button><div class="result-box" id="emjRes" style="font-size:1.5rem;letter-spacing:4px"></div>`;
+    c.querySelector('#emjBtn').onclick=()=>{
+      c.querySelector('#emjRes').textContent=[...c.querySelector('#emjIn').value.toLowerCase()].map(ch=>{
+        if(ch>='a'&&ch<='z')return String.fromCodePoint(0x1F1E6+ch.charCodeAt(0)-97);
+        if(ch===' ')return '  ';return ch}).join('')};
+  }
+},
+
+/* 61 */ {name:"Encriptar/Desencriptar César",desc:"Cifrado César con desplazamiento personalizable",icon:"fas fa-lock",
+  init(c){
+    c.innerHTML=`<textarea id="cesIn" rows="2">Hola Mundo</textarea>
+    <label>Desplazamiento</label><input id="cesN" type="number" value="3" min="1" max="25">
+    <div class="row"><button class="btn" id="cesE">Encriptar</button><button class="btn" id="cesD" style="background:var(--accent2)">Desencriptar</button></div>
+    <div class="result-box" id="cesRes"></div>`;
+    const shift=(t,n)=>[...t].map(ch=>{const c=ch.charCodeAt(0);
+      if(c>=65&&c<=90)return String.fromCharCode((c-65+n)%26+65);
+      if(c>=97&&c<=122)return String.fromCharCode((c-97+n)%26+97);return ch}).join('');
+    c.querySelector('#cesE').onclick=()=>c.querySelector('#cesRes').textContent=shift(c.querySelector('#cesIn').value,+c.querySelector('#cesN').value);
+    c.querySelector('#cesD').onclick=()=>c.querySelector('#cesRes').textContent=shift(c.querySelector('#cesIn').value,26- +c.querySelector('#cesN').value);
+  }
+},
+
+/* 62 */ {name:"Contador de Frecuencia de Palabras",desc:"Cuenta cuántas veces aparece cada palabra",icon:"fas fa-chart-bar",
+  init(c){
+    c.innerHTML=`<textarea id="wfIn" rows="4" placeholder="Pega un texto largo...">el gato y el perro y el gato negro</textarea>
+    <button class="btn" id="wfBtn">Analizar</button><div class="result-box" id="wfRes" style="white-space:pre-wrap;max-height:250px;overflow-y:auto"></div>`;
+    c.querySelector('#wfBtn').onclick=()=>{const words=c.querySelector('#wfIn').value.toLowerCase().match(/\b[\wáéíóúñü]+\b/g)||[];
+      const freq={};words.forEach(w=>freq[w]=(freq[w]||0)+1);
+      const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]);
+      c.querySelector('#wfRes').textContent=sorted.map(([w,n])=>`${w}: ${n}`).join('\n')};
+  }
+},
+
+/* 63 */ {name:"Generador de Paleta de Colores",desc:"Genera paletas de 5 colores armónicos",icon:"fas fa-swatchbook",
+  init(c){
+    c.innerHTML=`<button class="btn" id="palBtn" style="width:100%">🎨 Generar Paleta</button>
+    <div id="palBox" style="display:flex;gap:4px;margin-top:1rem;height:100px;border-radius:12px;overflow:hidden"></div>
+    <div class="result-box" id="palRes" style="font-size:.8rem"></div>`;
+    c.querySelector('#palBtn').onclick=()=>{const hue=Math.floor(Math.random()*360);
+      const colors=[];for(let i=0;i<5;i++){const h=(hue+i*72)%360;colors.push(`hsl(${h},70%,55%)`)}
+      c.querySelector('#palBox').innerHTML=colors.map(cl=>`<div style="flex:1;background:${cl}"></div>`).join('');
+      c.querySelector('#palRes').textContent=colors.join(' | ')};
+  }
+},
+
+/* 64 */ {name:"Temporizador de Cocina",desc:"Temporizadores preconfigurados para cocinar",icon:"fas fa-fire",
+  init(c){
+    c.innerHTML=`<div class="row" style="flex-wrap:wrap;gap:.5rem">
+    ${[['Huevo pasado',180],['Pasta',480],['Arroz',1200],['Té',180],['Pizza',900]].map(([n,s])=>
+      `<button class="btn ckT" data-s="${s}" style="font-size:.8rem">${n} (${Math.floor(s/60)}m)</button>`).join('')}</div>
+    <div style="text-align:center;margin:1rem 0"><span id="ckDisp" style="font-size:2.5rem;font-weight:700;font-family:monospace">00:00</span></div>`;
+    let iv=null;
+    c.querySelectorAll('.ckT').forEach(b=>b.onclick=()=>{clearInterval(iv);let t=+b.dataset.s;
+      const d=c.querySelector('#ckDisp');
+      const show=()=>{d.textContent=String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0')};show();
+      iv=setInterval(()=>{if(t<=0){clearInterval(iv);d.textContent='🔔 ¡Listo!';return}t--;show()},1000)});
+  }
+},
+
+/* 65 */ {name:"Calculadora de Préstamos",desc:"Calcula cuotas mensuales de préstamos",icon:"fas fa-hand-holding-usd",
+  init(c){
+    c.innerHTML=`<div class="row"><div><label>Monto (\$)</label><input id="lnA" type="number" value="10000"></div>
+    <div><label>Interés anual (%)</label><input id="lnR" type="number" value="8" step="0.1"></div>
+    <div><label>Meses</label><input id="lnM" type="number" value="36"></div></div>
+    <button class="btn" id="lnBtn">Calcular</button><div class="result-box" id="lnRes"></div>`;
+    c.querySelector('#lnBtn').onclick=()=>{const P=+c.querySelector('#lnA').value;const r=+c.querySelector('#lnR').value/100/12;const n=+c.querySelector('#lnM').value;
+      const M=r>0?P*(r*Math.pow(1+r,n))/(Math.pow(1+r,n)-1):P/n;
+      c.querySelector('#lnRes').textContent=`Cuota mensual: \$${M.toFixed(2)} | Total: \$${(M*n).toFixed(2)} | Intereses: \$${(M*n-P).toFixed(2)}`};
+  }
+},
+
+/* 66 */ {name:"Conversor de Texto a Morse",desc:"Codifica y decodifica código Morse",icon:"fas fa-satellite-dish",
+  init(c){
+    const m={'A':'.-','B':'-...','C':'-.-.','D':'-..','E':'.','F':'..-.','G':'--.','H':'....','I':'..','J':'.---','K':'-.-','L':'.-..','M':'--','N':'-.','O':'---','P':'.--.','Q':'--.-','R':'.-.','S':'...','T':'-','U':'..-','V':'...-','W':'.--','X':'-..-','Y':'-.--','Z':'--..','0':'-----','1':'.----','2':'..---','3':'...--','4':'....-','5':'.....','6':'-....','7':'--...','8':'---..','9':'----.'};
+    const rev=Object.fromEntries(Object.entries(m).map(([k,v])=>[v,k]));
+    c.innerHTML=`<textarea id="morIn" rows="2">HOLA MUNDO</textarea>
+    <div class="row"><button class="btn" id="morE">Texto → Morse</button><button class="btn" id="morD" style="background:var(--accent2)">Morse → Texto</button></div>
+    <div class="result-box" id="morRes"></div>`;
+    c.querySelector('#morE').onclick=()=>c.querySelector('#morRes').textContent=[...c.querySelector('#morIn').value.toUpperCase()].map(ch=>ch===' '?'/':(m[ch]||ch)).join(' ');
+    c.querySelector('#morD').onclick=()=>c.querySelector('#morRes').textContent=c.querySelector('#morIn').value.split(' / ').map(w=>w.split(' ').map(ch=>rev[ch]||ch).join('')).join(' ');
+  }
+},
+
+/* 67 */ {name:"Calculadora de Descuentos",desc:"Calcula precio con descuento",icon:"fas fa-tags",
+  init(c){
+    c.innerHTML=`<div class="row"><div><label>Precio original (\$)</label><input id="discP" type="number" value="100"></div>
+    <div><label>Descuento (%)</label><input id="discD" type="number" value="25"></div></div>
+    <button class="btn" id="discBtn">Calcular</button><div class="result-box" id="discRes"></div>`;
+    c.querySelector('#discBtn').onclick=()=>{const p=+c.querySelector('#discP').value;const d=+c.querySelector('#discD').value;
+      const savings=p*d/100;
+      c.querySelector('#discRes').textContent=`Ahorras: \$${savings.toFixed(2)} | Precio final: \$${(p-savings).toFixed(2)}`};
+  }
+},
+
+/* 68 */ {name:"Calculadora de IVA",desc:"Añade o quita IVA a un precio",icon:"fas fa-receipt",
+  init(c){
+    c.innerHTML=`<div class="row"><div><label>Precio</label><input id="ivaP" type="number" value="100"></div>
+    <div><label>IVA (%)</label><input id="ivaR" type="number" value="21"></div></div>
+    <div class="row"><button class="btn" id="ivaA">Añadir IVA</button><button class="btn" id="ivaQ" style="background:var(--accent2)">Quitar IVA</button></div>
+    <div class="result-box" id="ivaRes"></div>`;
+    c.querySelector('#ivaA').onclick=()=>{const p=+c.querySelector('#ivaP').value;const r=+c.querySelector('#ivaR').value;
+      c.querySelector('#ivaRes').textContent=`Neto: \$${p.toFixed(2)} + IVA \$${(p*r/100).toFixed(2)} = \$${(p*(1+r/100)).toFixed(2)}`};
+    c.querySelector('#ivaQ').onclick=()=>{const p=+c.querySelector('#ivaP').value;const r=+c.querySelector('#ivaR').value;
+      const neto=p/(1+r/100);c.querySelector('#ivaRes').textContent=`Total: \$${p.toFixed(2)} → Neto: \$${neto.toFixed(2)} | IVA: \$${(p-neto).toFixed(2)}`};
+  }
+},
+
+/* 69 */ {name:"Conversor de Números a Letras",desc:"Escribe un número en palabras (español)",icon:"fas fa-spell-check",
+  init(c){
+    c.innerHTML=`<label>Número (0-999999)</label><input id="n2wN" type="number" value="12345">
+    <button class="btn" id="n2wBtn">Convertir</button><div class="result-box" id="n2wRes"></div>`;
+    const unidades=['','uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve','diez','once','doce','trece','catorce','quince','dieciséis','diecisiete','dieciocho','diecinueve','veinte','veintiuno','veintidós','veintitrés','veinticuatro','veinticinco','veintiséis','veintisiete','veintiocho','veintinueve'];
+    const decenas=['','','','treinta','cuarenta','cincuenta','sesenta','setenta','ochenta','noventa'];
+    const centenas=['','ciento','doscientos','trescientos','cuatrocientos','quinientos','seiscientos','setecientos','ochocientos','novecientos'];
+    const conv=(n)=>{if(n===0)return'cero';if(n===100)return'cien';let r='';
+      if(n>=1000){const mil=Math.floor(n/1000);r+=(mil===1?'mil':conv(mil)+' mil')+' ';n%=1000}
+      if(n>=100){r+=centenas[Math.floor(n/100)]+' ';n%=100}
+      if(n<30)r+=unidades[n];
+      else{r+=decenas[Math.floor(n/10)];if(n%10)r+=' y '+unidades[n%10]}
+      return r.trim()};
+    c.querySelector('#n2wBtn').onclick=()=>c.querySelector('#n2wRes').textContent=conv(+c.querySelector('#n2wN').value);
+  }
+},
+
+/* 70 */ {name:"Lector de Texto (Text-to-Speech)",desc:"Lee texto en voz alta usando Web Speech API",icon:"fas fa-volume-up",
+  init(c){
+    c.innerHTML=`<textarea id="ttsIn" rows="3">Hola, esta es una prueba de lectura de texto.</textarea>
+    <div class="row"><div><label>Velocidad</label><input id="ttsR" type="range" min="0.5" max="2" step="0.1" value="1"></div></div>
+    <div class="row"><button class="btn" id="ttsPlay">▶ Leer</button><button class="btn" id="ttsStop" style="background:#555">⏹ Parar</button></div>`;
+    c.querySelector('#ttsPlay').onclick=()=>{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(c.querySelector('#ttsIn').value);
+      u.lang='es-ES';u.rate=+c.querySelector('#ttsR').value;speechSynthesis.speak(u)};
+    c.querySelector('#ttsStop').onclick=()=>speechSynthesis.cancel();
+  }
+},
+
+/* 71 */ {name:"Detector de Navegador",desc:"Muestra información de tu navegador",icon:"fas fa-info-circle",
+  init(c){
+    const info=[
+      ['User Agent',navigator.userAgent],['Plataforma',navigator.platform],
+      ['Idioma',navigator.language],['Cookies',navigator.cookieEnabled?'Sí':'No'],
+      ['En línea',navigator.onLine?'Sí':'No'],['Pantalla',`${screen.width}×${screen.height}`],
+      ['Ventana',`${window.innerWidth}×${window.innerHeight}`],
+      ['Color depth',screen.colorDepth+'bit'],['Cores CPU',navigator.hardwareConcurrency||'N/A'],
+      ['Memoria (GB)',(navigator.deviceMemory||'N/A')],
+    ];
+    c.innerHTML=`<div style="max-height:350px;overflow-y:auto">${info.map(([k,v])=>
+      `<div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:.85rem"><strong>${k}</strong><span style="text-align:right;max-width:60%;word-break:break-all">${v}</span></div>`).join('')}</div>`;
+  }
+},
+
+/* 72 */ {name:"Generador de Slug",desc:"Convierte texto en slug URL-friendly",icon:"fas fa-link",
+  init(c){
+    c.innerHTML=`<label>Texto</label><input id="slugIn" value="¡Hola Mundo! Esto es una Prueba #123">
+    <button class="btn" id="slugBtn">Generar Slug</button><div class="result-box" id="slugRes"></div>`;
+    c.querySelector('#slugBtn').onclick=()=>{
+      c.querySelector('#slugRes').textContent=c.querySelector('#slugIn').value.toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+        .replace(/[^a-z0-9\s-]/g,'').trim().replace(/\s+/g,'-').replace(/-+/g,'-')};
+  }
+},
+
+/* 73 */ {name:"Verificador de Palíndromos",desc:"¿Es un palíndromo?",icon:"fas fa-sync",
+  init(c){
+    c.innerHTML=`<input id="palIn" value="anilina" placeholder="Escribe una palabra o frase">
+    <button class="btn" id="palBtn">Verificar</button><div class="result-box" id="palRes"></div>`;
+    c.querySelector('#palBtn').onclick=()=>{const t=c.querySelector('#palIn').value.toLowerCase().replace(/[^a-záéíóúñ]/g,'');
+      const rev=[...t].reverse().join('');
+      c.querySelector('#palRes').textContent=t===rev?`✅ "${c.querySelector('#palIn').value}" ES un palíndromo`:`❌ "${c.querySelector('#palIn').value}" NO es un palíndromo`};
+  }
+},
+
+/* 74 */ {name:"Generador de Acrónimos",desc:"Crea acrónimos de frases",icon:"fas fa-heading",
+  init(c){
+    c.innerHTML=`<input id="acrIn" value="As Soon As Possible" placeholder="Escribe una frase">
+    <button class="btn" id="acrBtn">Generar Acrónimo</button><div class="result-box" id="acrRes" style="font-size:1.5rem;letter-spacing:3px"></div>`;
+    c.querySelector('#acrBtn').onclick=()=>{
+      c.querySelector('#acrRes').textContent=c.querySelector('#acrIn').value.split(/\s+/).map(w=>w[0]).join('').toUpperCase()};
+  }
+},
+
+/* 75 */ {name:"Temporizador de Respiración",desc:"Ejercicio de respiración 4-7-8",icon:"fas fa-wind",
+  init(c){
+    c.innerHTML=`<div style="text-align:center"><div id="brCircle" style="width:150px;height:150px;border-radius:50%;background:var(--accent);margin:1rem auto;display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:700;transition:transform 1s ease">Iniciar</div>
+    <button class="btn" id="brBtn">Comenzar</button></div>`;
+    let iv=null;
+    c.querySelector('#brBtn').onclick=()=>{clearInterval(iv);const circle=c.querySelector('#brCircle');
+      const steps=[{t:'Inhala',d:4,s:1.3},{t:'Mantén',d:7,s:1.3},{t:'Exhala',d:8,s:1}];
+      let si=0,ct=0;
+      iv=setInterval(()=>{const step=steps[si];circle.textContent=`${step.t} ${step.d-ct}`;
+        circle.style.transform=`scale(${step.s})`;ct++;
+        if(ct>=step.d){ct=0;si=(si+1)%steps.length}},1000)};
+  }
+},
+
+/* 76 */ {name:"IP Pública",desc:"Muestra tu dirección IP pública",icon:"fas fa-network-wired",
+  init(c){
+    c.innerHTML=`<button class="btn" id="ipBtn" style="width:100%">🔍 Obtener IP</button><div class="result-box" id="ipRes">Haz clic para obtener tu IP pública</div>`;
+    c.querySelector('#ipBtn').onclick=async()=>{c.querySelector('#ipRes').textContent='Cargando...';
+      try{const r=await fetch('https://api.ipify.org?format=json');const d=await r.json();
+        c.querySelector('#ipRes').textContent=`Tu IP pública: ${d.ip}`}
+      catch{c.querySelector('#ipRes').textContent='❌ Error al obtener IP'}};
+  }
+},
+
+/* 77 */ {name:"Generador de Box Shadow CSS",desc:"Genera sombras CSS visualmente",icon:"fas fa-clone",
+  init(c){
+    c.innerHTML=`<div class="row"><div><label>X</label><input id="bsX" type="range" min="-50" max="50" value="5"></div>
+    <div><label>Y</label><input id="bsY" type="range" min="-50" max="50" value="5"></div></div>
+    <div class="row"><div><label>Blur</label><input id="bsB" type="range" min="0" max="100" value="20"></div>
+    <div><label>Spread</label><input id="bsS" type="range" min="-50" max="50" value="0"></div></div>
+    <label>Color</label><input id="bsC" type="color" value="#000000">
+    <label>Opacidad</label><input id="bsO" type="range" min="0" max="100" value="30">
+    <div id="bsPrev" style="width:120px;height:120px;background:#fff;border-radius:12px;margin:1rem auto"></div>
+    <div class="result-box" id="bsRes" style="font-size:.8rem"></div>`;
+    const upd=()=>{const x=c.querySelector('#bsX').value;const y=c.querySelector('#bsY').value;
+      const b=c.querySelector('#bsB').value;const s=c.querySelector('#bsS').value;
+      const col=c.querySelector('#bsC').value;const o=c.querySelector('#bsO').value;
+      const r=parseInt(col.slice(1,3),16);const g=parseInt(col.slice(3,5),16);const bl=parseInt(col.slice(5,7),16);
+      const css=`${x}px ${y}px ${b}px ${s}px rgba(${r},${g},${bl},${o/100})`;
+      c.querySelector('#bsPrev').style.boxShadow=css;
+      c.querySelector('#bsRes').textContent=`box-shadow: ${css};`};
+    c.querySelectorAll('input').forEach(i=>i.oninput=upd);upd();
+  }
+},
+
+/* 78 */ {name:"Calculadora de Calorías",desc:"Calcula tu tasa metabólica basal (TMB)",icon:"fas fa-apple-alt",
+  init(c){
+    c.innerHTML=`<div class="row"><div><label>Peso (kg)</label><input id="calW" type="number" value="70"></div>
+    <div><label>Altura (cm)</label><input id="calH" type="number" value="175"></div></div>
+    <div class="row"><div><label>Edad</label><input id="calA" type="number" value="30"></div>
+    <div><label>Sexo</label><select id="calS"><option value="m">Hombre</option><option value="f">Mujer</option></select></div></div>
+    <button class="btn" id="calBtn">Calcular</button><div class="result-box" id="calRes"></div>`;
+    c.querySelector('#calBtn').onclick=()=>{const w=+c.querySelector('#calW').value;const h=+c.querySelector('#calH').value;
+      const a=+c.querySelector('#calA').value;const s=c.querySelector('#calS').value;
+      const tmb=s==='m'?88.362+13.397*w+4.799*h-5.677*a:447.593+9.247*w+3.098*h-4.330*a;
+      c.querySelector('#calRes').textContent=`TMB: ${Math.round(tmb)} kcal/día\nSedentario: ${Math.round(tmb*1.2)} | Moderado: ${Math.round(tmb*1.55)} | Activo: ${Math.round(tmb*1.725)}`};
+  }
+},
+
+/* 79 */ {name:"Generador de Texto Estilizado",desc:"𝕋𝕖𝕩𝕥𝕠 con diferentes estilos Unicode",icon:"fas fa-font",
+  init(c){
+    const styles={
+      'Negrita':n=>String.fromCodePoint(...[...n].map(c=>{const p=c.codePointAt(0);if(p>=65&&p<=90)return 0x1D400+p-65;if(p>=97&&p<=122)return 0x1D41A+p-97;return p})),
+      'Cursiva':n=>String.fromCodePoint(...[...n].map(c=>{const p=c.codePointAt(0);if(p>=65&&p<=90)return 0x1D434+p-65;if(p>=97&&p<=122)return 0x1D44E+p-97;return p})),
+      'Doble Línea':n=>String.fromCodePoint(...[...n].map(c=>{const p=c.codePointAt(0);if(p>=65&&p<=90)return 0x1D538+p-65;if(p>=97&&p<=122)return 0x1D552+p-97;return p})),
+      'Monoespaciado':n=>String.fromCodePoint(...[...n].map(c=>{const p=c.codePointAt(0);if(p>=65&&p<=90)return 0x1D670+p-65;if(p>=97&&p<=122)return 0x1D68A+p-97;return p})),
+    };
+    c.innerHTML=`<input id="stIn" value="Hello World" placeholder="Texto en inglés (a-z)">
+    <button class="btn" id="stBtn">Generar</button><div class="result-box" id="stRes" style="white-space:pre-wrap;font-size:1.1rem"></div>`;
+    c.querySelector('#stBtn').onclick=()=>{const t=c.querySelector('#stIn').value;
+      c.querySelector('#stRes').textContent=Object.entries(styles).map(([k,fn])=>`${k}: ${fn(t)}`).join('\n')};
+  }
+},
+
+/* 80 */ {name:"Conversor de Timestamp",desc:"Unix timestamp ↔ Fecha legible",icon:"fas fa-calendar-check",
+  init(c){
+    c.innerHTML=`<div class="row"><div><label>Timestamp (s)</label><input id="tsIn" type="number" value="${Math.floor(Date.now()/1000)}"></div></div>
+    <div class="row"><button class="btn" id="tsToDate">→ Fecha</button><button class="btn" id="tsNow" style="background:var(--accent2)">Ahora</button></div>
+    <div class="result-box" id="tsRes"></div>`;
+    c.querySelector('#tsToDate').onclick=()=>{const d=new Date(+c.querySelector('#tsIn').value*1000);
+      c.querySelector('#tsRes').textContent=`${d.toLocaleString('es')} (UTC: ${d.toISOString()})`};
+    c.querySelector('#tsNow').onclick=()=>{c.querySelector('#tsIn').value=Math.floor(Date.now()/1000);c.querySelector('#tsToDate').click()};
+  }
+},
+
+/* 81 */ {name:"Generador de Contraseña PIN",desc:"Genera PINs numéricos seguros",icon:"fas fa-th",
+  init(c){
+    c.innerHTML=`<label>Dígitos</label><input id="pinN" type="number" value="6" min="4" max="12">
+    <label>Cantidad</label><input id="pinC" type="number" value="5" min="1" max="20">
+    <button class="btn" id="pinBtn">Generar PINs</button><div class="result-box" id="pinRes" style="font-size:1.2rem;letter-spacing:3px;white-space:pre-wrap"></div>`;
+    c.querySelector('#pinBtn').onclick=()=>{const n=+c.querySelector('#pinN').value;const cnt=+c.querySelector('#pinC').value;
+      const pins=[];for(let i=0;i<cnt;i++){let p='';const arr=new Uint32Array(n);crypto.getRandomValues(arr);
+        for(let j=0;j<n;j++)p+=arr[j]%10;pins.push(p)}
+      c.querySelector('#pinRes').textContent=pins.join('\n')};
+  }
+},
+
+/* 82 */ {name:"Detector de Mayúsculas Capslock",desc:"Detecta si CapsLock está activado",icon:"fas fa-keyboard",
+  init(c){
+    c.innerHTML=`<p style="font-size:.9rem;color:var(--text-muted)">Escribe en el campo de abajo para detectar CapsLock</p>
+    <input id="capsIn" placeholder="Escribe aquí..." style="font-size:1.2rem">
+    <div class="result-box" id="capsRes">Esperando input...</div>`;
+    c.querySelector('#capsIn').addEventListener('keyup',e=>{
+      c.querySelector('#capsRes').textContent=e.getModifierState('CapsLock')?'🔴 CapsLock ACTIVADO':'🟢 CapsLock desactivado'});
+  }
+},
+
+/* 83 */ {name:"Calculadora de Fibonacci",desc:"Genera la secuencia de Fibonacci",icon:"fas fa-infinity",
+  init(c){
+    c.innerHTML=`<label>Cantidad de números</label><input id="fibN" type="number" value="20" min="1" max="80">
+    <button class="btn" id="fibBtn">Generar</button><div class="result-box" id="fibRes" style="white-space:pre-wrap"></div>`;
+    c.querySelector('#fibBtn').onclick=()=>{const n=+c.querySelector('#fibN').value;
+      const fib=[0,1];for(let i=2;i<n;i++)fib.push(fib[i-1]+fib[i-2]);
+      c.querySelector('#fibRes').textContent=fib.slice(0,n).join(', ')};
+  }
+},
+
+/* 84 */ {name:"Verificador de Números Primos",desc:"¿Es un número primo?",icon:"fas fa-check-double",
+  init(c){
+    c.innerHTML=`<label>Número</label><input id="prIn" type="number" value="97">
+    <button class="btn" id="prBtn">Verificar</button><div class="result-box" id="prRes"></div>`;
+    c.querySelector('#prBtn').onclick=()=>{const n=+c.querySelector('#prIn').value;
+      if(n<2){c.querySelector('#prRes').textContent='❌ No es primo';return}
+      let prime=true;for(let i=2;i<=Math.sqrt(n);i++){if(n%i===0){prime=false;break}}
+      c.querySelector('#prRes').textContent=prime?`✅ ${n} ES primo`:`❌ ${n} NO es primo (divisible por ${(() => { for(let i=2;i<=Math.sqrt(n);i++){if(n%i===0)return i} })()})`};
+  }
+},
+
+/* 85 */ {name:"MCD y MCM",desc:"Máximo Común Divisor y Mínimo Común Múltiplo",icon:"fas fa-divide",
+  init(c){
+    c.innerHTML=`<div class="row"><div><label>Número A</label><input id="gcdA" type="number" value="12"></div>
+    <div><label>Número B</label><input id="gcdB" type="number" value="18"></div></div>
+    <button class="btn" id="gcdBtn">Calcular</button><div class="result-box" id="gcdRes"></div>`;
+    const gcd=(a,b)=>b===0?a:gcd(b,a%b);
+    c.querySelector('#gcdBtn').onclick=()=>{const a=+c.querySelector('#gcdA').value;const b=+c.querySelector('#gcdB').value;
+      const g=gcd(a,b);c.querySelector('#gcdRes').textContent=`MCD(${a}, ${b}) = ${g} | MCM(${a}, ${b}) = ${a*b/g}`};
+  }
+},
+
+/* 86 */ {name:"Conversor de Bases Numéricas",desc:"Binario, Octal, Decimal, Hexadecimal",icon:"fas fa-sort-numeric-up",
+  init(c){
+    c.innerHTML=`<label>Número</label><input id="baseV" value="255">
+    <label>Base origen</label><select id="baseF"><option value="2">Binario (2)</option><option value="8">Octal (8)</option><option value="10" selected>Decimal (10)</option><option value="16">Hex (16)</option></select>
+    <button class="btn" id="baseBtn">Convertir</button><div class="result-box" id="baseRes" style="white-space:pre-wrap"></div>`;
+    c.querySelector('#baseBtn').onclick=()=>{const v=parseInt(c.querySelector('#baseV').value,+c.querySelector('#baseF').value);
+      if(isNaN(v)){c.querySelector('#baseRes').textContent='Número inválido';return}
+      c.querySelector('#baseRes').textContent=`Binario:  ${v.toString(2)}\nOctal:    ${v.toString(8)}\nDecimal:  ${v.toString(10)}\nHex:      ${v.toString(16).toUpperCase()}`};
+  }
+},
+
+/* 87 */ {name:"Calculadora de Potencias",desc:"Calcula potencias y raíces",icon:"fas fa-superscript",
+  init(c){
+    c.innerHTML=`<div class="row"><div><label>Base</label><input id="powB" type="number" value="2"></div>
+    <div><label>Exponente</label><input id="powE" type="number" value="10"></div></div>
+    <button class="btn" id="powBtn">Calcular</button><div class="result-box" id="powRes"></div>`;
+    c.querySelector('#powBtn').onclick=()=>{const b=+c.querySelector('#powB').value;const e=+c.querySelector('#powE').value;
+      c.querySelector('#powRes').textContent=`${b}^${e} = ${Math.pow(b,e)}`};
+  }
+},
+
+/* 88 */ {name:"Generador de Código de Barras",desc:"Genera códigos de barras con API",icon:"fas fa-barcode",
+  init(c){
+    c.innerHTML=`<label>Texto/Número</label><input id="bcIn" value="1234567890">
+    <button class="btn" id="bcBtn">Generar</button>
+    <div style="text-align:center;margin-top:1rem"><img id="bcImg" style="max-width:100%;border-radius:8px;background:#fff;padding:.5rem"></div>`;
+    c.querySelector('#bcBtn').onclick=()=>{const t=c.querySelector('#bcIn').value;
+      c.querySelector('#bcImg').src=`https://barcode.tec-it.com/barcode.ashx?data=${encodeURIComponent(t)}&code=Code128&translate-esc=true`};
+  }
+},
+
+/* 89 */ {name:"Calculadora de Área de Figuras",desc:"Triángulo, círculo, rectángulo, trapecio",icon:"fas fa-shapes",
+  init(c){
+    c.innerHTML=`<label>Figura</label><select id="shpT"><option>Rectángulo</option><option>Triángulo</option><option>Círculo</option><option>Trapecio</option></select>
+    <div id="shpFields"></div><button class="btn" id="shpBtn">Calcular</button><div class="result-box" id="shpRes"></div>`;
+    const fields={Rectángulo:'<div class="row"><div><label>Base</label><input id="shA" type="number" value="5"></div><div><label>Altura</label><input id="shB" type="number" value="3"></div></div>',
+      Triángulo:'<div class="row"><div><label>Base</label><input id="shA" type="number" value="6"></div><div><label>Altura</label><input id="shB" type="number" value="4"></div></div>',
+      Círculo:'<label>Radio</label><input id="shA" type="number" value="5">',
+      Trapecio:'<div class="row"><div><label>Base mayor</label><input id="shA" type="number" value="8"></div><div><label>Base menor</label><input id="shB" type="number" value="5"></div><div><label>Altura</label><input id="shC" type="number" value="3"></div></div>'};
+    const calc={Rectángulo:()=>(+c.querySelector('#shA').value)*(+c.querySelector('#shB').value),
+      Triángulo:()=>(+c.querySelector('#shA').value)*(+c.querySelector('#shB').value)/2,
+      Círculo:()=>Math.PI*Math.pow(+c.querySelector('#shA').value,2),
+      Trapecio:()=>(+c.querySelector('#shA').value+ +c.querySelector('#shB').value)*(+c.querySelector('#shC').value)/2};
+    c.querySelector('#shpT').onchange=()=>c.querySelector('#shpFields').innerHTML=fields[c.querySelector('#shpT').value];
+    c.querySelector('#shpT').onchange();
+    c.querySelector('#shpBtn').onclick=()=>c.querySelector('#shpRes').textContent=`Área: ${calc[c.querySelector('#shpT').value]().toFixed(4)}`;
+  }
+},
+
+/* 90 */ {name:"Mezclador de Colores",desc:"Mezcla dos colores y ve el resultado",icon:"fas fa-adjust",
+  init(c){
+    c.innerHTML=`<div class="row"><div><label>Color 1</label><input id="mx1" type="color" value="#ff0000"></div>
+    <div><label>Color 2</label><input id="mx2" type="color" value="#0000ff"></div>
+    <div><label>Mezcla (%)</label><input id="mxP" type="range" min="0" max="100" value="50"></div></div>
+    <div id="mxPrev" style="height:60px;border-radius:12px;margin:.8rem 0"></div>
+    <div class="result-box" id="mxRes"></div>`;
+    const upd=()=>{const c1=c.querySelector('#mx1').value;const c2=c.querySelector('#mx2').value;const p=c.querySelector('#mxP').value/100;
+      const r1=parseInt(c1.slice(1,3),16),g1=parseInt(c1.slice(3,5),16),b1=parseInt(c1.slice(5,7),16);
+      const r2=parseInt(c2.slice(1,3),16),g2=parseInt(c2.slice(3,5),16),b2=parseInt(c2.slice(5,7),16);
+      const r=Math.round(r1*(1-p)+r2*p),g=Math.round(g1*(1-p)+g2*p),b=Math.round(b1*(1-p)+b2*p);
+      const hex='#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');
+      c.querySelector('#mxPrev').style.background=hex;c.querySelector('#mxRes').textContent=hex};
+    c.querySelectorAll('input').forEach(i=>i.oninput=upd);upd();
+  }
+},
+
+/* 91 */ {name:"Validador de URL",desc:"Verifica si una URL tiene formato válido",icon:"fas fa-globe",
+  init(c){
+    c.innerHTML=`<label>URL</label><input id="vuIn" value="https://www.example.com/path?q=test">
+    <button class="btn" id="vuBtn">Validar</button><div class="result-box" id="vuRes"></div>`;
+    c.querySelector('#vuBtn').onclick=()=>{try{const u=new URL(c.querySelector('#vuIn').value);
+      c.querySelector('#vuRes').textContent=`✅ URL válida\nProtocolo: ${u.protocol}\nHost: ${u.hostname}\nPath: ${u.pathname}\nQuery: ${u.search}`}
+      catch{c.querySelector('#vuRes').textContent='❌ URL inválida'}};
+  }
+},
+
+/* 92 */ {name:"Cita Aleatoria",desc:"Genera citas motivacionales aleatorias",icon:"fas fa-quote-right",
+  init(c){
+    const quotes=[
+      {t:"La vida es lo que pasa mientras haces otros planes.",a:"John Lennon"},
+      {t:"Sé el cambio que deseas ver en el mundo.",a:"Mahatma Gandhi"},
+      {t:"El único modo de hacer un gran trabajo es amar lo que haces.",a:"Steve Jobs"},
+      {t:"La imaginación es más importante que el conocimiento.",a:"Albert Einstein"},
+      {t:"No es la especie más fuerte la que sobrevive, sino la que mejor se adapta al cambio.",a:"Charles Darwin"},
+      {t:"Nunca es tarde para ser lo que podrías haber sido.",a:"George Eliot"},
+      {t:"La mejor forma de predecir el futuro es creándolo.",a:"Peter Drucker"},
+      {t:"Todo parece imposible hasta que se hace.",a:"Nelson Mandela"},
+      {t:"El éxito no es definitivo, el fracaso no es fatal: lo que cuenta es el valor de continuar.",a:"Winston Churchill"},
+      {t:"Haz algo hoy que tu yo del futuro te agradecerá.",a:"Anónimo"},
+    ];
+    c.innerHTML=`<div style="text-align:center;padding:1rem"><p id="qtText" style="font-size:1.1rem;font-style:italic;margin-bottom:.5rem"></p>
+    <p id="qtAuthor" style="color:var(--accent);font-weight:600"></p>
+    <button class="btn" id="qtBtn" style="margin-top:1rem">Nueva Cita</button></div>`;
+    const show=()=>{const q=quotes[Math.floor(Math.random()*quotes.length)];
+      c.querySelector('#qtText').textContent=`"${q.t}"`;c.querySelector('#qtAuthor').textContent=`— ${q.a}`};
+    c.querySelector('#qtBtn').onclick=show;show();
+  }
+},
+
+/* 93 */ {name:"Conversor de Texto a Hexadecimal",desc:"Texto ↔ representación hexadecimal",icon:"fas fa-stream",
+  init(c){
+    c.innerHTML=`<textarea id="t2hIn" rows="2">Hola</textarea>
+    <div class="row"><button class="btn" id="t2hE">Texto → Hex</button><button class="btn" id="t2hD" style="background:var(--accent2)">Hex → Texto</button></div>
+    <div class="result-box" id="t2hRes"></div>`;
+    c.querySelector('#t2hE').onclick=()=>c.querySelector('#t2hRes').textContent=[...c.querySelector('#t2hIn').value].map(ch=>ch.charCodeAt(0).toString(16).padStart(2,'0')).join(' ');
+    c.querySelector('#t2hD').onclick=()=>{try{c.querySelector('#t2hRes').textContent=c.querySelector('#t2hIn').value.trim().split(/\s+/).map(h=>String.fromCharCode(parseInt(h,16))).join('')}catch{c.querySelector('#t2hRes').textContent='Error'}};
+  }
+},
+
+/* 94 */ {name:"Calculadora de Regla de Tres",desc:"Regla de tres simple",icon:"fas fa-balance-scale",
+  init(c){
+    c.innerHTML=`<p style="font-size:.85rem;color:var(--text-muted)">Si A es a B, entonces C es a X</p>
+    <div class="row"><div><label>A</label><input id="r3A" type="number" value="10"></div>
+    <div><label>B</label><input id="r3B" type="number" value="20"></div>
+    <div><label>C</label><input id="r3C" type="number" value="30"></div></div>
+    <button class="btn" id="r3Btn">Calcular X</button><div class="result-box" id="r3Res"></div>`;
+    c.querySelector('#r3Btn').onclick=()=>{const a=+c.querySelector('#r3A').value;const b=+c.querySelector('#r3B').value;const cc=+c.querySelector('#r3C').value;
+      c.querySelector('#r3Res').textContent=`X = ${(b*cc/a).toFixed(4)}`};
+  }
+},
+
+/* 95 */ {name:"Generador de Emoji Aleatorio",desc:"Genera emojis aleatorios",icon:"fas fa-grin-stars",
+  init(c){
+    const emojis='😀😂🥰😎🤓🤯🥳🤗🤩😴💀👻👽🤖💩🎃🐶🐱🦊🐻🐼🐨🦁🐸🐵🦄🐝🌈⭐🔥💧❄️🌸🎵🎮🏆🎯🍕🍔🍩🌮🎂☕🧊🍎🚀✈️🏠💎👑🎪🎭🎨🎹';
+    c.innerHTML=`<label>Cantidad</label><input id="emN" type="number" value="10" min="1" max="50">
+    <button class="btn" id="emBtn">Generar</button><div class="result-box" id="emRes" style="font-size:2rem;letter-spacing:8px;text-align:center"></div>`;
+    const arr=[...emojis];
+    c.querySelector('#emBtn').onclick=()=>{const n=+c.querySelector('#emN').value;let r='';
+      for(let i=0;i<n;i++)r+=arr[Math.floor(Math.random()*arr.length)];
+      c.querySelector('#emRes').textContent=r};
+  }
+},
+
+/* 96 */ {name:"Calculadora de Triángulo Rectángulo",desc:"Teorema de Pitágoras",icon:"fas fa-drafting-compass",
+  init(c){
+    c.innerHTML=`<div class="row"><div><label>Cateto A</label><input id="pyA" type="number" value="3"></div>
+    <div><label>Cateto B</label><input id="pyB" type="number" value="4"></div></div>
+    <button class="btn" id="pyBtn">Calcular Hipotenusa</button><div class="result-box" id="pyRes"></div>`;
+    c.querySelector('#pyBtn').onclick=()=>{const a=+c.querySelector('#pyA').value;const b=+c.querySelector('#pyB').value;
+      c.querySelector('#pyRes').textContent=`Hipotenusa = √(${a}² + ${b}²) = ${Math.sqrt(a*a+b*b).toFixed(6)}`};
+  }
+},
+
+/* 97 */ {name:"Generador de Hashtags",desc:"Genera hashtags a partir de texto",icon:"fas fa-hashtag",
+  init(c){
+    c.innerHTML=`<textarea id="htIn" rows="2" placeholder="Escribe palabras clave...">viaje playa verano vacaciones</textarea>
+    <button class="btn" id="htBtn">Generar Hashtags</button><div class="result-box" id="htRes"></div>`;
+    c.querySelector('#htBtn').onclick=()=>{
+      c.querySelector('#htRes').textContent=c.querySelector('#htIn').value.trim().split(/\s+/).map(w=>'#'+w.toLowerCase().replace(/[^a-záéíóúñ0-9]/g,'')).join(' ')};
+  }
+},
+
+/* 98 */ {name:"Contador Tally",desc:"Contador simple con +1 / -1",icon:"fas fa-plus-circle",
+  init(c){
+    c.innerHTML=`<div style="text-align:center"><div id="talN" style="font-size:4rem;font-weight:800;margin:1rem 0">0</div>
+    <div class="row" style="justify-content:center;gap:1rem">
+    <button class="btn" id="talM" style="font-size:1.5rem;padding:.5rem 1.5rem;background:var(--accent2)">−</button>
+    <button class="btn" id="talR" style="background:#555">Reset</button>
+    <button class="btn" id="talP" style="font-size:1.5rem;padding:.5rem 1.5rem">+</button></div></div>`;
+    let n=0;const d=c.querySelector('#talN');
+    c.querySelector('#talP').onclick=()=>d.textContent=++n;
+    c.querySelector('#talM').onclick=()=>d.textContent=--n;
+    c.querySelector('#talR').onclick=()=>{n=0;d.textContent=0};
+  }
+},
+
+/* 99 */ {name:"Metrónomo",desc:"Metrónomo con BPM ajustable",icon:"fas fa-drum",
+  init(c){
+    c.innerHTML=`<div style="text-align:center"><div id="metBPM" style="font-size:2.5rem;font-weight:700">120 BPM</div>
+    <input id="metR" type="range" min="40" max="220" value="120" style="width:100%;margin:1rem 0">
+    <div class="row" style="justify-content:center"><button class="btn" id="metStart">▶ Iniciar</button><button class="btn" id="metStop" style="background:#555">⏹ Parar</button></div>
+    <div id="metDot" style="width:30px;height:30px;border-radius:50%;background:#555;margin:1rem auto;transition:background .05s"></div></div>`;
+    let iv=null;const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    c.querySelector('#metR').oninput=e=>c.querySelector('#metBPM').textContent=e.target.value+' BPM';
+    const tick=()=>{const osc=ctx.createOscillator();const gain=ctx.createGain();osc.connect(gain);gain.connect(ctx.destination);
+      osc.frequency.value=800;gain.gain.value=0.3;osc.start();osc.stop(ctx.currentTime+0.05);
+      const dot=c.querySelector('#metDot');dot.style.background='var(--accent)';setTimeout(()=>dot.style.background='#555',100)};
+    c.querySelector('#metStart').onclick=()=>{clearInterval(iv);const bpm=+c.querySelector('#metR').value;tick();iv=setInterval(tick,60000/bpm)};
+    c.querySelector('#metStop').onclick=()=>clearInterval(iv);
+  }
+},
+
+/* 100 */ {name:"Calculadora de Interés Compuesto",desc:"Calcula el crecimiento de una inversión",icon:"fas fa-chart-line",
+  init(c){
+    c.innerHTML=`<div class="row"><div><label>Capital inicial (\$)</label><input id="ciC" type="number" value="1000"></div>
+    <div><label>Tasa anual (%)</label><input id="ciR" type="number" value="7" step="0.1"></div></div>
+    <div class="row"><div><label>Años</label><input id="ciY" type="number" value="10"></div>
+    <div><label>Capitalización</label><select id="ciN"><option value="1">Anual</option><option value="12" selected>Mensual</option><option value="365">Diaria</option></select></div></div>
+    <button class="btn" id="ciBtn">Calcular</button><div class="result-box" id="ciRes"></div>`;
+    c.querySelector('#ciBtn').onclick=()=>{const P=+c.querySelector('#ciC').value;const r=+c.querySelector('#ciR').value/100;
+      const t=+c.querySelector('#ciY').value;const n=+c.querySelector('#ciN').value;
+      const A=P*Math.pow(1+r/n,n*t);
+      c.querySelector('#ciRes').textContent=`Monto final: \$${A.toFixed(2)} | Ganancia: \$${(A-P).toFixed(2)} (${((A/P-1)*100).toFixed(1)}%)`};
+  }
+},
+
+/* 101 */ {name:"Selector Aleatorio de Lista",desc:"Elige un elemento aleatorio de una lista",icon:"fas fa-random",
+  init(c){
+    c.innerHTML=`<textarea id="rlIn" rows="5" placeholder="Un elemento por línea">Pizza\nSushi\nTacos\nPasta\nBurger</textarea>
+    <button class="btn" id="rlBtn" style="width:100%">🎲 Elegir al Azar</button>
+    <div class="result-box" id="rlRes" style="font-size:1.3rem;text-align:center"></div>`;
+    c.querySelector('#rlBtn').onclick=()=>{const items=c.querySelector('#rlIn').value.split('\n').filter(l=>l.trim());
+      if(items.length)c.querySelector('#rlRes').textContent='🎯 '+items[Math.floor(Math.random()*items.length)];
+      else c.querySelector('#rlRes').textContent='Lista vacía'};
+  }
+},
+
+/* 102 */ {name:"Mezclador / Barajador de Lista",desc:"Baraja los elementos de una lista",icon:"fas fa-random",
+  init(c){
+    c.innerHTML=`<textarea id="shfIn" rows="5" placeholder="Un elemento por línea">Primero\nSegundo\nTercero\nCuarto\nQuinto</textarea>
+    <button class="btn" id="shfBtn">🔀 Barajar</button><div class="result-box" id="shfRes" style="white-space:pre-wrap"></div>`;
+    c.querySelector('#shfBtn').onclick=()=>{const items=c.querySelector('#shfIn').value.split('\n').filter(l=>l.trim());
+      for(let i=items.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[items[i],items[j]]=[items[j],items[i]]}
+      c.querySelector('#shfRes').textContent=items.join('\n')};
+  }
+},
+
+/* 103 */ {name:"Generador de Lorem Ipsum HTML",desc:"Genera HTML con párrafos de relleno",icon:"fas fa-file-code",
+  init(c){
+    const p="<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>";
+    c.innerHTML=`<label>Párrafos</label><input id="lhN" type="number" value="3" min="1" max="10">
+    <button class="btn" id="lhBtn">Generar HTML</button><div class="result-box" id="lhRes" style="white-space:pre-wrap;font-size:.8rem;max-height:250px;overflow-y:auto"></div>`;
+    c.querySelector('#lhBtn').onclick=()=>{c.querySelector('#lhRes').textContent=Array(+c.querySelector('#lhN').value).fill(p).join('\n')};
+  }
+},
+
+/* 104 */ {name:"Calculadora de Factorial",desc:"Calcula el factorial de un número",icon:"fas fa-exclamation",
+  init(c){
+    c.innerHTML=`<label>Número (0-170)</label><input id="facN" type="number" value="10" min="0" max="170">
+    <button class="btn" id="facBtn">Calcular</button><div class="result-box" id="facRes"></div>`;
+    c.querySelector('#facBtn').onclick=()=>{let n=+c.querySelector('#facN').value;let r=1n;
+      for(let i=2n;i<=BigInt(n);i++)r*=i;
+      c.querySelector('#facRes').textContent=`${n}! = ${r.toString()}`};
+  }
+},
+
+/* 105 */ {name:"Calculadora de Promedio",desc:"Calcula media, mediana y moda",icon:"fas fa-calculator",
+  init(c){
+    c.innerHTML=`<label>Números (separados por comas)</label><input id="avgIn" value="5, 10, 15, 10, 20, 25, 10">
+    <button class="btn" id="avgBtn">Calcular</button><div class="result-box" id="avgRes" style="white-space:pre-wrap"></div>`;
+    c.querySelector('#avgBtn').onclick=()=>{const nums=c.querySelector('#avgIn').value.split(',').map(n=>parseFloat(n.trim())).filter(n=>!isNaN(n));
+      if(!nums.length){c.querySelector('#avgRes').textContent='Sin datos';return}
+      const mean=nums.reduce((a,b)=>a+b,0)/nums.length;
+      const sorted=[...nums].sort((a,b)=>a-b);
+      const median=sorted.length%2?sorted[Math.floor(sorted.length/2)]:(sorted[sorted.length/2-1]+sorted[sorted.length/2])/2;
+      const freq={};nums.forEach(n=>freq[n]=(freq[n]||0)+1);
+      const maxFreq=Math.max(...Object.values(freq));
+      const mode=Object.keys(freq).filter(k=>freq[k]===maxFreq).join(', ');
+      c.querySelector('#avgRes').textContent=`Media: ${mean.toFixed(4)}\nMediana: ${median}\nModa: ${mode}\nMín: ${Math.min(...nums)} | Máx: ${Math.max(...nums)}\nSuma: ${nums.reduce((a,b)=>a+b,0)} | Cantidad: ${nums.length}`};
+  }
+},
+
+/* 106 */ {name:"Conversor de Ángulos",desc:"Grados ↔ Radianes",icon:"fas fa-compass",
+  init(c){
+    c.innerHTML=`<label>Valor</label><input id="angV" type="number" value="180" step="any">
+    <div class="row"><button class="btn" id="d2r">Grados → Radianes</button><button class="btn" id="r2d" style="background:var(--accent2)">Radianes → Grados</button></div>
+    <div class="result-box" id="angRes"></div>`;
+    c.querySelector('#d2r').onclick=()=>{const v=+c.querySelector('#angV').value;c.querySelector('#angRes').textContent=`${v}° = ${(v*Math.PI/180).toFixed(8)} rad`};
+    c.querySelector('#r2d').onclick=()=>{const v=+c.querySelector('#angV').value;c.querySelector('#angRes').textContent=`${v} rad = ${(v*180/Math.PI).toFixed(8)}°`};
+  }
+},
+
+/* 107 */ {name:"Generador de Texto Aleatorio",desc:"Genera texto aleatorio legible",icon:"fas fa-align-justify",
+  init(c){
+    const syl=['ba','ce','di','fo','gu','ha','ji','ke','la','mi','no','pa','que','ri','so','tu','va','wi','xe','yo','zu','bra','cle','dri','flo','gru','pla','tri','ste','fre'];
+    c.innerHTML=`<label>Palabras</label><input id="rtN" type="number" value="20" min="1" max="200">
+    <button class="btn" id="rtBtn">Generar</button><div class="result-box" id="rtRes" style="white-space:pre-wrap"></div>`;
+    c.querySelector('#rtBtn').onclick=()=>{const n=+c.querySelector('#rtN').value;const words=[];
+      for(let i=0;i<n;i++){const len=Math.floor(Math.random()*3)+2;let w='';
+        for(let j=0;j<len;j++)w+=syl[Math.floor(Math.random()*syl.length)];words.push(w)}
+      c.querySelector('#rtRes').textContent=words.join(' ')};
+  }
+},
+
+/* 108 */ {name:"HTML Entity Encoder",desc:"Codifica caracteres especiales a HTML entities",icon:"fas fa-code",
+  init(c){
+    c.innerHTML=`<textarea id="heIn" rows="3"><p>Hola & "Mundo" < > 'test'</textarea>
+    <div class="row"><button class="btn" id="heE">Codificar</button><button class="btn" id="heD" style="background:var(--accent2)">Decodificar</button></div>
+    <div class="result-box" id="heRes" style="white-space:pre-wrap"></div>`;
+    c.querySelector('#heE').onclick=()=>{c.querySelector('#heRes').textContent=c.querySelector('#heIn').value
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')};
+    c.querySelector('#heD').onclick=()=>{const d=document.createElement('div');d.innerHTML=c.querySelector('#heIn').value;
+      c.querySelector('#heRes').textContent=d.textContent};
+  }
+},
+
+/* 109 */ {name:"Generador de Texto Wave",desc:"~Texto con efecto onda~",icon:"fas fa-water",
+  init(c){
+    c.innerHTML=`<input id="wvIn" value="Hello World">
+    <button class="btn" id="wvBtn">Generar</button><div class="result-box" id="wvRes" style="font-size:1.2rem"></div>`;
+    c.querySelector('#wvBtn').onclick=()=>{const t=c.querySelector('#wvIn').value;
+      c.querySelector('#wvRes').textContent=[...t].map((ch,i)=>i%2?ch.toUpperCase():ch.toLowerCase()).join('')};
+  }
+},
+
+/* 110 */ {name:"Escáner de Puertos (simulado)",desc:"Simula un escaneo de puertos comunes",icon:"fas fa-network-wired",
+  init(c){
+    const common=[{p:21,s:'FTP'},{p:22,s:'SSH'},{p:25,s:'SMTP'},{p:53,s:'DNS'},{p:80,s:'HTTP'},{p:110,s:'POP3'},{p:143,s:'IMAP'},{p:443,s:'HTTPS'},{p:993,s:'IMAPS'},{p:3306,s:'MySQL'},{p:5432,s:'PostgreSQL'},{p:6379,s:'Redis'},{p:8080,s:'HTTP-Alt'},{p:8443,s:'HTTPS-Alt'},{p:27017,s:'MongoDB'}];
+    c.innerHTML=`<p style="font-size:.85rem;color:var(--text-muted)">Simulación educativa de puertos comunes</p>
+    <button class="btn" id="psBtn" style="width:100%">Escanear</button><div class="result-box" id="psRes" style="white-space:pre-wrap;font-size:.8rem;max-height:300px;overflow-y:auto">Haz clic para escanear</div>`;
+    c.querySelector('#psBtn').onclick=()=>{
+      c.querySelector('#psRes').textContent=common.map(({p,s})=>{
+        const open=Math.random()>.6;return`Puerto ${String(p).padStart(5,' ')} (${s.padEnd(12,' ')}) — ${open?'🟢 ABIERTO':'🔴 CERRADO'}`}).join('\n')};
+  }
+},
+
+];
+
+/* ============================================================
+   RENDER GRID
+   ============================================================ */
+const grid=document.getElementById('grid');
+const totalCount=document.getElementById('totalCount');
+const visibleCount=document.getElementById('visibleCount');
+const noResults=document.getElementById('noResults');
+const searchInput=document.getElementById('searchInput');
+
+totalCount.textContent=tools.length;
+
+function renderGrid(filter=''){
+  grid.innerHTML='';
+  const lower=filter.toLowerCase();
+  let count=0;
+  tools.forEach((tool,idx)=>{
+    if(lower && !tool.name.toLowerCase().includes(lower) && !tool.desc.toLowerCase().includes(lower))return;
+    count++;
+    const card=document.createElement('div');
+    card.className='card';
+    card.innerHTML=`<div class="icon"><i class="${tool.icon}"></i></div><h3>${tool.name}</h3><p>${tool.desc}</p>`;
+    card.onclick=()=>openModal(tool);
+    grid.appendChild(card);
+  });
+  visibleCount.textContent=count;
+  noResults.style.display=count===0?'block':'none';
+}
+
+/* ============================================================
+   MODAL LOGIC
+   ============================================================ */
+const overlay=document.getElementById('modalOverlay');
+const modal=document.getElementById('modal');
+const modalTitle=document.getElementById('modalTitle');
+const modalBody=document.getElementById('modalBody');
+const modalClose=document.getElementById('modalClose');
+
+function openModal(tool){
+  modalTitle.innerHTML=`<span class="icon"><i class="${tool.icon}"></i></span><span class="name">${tool.name}</span>`;
+  modalBody.innerHTML='';
+  tool.init(modalBody);
+  overlay.classList.add('active');
+  document.body.style.overflow='hidden';
+}
+
+function closeModal(){
+  overlay.classList.remove('active');
+  document.body.style.overflow='';
+  // cleanup intervals if any
+  if(modalBody._cleanup)modalBody._cleanup();
+}
+
+modalClose.onclick=closeModal;
+overlay.onclick=e=>{if(e.target===overlay)closeModal()};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+
+/* ============================================================
+   SEARCH
+   ============================================================ */
+searchInput.addEventListener('input',e=>renderGrid(e.target.value));
+
+/* Initial render */
+renderGrid();
+</script>
+</body>
+</html>
