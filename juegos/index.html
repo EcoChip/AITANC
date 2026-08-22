@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fábrica de Formas - Automatización y Logística 2D</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%2300e5ff'/><polygon points='50,20 60,40 82,42 66,58 71,80 50,68 29,80 34,58 18,42 40,40' fill='%23ffd600'/></svg>">
+</head>
+<body>
+  <!-- Canvas principal del juego -->
+  <canvas id="game-canvas"></canvas>
+
+  <!-- HUD SUPERIOR: PROGRESIÓN, OBJETIVOS Y CONTROL -->
+  <header id="top-hud">
+    <!-- Información del nivel actual -->
+    <div class="hud-panel hud-level-info">
+      <span class="level-badge" id="hud-level-badge">NIVEL 1 / 50</span>
+      <h1 class="level-title" id="hud-level-title">El Primer Círculo</h1>
+      <p class="level-desc" id="hud-level-desc">Extrae círculos y condúcelos al Hub.</p>
+    </div>
+
+    <!-- Objetivo y barra de progreso -->
+    <div class="hud-panel hud-goal-panel">
+      <div class="target-shape-wrap" title="Forma requerida para completar el nivel">
+        <canvas id="target-shape-canvas" width="54" height="54"></canvas>
+      </div>
+      <div class="goal-progress-wrap">
+        <div class="progress-header">
+          <span id="hud-progress-text">0 / 20 (0%)</span>
+          <span class="progress-rate" id="hud-delivery-rate">0.0 uds/s</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="hud-progress-bar-fill"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controles de simulación y menú de navegación -->
+    <div class="hud-panel hud-right-panel">
+      <!-- Velocidades -->
+      <div class="btn-group">
+        <button class="speed-btn" data-speed="0" title="Pausar simulación (Espacio)">⏸</button>
+        <button class="speed-btn active" data-speed="1" title="Velocidad normal 1x">1x</button>
+        <button class="speed-btn" data-speed="2" title="Velocidad rápida 2x">2x</button>
+        <button class="speed-btn" data-speed="4" title="Velocidad ultra 4x">4x</button>
+      </div>
+
+      <!-- Centrar en Hub -->
+      <button class="nav-icon-btn" id="btn-center-hub" title="Centrar cámara en el Hub (F)">🎯</button>
+
+      <!-- Música Ambiental -->
+      <button class="nav-icon-btn" id="btn-toggle-music" title="Alternar Música Ambiental">🎵</button>
+
+      <!-- Botones de Modales -->
+      <button class="nav-icon-btn" id="btn-nav-levels" title="Ver los 50 Niveles">🗺️ Niveles</button>
+      <button class="nav-icon-btn" id="btn-nav-codex" title="Guía y Recetas">📖 Códex</button>
+      <button class="nav-icon-btn" id="btn-nav-achievements" title="Logros e Hitos">🏆</button>
+      <button class="nav-icon-btn" id="btn-nav-stats" title="Estadísticas">📊</button>
+      <button class="nav-icon-btn" id="btn-nav-settings" title="Configuración y Guardado">⚙️</button>
+    </div>
+  </header>
+
+  <!-- BARRA DE HERRAMIENTAS INFERIOR -->
+  <nav id="bottom-hud">
+    <!-- Edificios -->
+    <button class="tool-btn active" data-tool="belt" title="Cinta Transportadora (1)&#10;Transporta ítems en 4 direcciones. Arrastra para trazar líneas continuas.">
+      <span class="tool-key-badge">1</span>
+      <span class="tool-icon">🔄</span>
+      <span class="tool-name-label">Cinta</span>
+    </button>
+
+    <button class="tool-btn" data-tool="extractor" title="Extractor (2)&#10;Extrae recursos infinitos de yacimientos.">
+      <span class="tool-key-badge">2</span>
+      <span class="tool-icon">⛏️</span>
+      <span class="tool-name-label">Extractor</span>
+    </button>
+
+    <button class="tool-btn" data-tool="furnace" title="Horno Térmico (3)&#10;Templa y cristaliza formas con energía calorífica.">
+      <span class="tool-key-badge">3</span>
+      <span class="tool-icon">🔥</span>
+      <span class="tool-name-label">Horno</span>
+    </button>
+
+    <button class="tool-btn" data-tool="painter" title="Pintor (4)&#10;Tiñe formas geométricas usando tinte líquido.">
+      <span class="tool-key-badge">4</span>
+      <span class="tool-icon">🎨</span>
+      <span class="tool-name-label">Pintor</span>
+    </button>
+
+    <button class="tool-btn" data-tool="colormixer" title="Mezclador de Color (5)&#10;Combina 2 tintes para crear nuevos colores.">
+      <span class="tool-key-badge">5</span>
+      <span class="tool-icon">🧪</span>
+      <span class="tool-name-label">Mezcla</span>
+    </button>
+
+    <button class="tool-btn" data-tool="cutter" title="Cortador (6)&#10;Divide verticalmente formas en dos mitades.">
+      <span class="tool-key-badge">6</span>
+      <span class="tool-icon">✂️</span>
+      <span class="tool-name-label">Cortar</span>
+    </button>
+
+    <button class="tool-btn" data-tool="rotator" title="Rotador (7)&#10;Gira formas 90° en sentido horario.">
+      <span class="tool-key-badge">7</span>
+      <span class="tool-icon">🔃</span>
+      <span class="tool-name-label">Rotar</span>
+    </button>
+
+    <button class="tool-btn" data-tool="assembler" title="Ensamblador (8)&#10;Combina o apila dos formas en capas sucesivas.">
+      <span class="tool-key-badge">8</span>
+      <span class="tool-icon">🧩</span>
+      <span class="tool-name-label">Ensamblar</span>
+    </button>
+
+    <button class="tool-btn" data-tool="splitter" title="Divisor (9)&#10;Reparte un flujo de entrada entre 2 salidas alternadas.">
+      <span class="tool-key-badge">9</span>
+      <span class="tool-icon">🔀</span>
+      <span class="tool-name-label">Divisor</span>
+    </button>
+
+    <button class="tool-btn" data-tool="merger" title="Fusionador (0)&#10;Une 2 flujos de cintas en una sola salida.">
+      <span class="tool-key-badge">0</span>
+      <span class="tool-icon">🔁</span>
+      <span class="tool-name-label">Fusionar</span>
+    </button>
+
+    <button class="tool-btn" data-tool="filter" title="Filtro Clasificador (-)&#10;Separa ítems coincidentes en línea recta y descartes a la derecha.">
+      <span class="tool-key-badge">-</span>
+      <span class="tool-icon">🎛️</span>
+      <span class="tool-name-label">Filtro</span>
+    </button>
+
+    <button class="tool-btn" data-tool="tunnel" title="Túnel Subterráneo (=)&#10;Cruza cintas por debajo de la tierra hasta 5 casillas.">
+      <span class="tool-key-badge">=</span>
+      <span class="tool-icon">🚇</span>
+      <span class="tool-name-label">Túnel</span>
+    </button>
+
+    <div class="toolbar-separator"></div>
+
+    <!-- Demoler / Papelera -->
+    <button class="tool-btn" data-tool="trash" title="Demoler / Eliminar (Q / Clic Derecho)&#10;Elimina edificios e incinera excedentes.">
+      <span class="tool-key-badge">Q</span>
+      <span class="tool-icon">🗑️</span>
+      <span class="tool-name-label">Demoler</span>
+    </button>
+
+    <div class="toolbar-separator"></div>
+
+    <!-- Rotación del edificio -->
+    <div class="rotation-tool-wrap">
+      <button id="btn-rotate-tool" title="Rotar Edificio (Tecla R o Rueda del Ratón con Shift)">
+        <span id="rotation-indicator-arrow">➔</span>
+      </button>
+      <span class="tool-name-label">GIRAR (R)</span>
+    </div>
+  </nav>
+
+  <!-- RADAR MINIMAPA -->
+  <aside id="minimap-container" title="Radar del mundo. Haz clic para desplazar la vista.">
+    <canvas id="minimap-canvas" width="140" height="140"></canvas>
+  </aside>
+
+  <!-- CONTENEDOR DE NOTIFICACIONES TOAST -->
+  <div id="notifications-container"></div>
+
+  <!-- MODAL: NIVEL COMPLETADO (CELEBRACIÓN) -->
+  <div id="level-up-modal" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-window modal-levelup-window">
+      <div class="level-up-trophy">🏆</div>
+      <h2 class="level-up-title" id="level-up-title">¡Nivel Completado!</h2>
+      <div id="level-up-unlocks"></div>
+      <button class="btn-primary-large" id="level-up-continue-btn">Siguiente Nivel ➔</button>
+    </div>
+  </div>
+
+  <!-- MODAL: ÁRBOL DE 50 NIVELES -->
+  <div id="modal-levels" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-window">
+      <div class="modal-header">
+        <h2 class="modal-title">🗺️ Mapa de Progresión (50 Niveles)</h2>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="levels-grid" id="levels-grid-container"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CÓDEX Y GUÍA DE RECETAS -->
+  <div id="modal-codex" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-window">
+      <div class="modal-header">
+        <h2 class="modal-title">📖 Códex y Manual de Fábrica</h2>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="codex-tabs">
+          <button class="codex-tab-btn active" data-tab="shapes">Formas</button>
+          <button class="codex-tab-btn" data-tab="colors">Colores y Mezclas</button>
+          <button class="codex-tab-btn" data-tab="machines">Maquinaria</button>
+          <button class="codex-tab-btn" data-tab="controls">Controles</button>
+        </div>
+        <div id="codex-shapes" class="codex-tab-content active">
+          <div id="codex-shapes-list"></div>
+        </div>
+        <div id="codex-colors" class="codex-tab-content">
+          <div id="codex-colors-list"></div>
+        </div>
+        <div id="codex-machines" class="codex-tab-content">
+          <div id="codex-machines-list"></div>
+        </div>
+        <div id="codex-controls" class="codex-tab-content">
+          <div id="codex-controls-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: LOGROS -->
+  <div id="modal-achievements" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-window">
+      <div class="modal-header">
+        <h2 class="modal-title">🏆 Logros e Hitos Industriales</h2>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="achievements-list" id="achievements-list-container"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ESTADÍSTICAS -->
+  <div id="modal-stats" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-window">
+      <div class="modal-header">
+        <h2 class="modal-title">📊 Estadísticas de Producción</h2>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-label">Total Entregado</div>
+            <div class="stat-value" id="stat-total-delivered">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Nivel Actual</div>
+            <div class="stat-value" id="stat-current-level">1 / 50</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Máquinas Activas</div>
+            <div class="stat-value" id="stat-buildings-count">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Caudal en Tiempo Real</div>
+            <div class="stat-value" id="stat-delivery-rate">0.0 uds/s</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Tiempo de Juego</div>
+            <div class="stat-value" id="stat-playtime">0m 0s</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CONFIGURACIÓN Y GUARDADO -->
+  <div id="modal-settings" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-window">
+      <div class="modal-header">
+        <h2 class="modal-title">⚙️ Configuración y Partidas</h2>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="settings-list">
+          <div class="setting-item">
+            <div class="setting-label-wrap">
+              <span class="setting-label">Efectos de Sonido (SFX)</span>
+              <span class="setting-desc">Volumen de máquinas, clics y entregas</span>
+            </div>
+            <div class="setting-control">
+              <input type="range" id="setting-sfx-vol" min="0" max="1" step="0.05" value="0.6">
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-label-wrap">
+              <span class="setting-label">Música Ambiental Procedural</span>
+              <span class="setting-desc">Sintetizador relajante de fondo</span>
+            </div>
+            <div class="setting-control">
+              <input type="range" id="setting-music-vol" min="0" max="1" step="0.05" value="0.3">
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-label-wrap">
+              <span class="setting-label">Modo Sandbox</span>
+              <span class="setting-desc">Desbloquea todos los edificios y máquinas de inmediato</span>
+            </div>
+            <div class="setting-control">
+              <input type="checkbox" id="setting-sandbox-toggle">
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-label-wrap">
+              <span class="setting-label">Copia de Seguridad</span>
+              <span class="setting-desc">Exporta o importa tu partida en archivo JSON</span>
+            </div>
+            <div class="setting-control" style="display:flex; gap:8px;">
+              <button class="setting-btn" id="btn-export-save">📥 Exportar JSON</button>
+              <label class="setting-btn" style="cursor:pointer;">
+                📤 Importar JSON
+                <input type="file" id="input-import-save" accept=".json" style="display:none;">
+              </label>
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-label-wrap">
+              <span class="setting-label">Reiniciar Progreso</span>
+              <span class="setting-desc">Borra todos los edificios y reinicia al nivel 1</span>
+            </div>
+            <div class="setting-control">
+              <button class="setting-btn btn-danger" id="btn-reset-save">Reiniciar Fábrica</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Entrada de scripts ES Module -->
+  <script type="module" src="js/game.js"></script>
+</body>
+</html>
