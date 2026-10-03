@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal de Demos - Clínicas Dentales</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --primary: #0284c7;
+      --primary-hover: #0369a1;
+      --border: #e2e8f0;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+      --shadow-hover: 0 20px 25px -5px rgba(2, 132, 199, 0.15), 0 8px 10px -6px rgba(2, 132, 199, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: linear-gradient(135deg, #f0fdfa 0%, #f8fafc 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 680px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .logo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #e0f2fe;
+      color: #0369a1;
+      padding: 0.4rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 0.5rem;
+    }
+
+    p.subtitle {
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+
+    .cards-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .demo-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      box-shadow: var(--shadow);
+      transition: all 0.25s ease;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .demo-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-hover);
+      border-color: #bae6fd;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .tag {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    .tag-blue { background: #e0f2fe; color: #0284c7; }
+    .tag-purple { background: #f3e8ff; color: #7e22ce; }
+    .tag-teal { background: #ccfbf1; color: #0f766e; }
+
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .card-desc {
+      color: var(--text-muted);
+      font-size: 0.925rem;
+      line-height: 1.4;
+    }
+
+    .card-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background-color: var(--primary);
+      color: white;
+      font-weight: 600;
+      padding: 0.85rem 1.25rem;
+      border-radius: 10px;
+      margin-top: 0.25rem;
+      transition: background-color 0.2s ease;
+    }
+
+    .demo-card:hover .card-btn {
+      background-color: var(--primary-hover);
+    }
+
+    .card-btn svg {
+      width: 18px;
+      height: 18px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.2;
+    }
+
+    footer {
+      margin-top: 3rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="logo-badge">Prototipos Web</div>
+      <h1>Demos Dentales</h1>
+      <p class="subtitle">Selecciona una de las propuestas interactivas para revisarla</p>
+    </header>
+
+    <main class="cards-grid">
+      <!-- Demo 1 -->
+      <a href="https://dentaltest-gamma.vercel.app/?theme=A" target="_blank" rel="noopener noreferrer" class="demo-card">
+        <div class="card-header">
+          <h2 class="card-title">Demo 1 · Scrollytelling 3D</h2>
+          <span class="tag tag-blue">Interactiva 3D</span>
+        </div>
+        <p class="card-desc">
+          Experiencia interactiva guiada por scroll con modelo 3D integrado (Invisalign), diseño de paleta suave y enfoque de alto impacto visual.
+        </p>
+        <div class="card-btn">
+          <span>Ver Demo 1</span>
+          <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </div>
+      </a>
+
+      <!-- Demo 2 -->
+      <a href="https://dentalpremium-faboajaza-ecochips-projects.vercel.app/" target="_blank" rel="noopener noreferrer" class="demo-card">
+        <div class="card-header">
+          <h2 class="card-title">Demo 2 · Dental Premium</h2>
+          <span class="tag tag-purple">Alta Gama</span>
+        </div>
+        <p class="card-desc">
+          Propuesta enfocada a clínica de estética y tratamientos avanzados, con acabados visuales refinados, tipografía cuidada y secciones de conversión.
+        </p>
+        <div class="card-btn">
+          <span>Ver Demo 2</span>
+          <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </div>
+      </a>
+
+      <!-- Demo 3 -->
+      <a href="https://ecochip.github.io/web-de-prueba/index.html" target="_blank" rel="noopener noreferrer" class="demo-card">
+        <div class="card-header">
+          <h2 class="card-title">Demo 3 · Web Clínica Moderna</h2>
+          <span class="tag tag-teal">Corporativa</span>
+        </div>
+        <p class="card-desc">
+          Estructura completa para clínica dental convencional: claridad informativa, catálogo de tratamientos y arquitectura tradicional optimizada.
+        </p>
+        <div class="card-btn">
+          <span>Ver Demo 3</span>
+          <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </div>
+      </a>
+
+      <!-- Demo 4 -->
+      <a href="https://ecochip.github.io/dentaltest2/" target="_blank" rel="noopener noreferrer" class="demo-card">
+        <div class="card-header">
+          <h2 class="card-title">Demo 4 · Prototipo Rápido (v2)</h2>
+          <span class="tag">Variación / Test</span>
+        </div>
+        <p class="card-desc">
+          Variante alternativa de diseño y maquetación de servicios para contrastar flujos de navegación y estructura de llamada a la acción.
+        </p>
+        <div class="card-btn">
+          <span>Ver Demo 4</span>
+          <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </div>
+      </a>
+    </main>
+
+    <footer>
+      <p>Entorno de revisión interna de propuestas de diseño</p>
+    </footer>
+  </div>
+
+</body>
+</html>
